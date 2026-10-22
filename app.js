@@ -1,7 +1,6 @@
 (function () {
   const SESSION_MINUTES = 30;
   const INTERNAL_BUCKET = 'internal-files';
-  const MEMBERSHIP_SUCCESS_PARAM = 'checkout';
 
   const state = {
     supabase: null,
@@ -101,11 +100,15 @@
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true,
+        // Orchestra never consumes Club email confirmation or recovery tokens.
+        storageKey: 'copku-orchestra-auth-v1',
+        detectSessionInUrl: false,
       },
     });
     return state.supabase;
   }
+
+  window.COPKUOrchestraClient = getSupabase;
 
   async function getSession() {
     const supabase = getSupabase();
@@ -158,23 +161,6 @@
     return data;
   }
 
-  async function ensureMemberProfile(user, tier = null) {
-    const supabase = getSupabase();
-    const existing = await fetchMyProfile();
-    if (existing) return existing;
-    const payload = {
-      user_id: user.id,
-      email: user.email,
-      full_name: user.user_metadata?.full_name || '',
-      role: 'member',
-      membership_status: 'pending',
-      membership_tier: tier,
-    };
-    const { error } = await supabase.from('profiles').insert(payload);
-    if (error) throw error;
-    return await fetchMyProfile();
-  }
-
   async function setupInternalLogin() {
     const form = $('#internal-login-form');
     if (!form) return;
@@ -214,6 +200,35 @@
     });
   }
 
+  // One visual chooser, two independent authentication systems.
+  async function signInToPortal(account, email, password) {
+    if (account === 'club') {
+      if (!window.COPKUClub) throw new Error('Club login is unavailable right now. Please try again.');
+      return window.COPKUClub.signIn(email, password);
+    }
+    if (account !== 'orchestra') throw new Error('Choose an account type.');
+    const supabase = getSupabase();
+    if (!supabase) throw new Error('Orchestra login is unavailable right now. Please try again.');
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    try {
+      const profile = await fetchMyProfile();
+      if (profile && ['admin', 'internal'].includes(profile.role)) return '/portal/internal/';
+      throw new Error('This account is not an orchestra account.');
+    } catch (error) {
+      await supabase.auth.signOut();
+      throw error;
+    }
+  }
+  async function getPortalDestination(account) {
+    if (account === 'club') return window.COPKUClub?.portalDestination() || null;
+    try {
+      const profile = await fetchMyProfile();
+      return profile && ['admin', 'internal'].includes(profile.role) ? '/portal/internal/' : null;
+    } catch { return null; }
+  }
+  window.COPKUAuth = { signInToPortal, getPortalDestination };
+
   async function uploadInternalAttachment(file, messageId) {
     const supabase = getSupabase();
     const path = `${messageId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
@@ -234,7 +249,7 @@
 
   async function renderInternalPortal() {
     const root = $('#internal-portal');
-    if (!root) return;
+    if (!root || root.dataset.portalV2) return;
     const supabase = getSupabase();
     if (!supabase) {
       requireSupabaseMessage(root, 'Open site/config.js, fill in your Supabase URL and anon key, then refresh the page.');
@@ -243,7 +258,7 @@
 
     const user = await getCurrentUser();
     if (!user) {
-      window.location.href = '/internal-login/';
+      window.location.href = '/login/?account=orchestra';
       return;
     }
 
@@ -257,7 +272,7 @@
 
     if (!me || !['admin', 'internal'].includes(me.role)) {
       await supabase.auth.signOut();
-      window.location.href = '/internal-login/';
+      window.location.href = '/login/?account=orchestra';
       return;
     }
 
@@ -509,254 +524,6 @@
     });
   }
 
-  async function setupMembershipAuth() {
-    const page = $('#membership-auth');
-    if (!page) return;
-    const supabase = getSupabase();
-    if (!supabase) {
-      const panel = page.closest('.container') || page;
-      const message = document.createElement('p');
-      message.className = 'small-note';
-      message.textContent = 'Supabase is not configured yet. Open site/config.js and fill in your project details first.';
-      panel.prepend(message);
-      return;
-    }
-
-    const checkoutForm = $('#membership-checkout-form');
-    const activateForm = $('#membership-set-password-form');
-    const loginForm = $('#membership-login-form');
-    const checkoutSuccess = $('#membership-checkout-success');
-    const checkoutError = $('#membership-checkout-error');
-    const activationHint = $('#membership-activation-hint');
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get(MEMBERSHIP_SUCCESS_PARAM) === 'success' && checkoutSuccess) {
-      checkoutSuccess.hidden = false;
-      checkoutSuccess.textContent = 'Payment received. Your membership account is being created now. Please check your email for the activation link, then come back here to set your password.';
-    }
-    if (params.get(MEMBERSHIP_SUCCESS_PARAM) === 'cancel' && checkoutError) {
-      checkoutError.hidden = false;
-      checkoutError.textContent = 'Payment was cancelled. You can choose a plan and try again.';
-    }
-
-    checkoutForm?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      clearFormState(checkoutForm);
-      const button = $('button[type="submit"]', checkoutForm);
-      const original = button?.textContent || 'Continue to payment';
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Preparing payment...';
-      }
-      try {
-        const email = checkoutForm.email.value.trim().toLowerCase();
-        const tier = checkoutForm.tier.value;
-        const response = await supabase.functions.invoke('create-checkout-session', {
-          body: {
-            email,
-            plan_slug: tier,
-            return_url: `${window.location.origin}/membership/`,
-          },
-        });
-        if (response.error) throw response.error;
-        const checkoutUrl = response.data?.url;
-        if (!checkoutUrl) throw new Error('Checkout URL was not returned.');
-        window.location.href = checkoutUrl;
-      } catch (error) {
-        setText($('.form-error', checkoutForm), error.message || 'Could not start payment.', false);
-      } finally {
-        if (button) {
-          button.disabled = false;
-          button.textContent = original;
-        }
-      }
-    });
-
-    const session = await getSession();
-    let invitedMember = null;
-    try {
-      invitedMember = session?.user ? await fetchMyProfile() : null;
-    } catch {
-      invitedMember = null;
-    }
-
-    if (activationHint) {
-      if (session?.user && invitedMember?.role === 'member') {
-        activationHint.hidden = false;
-        activationHint.textContent = `Signed in as ${invitedMember.email}. Set your password to finish activating this membership account.`;
-      } else {
-        activationHint.hidden = false;
-        activationHint.textContent = 'After payment, open the activation email we send you, then set your password here.';
-      }
-    }
-
-    activateForm?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      clearFormState(activateForm);
-      const button = $('button[type="submit"]', activateForm);
-      const original = button?.textContent || 'Set password and enter portal';
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Saving...';
-      }
-      try {
-        const user = await getCurrentUser();
-        if (!user) throw new Error('Please open the activation email first, then return to this page to set your password.');
-        const profile = await fetchMyProfile();
-        if (!profile || profile.role !== 'member') {
-          throw new Error('This activation link is not connected to a membership account.');
-        }
-        const { error } = await supabase.auth.updateUser({ password: activateForm.newPassword.value });
-        if (error) throw error;
-        activateForm.reset();
-        setText($('.form-success', activateForm), 'Password set successfully. Redirecting to your membership portal...', false);
-        window.location.href = '/portal/membership/';
-      } catch (error) {
-        setText($('.form-error', activateForm), error.message || 'Could not set password.', false);
-      } finally {
-        if (button) {
-          button.disabled = false;
-          button.textContent = original;
-        }
-      }
-    });
-
-    loginForm?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      clearFormState(loginForm);
-      const button = $('button[type="submit"]', loginForm);
-      const original = button?.textContent || 'Sign in';
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Signing in...';
-      }
-      try {
-        const email = loginForm.email.value.trim().toLowerCase();
-        const password = loginForm.password.value;
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        const profile = await fetchMyProfile();
-        if (!profile || profile.role !== 'member' || profile.membership_status !== 'active') {
-          await supabase.auth.signOut();
-          throw new Error('Membership is not active yet. Please complete payment and activate your account first.');
-        }
-        window.location.href = '/portal/membership/';
-      } catch (error) {
-        showError(loginForm, error.message || 'Incorrect email or password.');
-      } finally {
-        if (button) {
-          button.disabled = false;
-          button.textContent = original;
-        }
-      }
-    });
-  }
-
-  async function handleMembershipCheckoutReturn() {
-    return null;
-  }
-
-  async function renderMembershipPortal() {
-    const root = $('#membership-portal');
-    if (!root) return;
-    const supabase = getSupabase();
-    if (!supabase) {
-      requireSupabaseMessage(root, 'Open site/config.js, fill in your Supabase URL and anon key, then refresh the page.');
-      return;
-    }
-    const user = await getCurrentUser();
-    if (!user) {
-      window.location.href = '/membership/';
-      return;
-    }
-
-    let member;
-    try {
-      member = await fetchMyProfile();
-    } catch (error) {
-      requireSupabaseMessage(root, error.message || 'Could not load profile.');
-      return;
-    }
-
-    if (!member || member.role !== 'member' || member.membership_status !== 'active') {
-      window.location.href = '/membership/';
-      return;
-    }
-
-    bindSessionWatch();
-
-    const { data: latestOrder } = await supabase
-      .from('membership_orders')
-      .select('plan_name, amount_cents, currency, paid_at')
-      .eq('user_id', member.user_id)
-      .eq('payment_status', 'paid')
-      .order('paid_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const benefits = [
-      'Regular PUCO magazine and member updates',
-      'Priority access to selected souvenirs and commemorative items',
-      'Discounted pricing in the PUCO shop',
-    ];
-
-    root.innerHTML = `
-      <div class="dashboard-shell">
-        <aside class="dashboard-sidebar panel">
-          <span class="tag">${escapeHtml(member.membership_tier || 'Membership')}</span>
-          <h2>Membership Portal</h2>
-          <p>${escapeHtml(member.email)}</p>
-          <p class="small-note">Paid through ${fmt(member.paid_through)}</p>
-          <button class="btn btn-secondary logout-btn" type="button">Logout</button>
-        </aside>
-        <div class="dashboard-main">
-          <section class="panel">
-            <p class="eyebrow">Benefits</p>
-            <h3>Your current membership</h3>
-            <div class="cards-3 compact-grid">
-              ${benefits.map((perk) => `<article class="detail-card"><h4>${escapeHtml(perk)}</h4><p>Included with your active ${escapeHtml(member.membership_tier || 'PUCO')} membership.</p></article>`).join('')}
-            </div>
-          </section>
-          <section class="panel">
-            <p class="eyebrow">Billing</p>
-            <h3>Latest paid membership</h3>
-            <ul class="detail-list">
-              <li><i class="fa-solid fa-receipt"></i><span>Plan: ${escapeHtml(latestOrder?.plan_name || member.membership_tier || 'Membership')}</span></li>
-              <li><i class="fa-solid fa-wallet"></i><span>Amount: ${latestOrder ? `${(latestOrder.amount_cents / 100).toFixed(2)} ${escapeHtml((latestOrder.currency || 'CNY').toUpperCase())}` : '—'}</span></li>
-              <li><i class="fa-solid fa-calendar-check"></i><span>Paid at: ${fmt(latestOrder?.paid_at)}</span></li>
-            </ul>
-          </section>
-          <section class="panel">
-            <p class="eyebrow">Security</p>
-            <h3>Change your password</h3>
-            <form id="membership-password-form" class="stack-form compact-form">
-              <input type="password" name="newPassword" placeholder="New password" minlength="8" required />
-              <button class="btn btn-primary" type="submit">Update password</button>
-              <p class="form-success small-note" hidden></p>
-              <p class="form-error small-note" hidden></p>
-            </form>
-          </section>
-        </div>
-      </div>
-    `;
-
-    $$('.logout-btn', root).forEach((btn) => btn.addEventListener('click', signOutAndRedirect));
-
-    const form = $('#membership-password-form', root);
-    form?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      clearFormState(form);
-      try {
-        const { error } = await supabase.auth.updateUser({ password: form.newPassword.value });
-        if (error) throw error;
-        form.reset();
-        setText($('.form-success', form), 'Password updated successfully.', false);
-      } catch (error) {
-        setText($('.form-error', form), error.message || 'Could not update password.', false);
-      }
-    });
-  }
-
   function escapeHtml(text) {
     return String(text ?? '')
       .replaceAll('&', '&amp;')
@@ -767,36 +534,23 @@
   }
 
   async function hydrateAuthNav() {
-    const supabase = getSupabase();
-    if (!supabase) return;
-    const session = await getSession();
-    const links = $$('.login-link');
-    if (!session) {
-      links.forEach((link) => {
-        link.textContent = 'Login';
-        link.href = '/login/';
-      });
-      return;
-    }
-    let profile = null;
-    try {
-      profile = await fetchMyProfile();
-    } catch {
-      profile = null;
-    }
-    const target = profile?.role === 'member' ? '/portal/membership/' : profile?.role ? '/portal/internal/' : '/login/';
-    links.forEach((link) => {
-      link.textContent = 'Portal';
+    const [orchestra, club] = await Promise.all([
+      getPortalDestination('orchestra'), getPortalDestination('club'),
+    ]);
+    const clubPage = /^\/portal\/membership\//.test(window.location.pathname) || /^\/opportunities\/club\//.test(window.location.pathname);
+    const orchestraPage = /^\/portal\/internal\//.test(window.location.pathname);
+    let target = orchestra && club ? '/login/' : orchestra || club || '/login/';
+    if (clubPage) target = club || '/login/?account=club';
+    if (orchestraPage) target = orchestra || '/login/?account=orchestra';
+    $$('.login-link').forEach((link) => {
+      link.textContent = target.startsWith('/portal/') ? 'Portal' : orchestra && club ? 'Portals' : 'Login';
       link.href = target;
     });
   }
-
   async function bootSupabaseAwarePages() {
     await hydrateAuthNav();
     await setupInternalLogin();
-    await setupMembershipAuth();
     await renderInternalPortal();
-    await renderMembershipPortal();
   }
 
   document.addEventListener('DOMContentLoaded', async () => {

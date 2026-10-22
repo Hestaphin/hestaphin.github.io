@@ -1,0 +1,15 @@
+{
+  "version": "1.21",
+  "release_number": 21,
+  "previous_saved_site_revision": 20,
+  "release_date": "2026-10-22",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.21.zip",
+  "zip_root": "COPKU_Website_v1.21",
+  "changes": [
+    "Rebuild the Orchestra portal layout around the exact supplied drawings: black full-height sidebar, serif typography, flat top tabs and bordered task and notification tables.",
+    "Match the task editor toolbar and separate Mandatory, Optional and Urgent recipient checkboxes; restore contact-list and speech-bubble chat geometry and black reminder/request windows.",
+    "Give the portal an independent DOM root, a standalone auth client and versioned assets so legacy app.js cannot render the previous inbox dashboard.",
+    "Preserve v1.20 database contracts, public pages and assets. No additional Supabase migration is required for this layout update."
+  ]
+}

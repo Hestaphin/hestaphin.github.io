@@ -1,0 +1,16 @@
+{
+  "version": "1.20",
+  "release_number": 20,
+  "previous_saved_site_revision": 19,
+  "release_date": "2026-10-22",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.20.zip",
+  "zip_root": "COPKU_Website_v1.20",
+  "changes": [
+    "Build a modular Orchestra portal with task recipients, progress review, withdrawal, reminders and decline feedback.",
+    "Add notification posting, image uploads, replies, pinning and read tracking.",
+    "Add consent-based member chats with request approval and revocation.",
+    "Add background customization, portal search, account administration and Orchestra password assistance.",
+    "Add separate-project Club approval, email verification, webhook bridge, updated migrations and setup guide."
+  ]
+}

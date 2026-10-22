@@ -1,0 +1,54 @@
+/* About shares the Events search controls and the homepage title, palette and score. */
+body.about-page { --about-feature-height: clamp(300px, 41.1vw, 700px); }
+body.about-page.has-reference-header { background: #000; }
+.about-page .events-canvas { background: #000; }
+.about-page.is-search-mode .events-canvas { background: var(--hour-background); }
+.about-page[data-project], .about-page[data-activity] { --about-feature-height: 0px; }
+.about-page .score-overlay { top: calc(var(--about-feature-height) + var(--archive-panel-offset, 0px)); }
+.about-page.is-search-mode .score-overlay { top: var(--archive-panel-offset, 0px); }
+.about-feature { height: var(--about-feature-height); background: #fff; color: #000 !important; }
+.about-feature > img { object-position: center; }
+.about-feature .events-feature-copy { left: 2.2%; bottom: 4.5%; color: #000; font-weight: 700; font-size: clamp(24px, 3.1vw, 40px); line-height: 1.12; text-shadow: none; }
+.about-work-area { display: grid; grid-template-columns: var(--events-sidebar-width) minmax(0, 1fr); min-height: max(760px, 65vw); }
+.project-sidebar { min-width: 0; background: #000; color: #fff; position: relative; z-index: 3; }
+.project-menu { position: sticky; top: var(--events-bars-height); padding: 28px 0; }
+.project-menu h2 { padding: 0 24px; margin: 0 0 24px; font-size: clamp(24px, 2.4vw, 32px); line-height: 1.2; }
+.project-menu nav { display: flex; flex-direction: column; }
+.project-link { display: block; padding: 12px 24px; font-size: clamp(20px, 1.85vw, 26px); font-weight: 700; line-height: 1.4; }
+.project-link span { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 6px; text-decoration-thickness: 2px; }
+.project-link:hover span, .project-link:focus-visible span { text-decoration-color: var(--day-accent); }
+.project-link[aria-current="page"] { background: #fff; color: #000; }
+.project-overview { display: inline-block; margin: 24px 24px 0; color: #fff; font-size: 17px; }
+.project-overview:hover, .project-overview:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
+.about-feed { min-width: 0; background-color: var(--hour-background); transition: background-color 120s linear; }
+.project-intro, .project-empty { position: relative; z-index: 2; padding: clamp(24px, 3vw, 44px); }
+.project-intro { max-width: 100%; padding-right: 21%; }
+.project-intro h1 { font-size: clamp(28px, 3vw, 40px); margin-bottom: .65em; line-height: 1.15; }
+.project-intro p { margin: 0 0 1em; max-width: 42em; }
+.project-intro time { display: block; margin-bottom: 1em; }
+.project-empty { font-size: 19px; }
+.about-detail-image { position: relative; width: 100%; height: auto; margin: .5em 0 1.5em; }
+.about-detail-back { display: inline-block; margin: 1em 0; text-decoration: underline !important; text-underline-offset: 4px; }
+.about-page .event-results { min-height: max(760px, 65vw); background: transparent; }
+@media (max-width: 800px) {
+  body.about-page { --about-feature-height: clamp(270px, 55vw, 440px); --about-project-width: clamp(160px, 29vw, 220px); }
+  .about-page[data-project], .about-page[data-activity] { --about-feature-height: 0px; }
+  .about-work-area { grid-template-columns: var(--about-project-width) minmax(0, 1fr); min-height: 75vh; }
+  .project-menu { padding-block: 24px; }
+  .project-menu h2 { padding-inline: 16px; font-size: 24px; }
+  .project-link { padding: 12px 16px; font-size: 20px; }
+  .about-page .normal-event-list .archive-card { grid-template-columns: 1fr; }
+  .about-page .archive-image { aspect-ratio: 1.75; }
+  .about-page .archive-copy { min-height: 260px; }
+  .project-intro { padding: 24px 20px; }
+  .project-overview { margin-inline: 16px; }
+}
+@media (max-width: 520px) {
+  .about-work-area { grid-template-columns: 1fr; }
+  .project-menu { position: static; padding-block: 20px; }
+  .project-menu h2 { margin-bottom: 10px; }
+  .project-menu nav { flex-direction: row; flex-wrap: wrap; }
+  .project-link { font-size: 18px; padding: 10px 16px; }
+  .project-overview { margin-top: 12px; }
+  .about-feature .events-feature-copy { font-size: 24px; }
+}

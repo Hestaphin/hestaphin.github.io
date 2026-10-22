@@ -1,0 +1,15 @@
+{
+  "version": "1.19",
+  "release_number": 19,
+  "previous_saved_site_revision": 18,
+  "release_date": "2026-10-20",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.19.zip",
+  "zip_root": "COPKU_Website_v1.19",
+  "changes": [
+    "Add free Membership Basic registration to the Club category; confirmation and Club password recovery return to the Club portal.",
+    "Separate Club and Orchestra into distinct Supabase projects, authentication clients, storage keys, role/profile checks, passwords and portal sessions.",
+    "Move paid membership upgrades, renewals, verified payment status and billing history into the authenticated Club portal.",
+    "Prepare a separate Club database migration with Basic signup defaults and RLS, standalone authenticated checkout and signed transactional Stripe fulfillment, plus Dashboard-only setup and legacy-member instructions. Live Club setup is required."
+  ]
+}

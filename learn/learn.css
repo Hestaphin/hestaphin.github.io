@@ -1,0 +1,24 @@
+/* Same archive and search dimensions as Events; topic layout follows the Learn brief. */
+body.learn-page.has-reference-header { background: #000; }
+.learn-page .events-canvas { background: #000; }
+.learn-page.is-search-mode .events-canvas { background: var(--hour-background); }
+.learn-work-area { min-height: max(760px, calc(100svh - var(--events-bars-height))); }
+.learn-page .project-sidebar { background: linear-gradient(rgba(0,0,0,.48), rgba(0,0,0,.3)), url('/assets/event3.png') left center / auto 100% no-repeat #000; }
+.learn-page .project-menu { padding-top: 28px; }
+.learn-page .project-menu h2 { margin-bottom: 28px; }
+.learn-page .project-link { padding-block: 3px; }
+.learn-page .score-overlay { top: var(--archive-panel-offset, 0px); }
+.learn-page .event-results { min-height: max(760px, calc(100svh - var(--events-bars-height))); }
+.learn-page .project-empty { font-size: 19px; }
+.learn-detail-action { display: inline-block; margin-block: 1em; text-decoration: underline !important; text-underline-offset: 4px; }
+@media (max-width: 800px) {
+  .learn-work-area { --about-project-width: clamp(160px, 29vw, 220px); }
+  .learn-page .normal-event-list .archive-card { grid-template-columns: 1fr; }
+  .learn-page .archive-image { aspect-ratio: 1.75; }
+  .learn-page .archive-copy { min-height: 260px; }
+  .learn-page .project-menu { padding-block: 24px; }
+}
+@media (max-width: 520px) {
+  .learn-page .project-menu nav { gap: 5px 0; }
+  .learn-page .project-sidebar { background-size: cover; background-position: left 35%; }
+}

@@ -1,0 +1,17 @@
+{
+  "version": "1.24",
+  "release_number": 24,
+  "previous_saved_site_revision": 23,
+  "release_date": "2026-10-23",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.24.zip",
+  "zip_root": "COPKU_Website_v1.24",
+  "changes": [
+    "Add a default read-only personal page and admin-editable personnel directory with dependent department, occupation, instrument, classification and rank choices.",
+    "Support Orchestra username or email login, urgent first-password activation without administrator approval, immediate admin email edits and verified self email changes.",
+    "Add nested notification replies, private unread reply notices and a bottom-right expandable notice list, plus task and contact/person count circles.",
+    "Protect Club approval tasks from generic completion and resolve them only after saved decisions.",
+    "Raise task/notification/chat attachments to an inclusive 10 MB and add removal of selected files before submission.",
+    "Include declined tasks in Completed tasks, reduce Background color and chat-request dialog text, and widen minute-resolution time inputs."
+  ]
+}

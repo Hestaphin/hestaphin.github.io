@@ -1,0 +1,7 @@
+project_id = "copku-club"
+
+[functions.create-club-checkout]
+verify_jwt = false
+
+[functions.club-stripe-webhook]
+verify_jwt = false

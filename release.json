@@ -1,0 +1,14 @@
+{
+  "version": "1.25",
+  "release_number": 25,
+  "previous_saved_site_revision": 24,
+  "release_date": "2026-10-24",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.25.zip",
+  "zip_root": "COPKU_Website_v1.25",
+  "changes": [
+    "Use compact click-to-edit member values and tables for shop orders, chat requests and club approvals.",
+    "Add admin-authenticated full/partial Stripe refunds, persistent history, idempotent confirmations and Dashboard refund webhook synchronization.",
+    "Add persistent image transparency, independent contact search and shared EN/CN language choice."
+  ]
+}

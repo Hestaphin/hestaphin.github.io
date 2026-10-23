@@ -6,16 +6,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="../../style.css" />
-  <title>PUCO Membership Portal</title>
-</head><body data-portal="true">  <div class="topbar">
-    <div class="container topbar-inner">
-      <p>PUCO Peking Unnamed Chamber Orchestra</p>
-      <div>
-        <a href="/login/" class="login-link">Login</a>
-        <a href="/#donate">etanod</a>
-      </div>
-    </div>
-  </div>  <header class="site-header">
+  <title>Club Member Portal | PUCO</title>
+<link rel="stylesheet" href="/homepage.css?v=1.25">
+<link rel="icon" href="/assets/orchestra-mark.png">
+<link rel="stylesheet" href="/navigation.css">
+<link rel="stylesheet" href="/login/login.css">
+<link rel="stylesheet" href="/club/club.css">
+<script src="/language.js?v=1.25" defer></script></head><body class="has-reference-header" data-portal="true">  <header class="reference-topbar">
+  <div class="title-tones" aria-hidden="true"></div>
+  <a class="reference-brand" href="/" aria-label="Peking Unnamed Chamber Orchestra homepage"><img src="/assets/orchestra-mark.png" width="80" height="80" alt="Orchestra logo"><span>Peking Unnamed Chamber Orchestra</span></a>
+  <a href="/login/" class="reference-login login-link">Login</a>
+</header><header class="site-header">
     <div class="container nav-wrap">
       <a href="/" class="brand" aria-label="PUCO homepage">
         <img src="../../PUCO-LOGO.png" alt="PUCO logo" />
@@ -25,9 +26,9 @@
         </div>
       </a>
       <button class="menu-toggle" aria-label="Open navigation"><i class="fa-solid fa-bars"></i></button>
-      <nav class="main-nav"><a href="/" class="active">Home</a><a href="/events/">Events</a><a href="/learn/">Learn</a><a href="/about/">About</a><a href="/opportunities/">Opportunities</a><a href="/#contact">Contact</a><a href="/shop/">Shop</a></nav>
+      <nav class="main-nav"><a href="/" class="active">Home</a><div class="navigation-group" data-navigation-group="events"><a data-navigation-parent href="/events/">Events</a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Events subpages" aria-expanded="false" aria-controls="navigation-events-submenu" hidden><svg viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><ul class="navigation-submenu" id="navigation-events-submenu" aria-label="Events subpages"><li><a href="/events/#ongoing-events"><span>Ongoing</span></a></li><li><a href="/events/#past-events"><span>Past</span></a></li></ul></div><div class="navigation-group" data-navigation-group="about"><a data-navigation-parent href="/about/">About</a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show About subpages" aria-expanded="false" aria-controls="navigation-about-submenu" hidden><svg viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><ul class="navigation-submenu" id="navigation-about-submenu" aria-label="About subpages"><li><a href="/about/piano-museum/"><span>Piano Museum</span></a></li><li><a href="/about/teaching-in-schools/"><span>Teaching in schools</span></a></li><li><a href="/about/engaging-the-society/"><span>Engaging the society</span></a></li></ul></div><div class="navigation-group" data-navigation-group="learn"><a data-navigation-parent href="/learn/">Learn</a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Learn subpages" aria-expanded="false" aria-controls="navigation-learn-submenu" hidden><svg viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><ul class="navigation-submenu" id="navigation-learn-submenu" aria-label="Learn subpages"><li><a href="/learn/fun-facts/"><span>Fun facts</span></a></li><li><a href="/learn/music-theory/"><span>Music theory</span></a></li><li><a href="/learn/magazine/"><span>Magazine</span></a></li><li><a href="/learn/research-centre/"><span>Research centre</span></a></li></ul></div><div class="navigation-group" data-navigation-group="opportunities"><a data-navigation-parent href="/opportunities/">Opportunities</a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Opportunities subpages" aria-expanded="false" aria-controls="navigation-opportunities-submenu" hidden><svg viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><ul class="navigation-submenu" id="navigation-opportunities-submenu" aria-label="Opportunities subpages"><li><a href="/opportunities/orchestra/"><span>Orchestra</span></a></li><li><a href="/opportunities/wind-band/"><span>Wind band</span></a></li><li><a href="/opportunities/club/"><span>Club</span></a></li></ul></div><a href="/contact/">Contact</a><a href="/shop/">Shop</a></nav>
     </div>
-  </header><main><section class="section"><div class="container"><div class="section-heading"><p class="eyebrow">Membership portal</p><h1>Your member benefits and account details.</h1><p>Access your current membership status, benefits, and account settings here.</p></div><div id="membership-portal"></div></div></section></main>  <footer class="site-footer">
+  </header><main><section class="section"><div class="container"><div class="section-heading"><p class="eyebrow">Club member portal</p><h1>Your Club membership.</h1><p>Manage your free Basic account, upgrade your membership, and view your payments here.</p></div><div id="membership-portal"></div></div></section></main>  <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-brand">
         <a href="/" class="brand footer-brand-link">
@@ -52,9 +53,8 @@
       <div>
         <h4>Connect</h4>
         <ul>
-          <li><a href="/#contact">Contact</a></li>
+          <li><a href="/contact/">Contact</a></li>
           <li><a href="mailto:admin@pkuco.org">admin@pkuco.org</a></li>
-          <li><a href="/#donate">etanod</a></li>
           <li><a href="/shop/">Shop</a></li>
         </ul>
       </div>
@@ -63,4 +63,6 @@
       <p>© 2026 PUCO. All rights reserved.</p>
       <p>Website design: Hestaphin</p>
     </div>
-  </footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/config.js"></script><script src="/app.js"></script></body></html>
+  </footer><script src="/homepage.js" defer></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/config.js"></script><script src="/club/club.js"></script><script src="/app.js?v=1.25"></script><script src="/navigation.js" defer></script>
+<script src="/login/login.js?v=1.25" defer></script>
+</body></html>

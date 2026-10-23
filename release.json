@@ -1,0 +1,17 @@
+{
+  "version": "1.23",
+  "release_number": 23,
+  "previous_saved_site_revision": 22,
+  "release_date": "2026-10-23",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.23.zip",
+  "zip_root": "COPKU_Website_v1.23",
+  "changes": [
+    "Keep About-style search functional for accessible tasks, notifications and members, including attachment names and an All years default.",
+    "Support notification attachments of any type smaller than 5 MB in private storage; retain older image posts.",
+    "Allow task times to the minute; compact the Contact view and keep its composer actions within the viewport.",
+    "Place Log out beside the name in the black sidebar.",
+    "Repair the missing live Club approval column and improve administrator approval errors and reminder handling.",
+    "Connect the live US$5.00 textbook to Stripe Checkout, signed webhooks, verified orders and administrator delivery tracking."
+  ]
+}

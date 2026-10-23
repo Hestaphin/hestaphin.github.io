@@ -1,0 +1,15 @@
+[functions.portal-password-help]
+verify_jwt = false
+[functions.portal-club-event]
+verify_jwt = false
+[functions.portal-admin]
+verify_jwt = false
+[functions.create-internal-user]
+verify_jwt = false
+[functions.delete-internal-user]
+verify_jwt = false
+
+[functions.create-shop-checkout]
+verify_jwt = false
+[functions.shop-stripe-webhook]
+verify_jwt = false

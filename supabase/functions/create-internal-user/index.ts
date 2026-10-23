@@ -46,16 +46,17 @@ Deno.serve(async (req) => {
       throw new Error('Email and password are required, and the password must be at least 8 characters long.')
     }
 
-    const { data: created, error: createError } = await adminClient.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { full_name: fullName },
+    const { data: created, error: createError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+      data: { full_name: fullName },
+      redirectTo: (Deno.env.get('SITE_URL') || 'https://www.pkuco.org').replace(/\/$/, '') + '/portal/reset-password/',
     })
     if (createError) throw createError
 
     const createdUser = created.user
     if (!createdUser) throw new Error('User creation failed.')
+
+    const { error: passwordError } = await adminClient.auth.admin.updateUserById(createdUser.id, { password });
+    if (passwordError) { await adminClient.auth.admin.deleteUser(createdUser.id); throw passwordError; }
 
     const { error: insertError } = await adminClient.from('profiles').insert({
       user_id: createdUser.id,

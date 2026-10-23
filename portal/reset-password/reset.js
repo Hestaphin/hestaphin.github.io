@@ -1,0 +1,3 @@
+const db=window.supabase.createClient(window.PUCO_SUPABASE_URL,window.PUCO_SUPABASE_ANON_KEY,{auth:{storageKey:'copku-orchestra-auth-v1',detectSessionInUrl:true}});
+const form=document.querySelector('#reset'),notice=document.querySelector('#notice');
+form.onsubmit=async ev=>{ev.preventDefault();const f=new FormData(form),button=form.querySelector('button');button.disabled=true;try{if(f.get('password')!==f.get('confirm'))throw Error('Passwords do not match.');const {error}=await db.auth.updateUser({password:f.get('password')});if(error)throw error;notice.textContent='Password changed. You can now sign in.';form.reset();await db.auth.signOut();}catch(err){notice.textContent=err.message;}finally{button.disabled=false;}};

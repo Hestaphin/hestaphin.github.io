@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000000"><meta name="description" content="Our projects beyond performance: Piano Museum, teaching in schools, and engaging the society.">
+<title>About | Peking Unnamed Chamber Orchestra</title>
+<link rel="icon" href="/assets/orchestra-mark.png"><link rel="stylesheet" href="/homepage.css"><link rel="stylesheet" href="/events/events.css"><link rel="stylesheet" href="/about/about.css">
+<link rel="preload" as="image" href="/assets/epic-piano.png">
+<noscript><style>.search-folded,.event-filter-panel{display:none}.title-tones{background:linear-gradient(90deg,#fff,#000)}</style></noscript>
+<link rel="stylesheet" href="/navigation.css">
+<link rel="stylesheet" href="/login/login.css">
+<link rel="stylesheet" href="/club/club.css">
+</head><body class="events-page about-page has-reference-header">
+<a class="skip-home" href="#events-content">Skip to About content</a>
+<header class="reference-topbar">
+    <div class="title-tones" aria-hidden="true"></div>
+    <a class="reference-brand" href="/" aria-label="Peking Unnamed Chamber Orchestra homepage">
+      <img src="/assets/orchestra-mark.png" width="80" height="80" alt="Orchestra logo">
+      <span>Peking Unnamed Chamber Orchestra</span>
+    </a>
+    <a class="reference-login login-link" href="/login/">Login</a>
+  </header>
+<nav class="section-navigation" aria-label="Main navigation"><ul>
+      <li><a href="/"><span>Home</span></a></li>
+      <li class="navigation-group" data-navigation-group="events"><a data-navigation-parent href="/events/"><span>Events</span></a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Events subpages" aria-expanded="false" aria-controls="navigation-events-submenu" hidden><svg viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><ul class="navigation-submenu" id="navigation-events-submenu" aria-label="Events subpages"><li><a href="/events/#ongoing-events"><span>Ongoing</span></a></li><li><a href="/events/#past-events"><span>Past</span></a></li></ul></li>
+      <li class="navigation-group" data-navigation-group="about"><a data-navigation-parent href="/about/" aria-current="page"><span>About</span></a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show About subpages" aria-expanded="false" aria-controls="navigation-about-submenu" hidden><svg viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><ul class="navigation-submenu" id="navigation-about-submenu" aria-label="About subpages"><li><a href="/about/piano-museum/"><span>Piano Museum</span></a></li><li><a href="/about/teaching-in-schools/"><span>Teaching in schools</span></a></li><li><a href="/about/engaging-the-society/"><span>Engaging the society</span></a></li></ul></li>
+      <li class="navigation-group" data-navigation-group="learn"><a data-navigation-parent href="/learn/"><span>Learn</span></a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Learn subpages" aria-expanded="false" aria-controls="navigation-learn-submenu" hidden><svg viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><ul class="navigation-submenu" id="navigation-learn-submenu" aria-label="Learn subpages"><li><a href="/learn/fun-facts/"><span>Fun facts</span></a></li><li><a href="/learn/music-theory/"><span>Music theory</span></a></li><li><a href="/learn/magazine/"><span>Magazine</span></a></li><li><a href="/learn/research-centre/"><span>Research centre</span></a></li></ul></li>
+      <li class="navigation-group" data-navigation-group="opportunities"><a data-navigation-parent href="/opportunities/"><span>Opportunities</span></a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Opportunities subpages" aria-expanded="false" aria-controls="navigation-opportunities-submenu" hidden><svg viewBox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><ul class="navigation-submenu" id="navigation-opportunities-submenu" aria-label="Opportunities subpages"><li><a href="/opportunities/orchestra/"><span>Orchestra</span></a></li><li><a href="/opportunities/wind-band/"><span>Wind band</span></a></li><li><a href="/opportunities/club/"><span>Club</span></a></li></ul></li>
+      <li><a href="/contact/"><span>Contact</span></a></li>
+      <li><a href="/shop/"><span>Shop</span></a></li>
+</ul></nav>
+<button class="search-folded" id="open-event-search" type="button" aria-expanded="false" aria-controls="event-filter-panel">Search</button>
+<aside class="event-filter-panel" id="event-filter-panel" aria-label="Search and filter activities" aria-hidden="true" inert>
+  <form id="event-filter-form" class="event-filter-form" role="search">
+    <div class="keyword-field">
+      <label class="visually-hidden" for="event-keyword">Search activities and project pages</label>
+      <input type="search" id="event-keyword" name="keyword" placeholder="Type in to search" autocomplete="off">
+      <button type="submit" class="keyword-submit" aria-label="Search activities"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="3"/><path d="m14 14 8 8" stroke="currentColor" stroke-width="3"/></svg></button>
+    </div>
+    <div class="filter-label"><h2>Filter</h2><button type="button" class="all-years" id="all-event-years">All years</button></div>
+    <div class="year-wheel" id="year-wheel" role="group" aria-label="Select a year. Scroll or use the arrow keys.">
+      <button type="button" class="year-neighbour" id="year-previous" aria-label="Select year 2024">2024</button>
+      <button type="button" class="year-current" id="year-current"><span id="year-current-text">2025</span></button>
+      <label class="visually-hidden" for="year-entry">Year. Leave blank for all years.</label><input type="text" inputmode="numeric" maxlength="4" class="year-entry" id="year-entry" name="year" value="2025" aria-describedby="event-filter-error" hidden>
+      <button type="button" class="year-neighbour" id="year-next" aria-label="Select year 2026">2026</button>
+    </div>
+    <div class="season-choices" role="group" aria-label="Music seasons. Select any number, or none for the whole year.">
+      <button type="button" data-season="spring" aria-pressed="false">spring</button>
+      <button type="button" data-season="summer" aria-pressed="false">summer</button>
+      <button type="button" data-season="autumn" aria-pressed="false">autumn</button>
+      <button type="button" data-season="winter" aria-pressed="false">winter</button>
+    </div>
+    <div class="month-choices"><label for="event-from-month">From</label><select id="event-from-month" name="from" aria-label="From month"><option value="">Month</option><option value="01" aria-label="January">Jan</option><option value="02" aria-label="February">Feb</option><option value="03" aria-label="March">Mar</option><option value="04" aria-label="April">Apr</option><option value="05" aria-label="May">May</option><option value="06" aria-label="June">Jun</option><option value="07" aria-label="July">Jul</option><option value="08" aria-label="August">Aug</option><option value="09" aria-label="September">Sept</option><option value="10" aria-label="October">Oct</option><option value="11" aria-label="November">Nov</option><option value="12" aria-label="December">Dec</option></select><label for="event-to-month">to</label><select id="event-to-month" name="to" aria-label="To month"><option value="">Month</option><option value="01" aria-label="January">Jan</option><option value="02" aria-label="February">Feb</option><option value="03" aria-label="March">Mar</option><option value="04" aria-label="April">Apr</option><option value="05" aria-label="May">May</option><option value="06" aria-label="June">Jun</option><option value="07" aria-label="July">Jul</option><option value="08" aria-label="August">Aug</option><option value="09" aria-label="September">Sept</option><option value="10" aria-label="October">Oct</option><option value="11" aria-label="November">Nov</option><option value="12" aria-label="December">Dec</option></select></div>
+    <button type="submit" class="filter-submit" id="event-search-submit">SEARCH</button>
+    <p class="filter-error" id="event-filter-error" role="alert" hidden></p>
+  </form>
+  <button type="button" class="filter-collapse" id="close-event-search" aria-label="Hide search filters and return to all events"></button>
+</aside>
+
+<main class="events-canvas about-canvas" id="events-content" tabindex="-1"><h1 class="visually-hidden">About: our projects and activities</h1>
+  <div class="score-overlay" aria-hidden="true">
+        <div class="score-lines"><i></i><i></i><i></i><i></i><i></i></div>
+        <svg class="score-notation" viewBox="0 0 192 320" focusable="false">
+          <!-- Bravura glyph outlines, SIL Open Font License; see assets/BRAVURA-OFL.txt. -->
+          <defs>
+            <path id="score-g-clef" d="M376 415C374 427 376 428 382 434C398 449 419 470 438 491C522 583 572 702 572 815C572 902 548 988 507 1048C492 1070 466 1098 455 1098C441 1098 410 1072 390 1050C316 968 292 843 292 739C292 681 299 616 306 575C308 563 309 561 297 551C233 498 164 437 112 373C43 287 0 194 0 87C0 -87 119 -252 364 -252C387 -252 413 -250 433 -246C444 -244 446 -243 448 -255C460 -322 475 -409 475 -456C475 -604 375 -622 316 -622C262 -622 236 -606 236 -593C236 -586 245 -583 268 -576C299 -567 335 -540 335 -482C335 -427 300 -380 239 -380C172 -380 132 -433 132 -495C132 -560 171 -658 322 -658C389 -658 519 -628 519 -458C519 -401 501 -306 490 -244C488 -232 489 -233 503 -227C604 -187 671 -102 671 11C671 139 577 252 430 252C404 252 404 252 401 270ZM470 943C503 943 530 916 530 861C530 792 497 728 419 650C403 634 379 611 356 591C349 585 345 586 343 599C339 625 337 659 337 691C337 847 409 943 470 943ZM361 262C364 243 364 244 346 238C258 208 201 129 201 44C201 -46 248 -110 316 -133C324 -136 336 -139 343 -139C351 -139 355 -134 355 -128C355 -121 347 -118 340 -115C298 -97 268 -54 268 -8C268 49 307 92 368 109C384 113 386 112 388 101L438 -197C440 -208 439 -208 424 -211C408 -214 388 -216 368 -216C193 -216 80 -119 80 20C80 79 90 158 173 252C233 319 279 356 326 394C336 402 338 401 340 390ZM430 103C428 115 429 118 441 117C522 110 589 42 589 -46C589 -109 551 -160 495 -188C483 -194 481 -194 479 -182Z"/>
+            <path id="score-sharp" d="M237 118C244 121 249 129 249 135V206C249 211 246 214 242 214C240 214 239 214 237 213C237 213 217 205 212 204C205 204 198 209 198 217V339C198 345 192 350 184 350C174 350 168 345 168 339V209C167 199 164 186 155 180C143 173 109 159 92 155C83 155 80 167 80 175V295C80 301 73 306 66 306C56 306 50 301 50 295V160C50 146 44 136 38 133C32 130 12 122 12 122C5 120 0 112 0 106V35C0 29 3 26 8 26C9 26 11 27 12 27C12 27 27 33 34 37C35 37 36 38 37 38C44 38 50 28 50 20V-79C50 -90 45 -99 39 -102C33 -104 12 -113 12 -113C5 -115 0 -123 0 -129V-200C0 -206 3 -209 8 -209C9 -209 11 -208 12 -208C12 -208 26 -202 35 -199C36 -198 37 -198 38 -198C45 -198 50 -209 50 -214V-337C50 -343 56 -348 63 -348C73 -348 80 -343 80 -337V-198C80 -185 85 -178 90 -176L151 -151C152 -151 154 -150 155 -150C163 -150 168 -162 168 -168V-293C168 -299 174 -304 181 -304C192 -304 198 -299 198 -293V-151C198 -143 202 -131 209 -128C216 -125 237 -117 237 -117C244 -114 249 -106 249 -100V-29C249 -24 246 -21 242 -21C240 -21 239 -21 237 -22L211 -32C205 -32 198 -26 198 -14V79C198 86 203 105 211 108ZM168 -45C162 -65 115 -85 92 -85C86 -85 81 -83 80 -80C78 -76 77 -54 77 -30C77 1 78 36 80 44C82 61 128 82 153 82C160 82 166 80 168 76C170 71 172 46 172 19C172 -8 170 -36 168 -45Z"/>
+            <path id="score-flat" d="M12 -170C15 -174 18 -175 21 -175C24 -175 27 -173 27 -173C57 -156 81 -129 106 -112C195 -50 226 11 226 57C226 114 182 150 136 153C129 153 122 152 115 150C104 147 92 143 81 136C75 131 64 122 59 122C57 122 56 122 54 123C47 126 43 133 43 140C44 162 50 402 50 422C50 433 41 439 31 439C17 439 1 429 0 411C0 411 4 -160 12 -170ZM47 -81C47 -81 44 -21 44 19C44 35 45 47 46 51C50 63 76 85 90 93C99 98 108 100 116 100C126 100 135 96 141 89C151 78 157 61 157 42C157 24 152 3 140 -18C127 -42 98 -74 68 -93C64 -95 61 -96 58 -96C49 -96 47 -86 47 -81Z"/>
+          </defs>
+          <!-- Rotate one correctly engraved horizontal staff as a complete unit. -->
+          <g transform="translate(192 0) rotate(90)" fill="currentColor">
+            <use href="#score-g-clef" transform="translate(10 120) scale(.096 -.096)"/>
+            <g class="score-key"></g>
+          </g>
+        </svg>
+      </div>
+
+<div id="normal-events"><a class="events-feature about-feature" href="/about/piano-museum/epic-piano/" aria-label="Project Epic Piano is about to start. See more details.">
+      <img src="/assets/epic-piano.png" alt="Miss Hanil beside a white grand piano" width="1307" height="499" fetchpriority="high">
+      <div class="events-feature-copy"><p class="feature-title">Project Epic Piano is about to start</p><p>See more details</p></div></a><div class="about-work-area"><aside class="project-sidebar" aria-label="Things we do"><div class="project-menu"><h2>Things we do</h2><nav aria-label="Our projects"><a class="project-link" href="/about/piano-museum/"><span>Piano Museum</span></a><a class="project-link" href="/about/teaching-in-schools/"><span>Teaching in schools</span></a><a class="project-link" href="/about/engaging-the-society/"><span>Engaging the society</span></a></nav></div></aside><div class="about-feed"><div class="normal-event-list" id="normal-event-list" aria-label="All activities"><article class="archive-card" data-event="epic-piano">
+      <a class="archive-image" href="/about/piano-museum/epic-piano/" aria-label="Project Epic Piano: see detail"><img src="/assets/epic-piano.png" alt="Miss Hanil beside a white grand piano" width="1307" height="499" loading="lazy"></a>
+      <div class="archive-copy"><time class="event-date" datetime="2026-10-18">2026 Oct 18</time>
+        <div class="archive-paragraphs"><p>Miss Hanil is about to say hi to us</p><p>Piano restoration project in place</p></div><div class="archive-bottom"><h3 class="visually-hidden">Project Epic Piano</h3><a class="archive-detail" href="/about/piano-museum/epic-piano/">See detail</a></div>
+      </div></article></div></div></div></div>
+  <section class="event-results" id="event-results" aria-label="Activity search results" aria-busy="false" hidden>
+    <div class="results-topline"><h2 id="results-heading" class="results-heading" tabindex="-1" aria-live="polite" aria-atomic="true">0 <strong>Results</strong> were found</h2><label class="result-order"><input type="checkbox" id="events-oldest-first"><span id="event-order-label">Order from oldest to newest</span></label></div>
+    <div id="event-result-groups"></div>
+  </section>
+<noscript><p class="events-noscript">Enable JavaScript to use the activity search and filters.</p></noscript>
+  <footer class="home-footer" id="donate">
+        <div class="footer-information">
+          <div><p>Peking Unnamed Chamber Orchestra</p><a href="mailto:admin@pkuco.org">admin@pkuco.org</a></div>
+          <nav aria-label="Footer"><a href="/about/">About</a><a href="/opportunities/club/">Club</a><a href="/shop/">Shop</a></nav>
+        </div>
+        <p class="copyright">© 2026 Peking Unnamed Chamber Orchestra. &nbsp; Website design: Hestaphin</p>
+      </footer>
+      <div class="footer-red-bar" aria-hidden="true"></div>
+</main>
+<script src="/homepage.js" defer></script><script type="module" src="/events/events.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script><script src="/config.js" defer></script><script src="/club/club.js" defer></script><script src="/app.js?v=1.24" defer></script>
+
+<script src="/navigation.js" defer></script>
+<script src="/login/login.js?v=1.24" defer></script>
+</body></html>

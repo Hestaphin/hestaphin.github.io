@@ -11,6 +11,16 @@ export const pathways = [
     ]
   },
   {
+    id:'choir',title:'Join the Choir',url:'/opportunities/choir/',
+    action:{title:'Apply here',url:'/opportunities/orchestra/apply/'},
+    description:['Apply for soprano, mezzo-soprano, alto, tenor or bass. Beginners are welcome.']
+  },
+  {
+    id:'keyboard',title:'Join the Keyboard group',url:'/opportunities/keyboard/',
+    action:{title:'Apply here',url:'/opportunities/orchestra/apply/'},
+    description:['Apply for piano, harpsichord or accordion. Some playing experience is required.']
+  },
+  {
     id: 'club', title: 'Join the club', url: '/opportunities/club/',
     image: '/assets/opportunity-club-double-bass.png', imageAlt: 'An empty wooden chamber hall with chairs, music stands, and a double bass lying at the left of the stage',
     action: { title: 'Register here', url: '/opportunities/club/#club-registration-form' },

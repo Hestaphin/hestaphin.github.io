@@ -2,6 +2,8 @@
 export const opportunityCategories = [
   { id: 'orchestra', title: 'Orchestra', url: '/opportunities/orchestra/' },
   { id: 'wind-band', title: 'Wind band', url: '/opportunities/wind-band/' },
+  { id: 'choir', title: 'Choir', url: '/opportunities/choir/' },
+  { id: 'keyboard', title: 'Keyboard', url: '/opportunities/keyboard/' },
   { id: 'club', title: 'Club', url: '/opportunities/club/' }
 ];
 

@@ -1,0 +1,29 @@
+.application-page {margin:0;background:#fff;color:#111;font-family:Arial,"Noto Sans SC",sans-serif;}
+.application-page.has-reference-header {padding-top:calc(var(--title-bar-height) + var(--section-nav-height));}
+.application-page .section-navigation {--nav-offset:0px;--nav-surface:1;--nav-ink:#111;}
+.application-shell {width:min(1120px,calc(100% - 64px));margin:40px auto 64px;}
+.application-breadcrumb {font-size:13px;color:#666;margin:0 0 28px;}.application-breadcrumb a{color:inherit;}
+.application-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding-bottom:24px;border-bottom:2px solid #111;margin-bottom:20px;}
+.application-season {font-size:13px;letter-spacing:.18em;margin:0 0 10px;color:#666;}
+.application-heading h1 {font-size:clamp(22px,2.7vw,34px);line-height:1.4;font-weight:500;margin:0 0 10px;}
+.application-heading p[lang="en"] {font-size:14px;margin:0;color:#555;line-height:1.5;}
+.application-number {max-width:185px;font-size:12px;line-height:1.6;margin:6px 0;}.application-number output{display:block;color:#666;overflow-wrap:anywhere;}
+.application-instructions {font-size:13px;line-height:1.7;margin:3px 0;}.application-instructions[lang="en"]{color:#666;margin-bottom:24px;}
+.application-grid {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:0;margin:0;border:0;gap:1px;background:#aaa;min-width:0;}
+.personal-grid {border:1px solid #777;margin:0 0 30px;}.personal-grid>.application-cell:last-child{grid-column:1/-1;}
+.application-cell {display:flex;flex-direction:column;align-items:stretch;gap:5px;background:#fff;padding:12px 16px;min-width:0;font-size:14px;line-height:1.4;}
+.application-cell small,.application-field-title small {display:block;color:#666;font-size:12px;line-height:1.4;font-weight:400;}
+.application-cell>input,.application-cell>select,.application-cell>textarea {width:100%;box-sizing:border-box;background:#fafafa;border:1px solid #ccc;border-radius:0;min-height:36px;font:inherit;color:#111;padding:7px 9px;}
+.application-cell>textarea {min-height:70px;resize:vertical;}.application-cell :is(input,select,textarea):focus-visible{outline:2px solid #111;outline-offset:2px;}
+.application-group {border:1px solid #777;margin:0 0 30px;}
+.application-group-heading {display:grid;grid-template-columns:1fr minmax(200px,35%);background:#f5f5f5;border-bottom:1px solid #aaa;align-items:center;}
+.application-group-heading>div {padding:14px 16px;}.application-group-heading h2{font-size:17px;font-weight:500;line-height:1.4;margin:0;}.application-group-heading h2 small{font-size:13px;color:#666;margin-left:10px;font-weight:400;}
+.application-group-heading p{margin:7px 0 0;font-size:12px;color:#666;line-height:1.5;}.application-group-heading>.application-cell{background:transparent;border-left:1px solid #aaa;}
+.application-grid:disabled .application-cell {background:#fafafa;color:#999;}.application-grid:disabled :is(input,select,textarea){opacity:.5;}
+.application-choices {display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:5px;}.application-choices label{display:flex;align-items:center;gap:6px;font-size:12px;}.application-choices input{width:16px;height:16px;accent-color:#111;}
+.application-submit {display:flex;gap:24px;align-items:center;justify-content:space-between;border-top:2px solid #111;padding-top:20px;}.application-submit p{margin:0;color:#666;font-size:12px;line-height:1.7;}
+.application-submit button {background:#111;color:#fff;border:1px solid #111;padding:13px 22px;font-size:14px;cursor:pointer;white-space:nowrap;}.application-submit button:disabled{opacity:.6;cursor:wait;}
+.application-error {border-left:3px solid #aa2929;padding:10px 14px;color:#932222;font-size:14px;}.application-success{padding:20px;border:1px solid #111;margin-top:20px;font-size:14px;line-height:1.7;}.application-success strong{display:block;font-size:20px;}
+.application-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;}
+.application-page [hidden]{display:none!important;}
+@media(max-width:700px){.application-shell{width:calc(100% - 28px);margin:25px auto 40px;}.application-heading{flex-direction:column;gap:8px;}.application-number{max-width:none;margin:0;}.application-number output{display:inline;margin-left:8px;}.application-grid{grid-template-columns:1fr;}.application-group-heading{grid-template-columns:1fr;}.application-group-heading>.application-cell{border-left:0;border-top:1px solid #ccc;}.application-cell{padding:10px 12px;}.application-group-heading>div{padding:12px;}.application-submit{align-items:stretch;flex-direction:column;gap:12px;}.application-submit button{width:100%;}}

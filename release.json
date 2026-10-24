@@ -1,0 +1,14 @@
+{
+  "version": "1.29",
+  "release_number": 29,
+  "previous_saved_site_revision": 9,
+  "release_date": "2026-10-24",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.29.zip",
+  "zip_root": "COPKU_Website_v1.29",
+  "changes": [
+    "Unify admin Application settings with Orchestra applications and Club approvals; show all Club registration decisions with reversible suspension and terminal revocation.",
+    "Replace the orchestra application with a bilingual form based on the supplied reference, saving private submissions for administrator review.",
+    "Add Choir and Keyboard opportunity categories and personnel catalogues; use 古典音乐营 as the Chinese translation of Club."
+  ]
+}

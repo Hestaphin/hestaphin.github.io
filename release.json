@@ -1,0 +1,14 @@
+{
+  "version": "1.30",
+  "release_number": 30,
+  "previous_saved_site_revision": 10,
+  "release_date": "2026-10-25",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.30.zip",
+  "zip_root": "COPKU_Website_v1.30",
+  "changes": [
+    "Correct application page branding/link styles, remove its search controls and Club content, and show group fields only after checking Apply.",
+    "Automatically create urgent mandatory administrator review tasks and durable applicant confirmation-email jobs, with secure Brevo sender setup in the real admin portal.",
+    "Enable Room, Instrument, Equipment and Transportation booking with today-only 10-minute cells, hover calendars, current/next reservations, clearance, owned cancellations and administrator warning overrides."
+  ]
+}

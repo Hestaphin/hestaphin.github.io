@@ -1,66 +1,72 @@
-<!DOCTYPE html><html lang="en"><head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="../../style.css" />
-  <title>PUCO Internal Portal</title>
-</head><body data-portal="true">  <div class="topbar">
-    <div class="container topbar-inner">
-      <p>PUCO Peking Unnamed Chamber Orchestra</p>
-      <div>
-        <a href="/login/" class="login-link">Login</a>
-        <a href="/#donate">etanod</a>
-      </div>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><meta name="description" content="Orchestra member tasks, notifications and conversations"><title>Orchestra Portal | COPKU</title><link rel="icon" href="/assets/orchestra-mark.png"><link rel="stylesheet" href="/homepage.css?v=1.32"><link rel="stylesheet" href="/navigation.css"><link rel="stylesheet" href="/events/events.css"><link rel="stylesheet" href="/portal/portal.css?v=1.32"><script src="/language.js?v=1.32" defer></script><link rel="stylesheet" href="/portal/booking.css?v=1.32"></head>
+<body class="events-page orchestra-portal has-reference-header" data-portal-version="1.32"><header class="reference-topbar">
+    <div class="title-tones" aria-hidden="true"></div>
+    <a class="reference-brand" href="/" aria-label="Peking Unnamed Chamber Orchestra homepage">
+      <img src="/assets/orchestra-mark.png" width="80" height="80" alt="Orchestra logo">
+      <span>Peking Unnamed Chamber Orchestra</span>
+    </a>
+    <a class="reference-login" href="/portal/internal/">Portal</a>
+  </header>
+<nav class="section-navigation" aria-label="Main navigation"><ul>
+      <li><a href="/"><span>Home</span></a></li>
+      <li class="navigation-group" data-navigation-group="events"><a data-navigation-parent href="/events/"><span>Events</span></a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Events subpages" aria-expanded="false" aria-controls="navigation-events-submenu" hidden><svg viewbox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></button><ul class="navigation-submenu" id="navigation-events-submenu" aria-label="Events subpages"><li><a href="/events/#ongoing-events"><span>Ongoing</span></a></li><li><a href="/events/#past-events"><span>Past</span></a></li></ul></li>
+      <li class="navigation-group" data-navigation-group="about"><a data-navigation-parent href="/about/"><span>About</span></a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show About subpages" aria-expanded="false" aria-controls="navigation-about-submenu" hidden><svg viewbox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></button><ul class="navigation-submenu" id="navigation-about-submenu" aria-label="About subpages"><li><a href="/about/piano-museum/"><span>Piano Museum</span></a></li><li><a href="/about/teaching-in-schools/"><span>Teaching in schools</span></a></li><li><a href="/about/engaging-the-society/"><span>Engaging the society</span></a></li></ul></li>
+      <li class="navigation-group" data-navigation-group="learn"><a data-navigation-parent href="/learn/"><span>Learn</span></a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Learn subpages" aria-expanded="false" aria-controls="navigation-learn-submenu" hidden><svg viewbox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></button><ul class="navigation-submenu" id="navigation-learn-submenu" aria-label="Learn subpages"><li><a href="/learn/fun-facts/"><span>Fun facts</span></a></li><li><a href="/learn/music-theory/"><span>Music theory</span></a></li><li><a href="/learn/magazine/"><span>Magazine</span></a></li><li><a href="/learn/research-centre/"><span>Research centre</span></a></li></ul></li>
+      <li class="navigation-group" data-navigation-group="opportunities"><a data-navigation-parent href="/opportunities/"><span>Opportunities</span></a><button type="button" class="navigation-submenu-toggle" data-navigation-toggle aria-label="Show Opportunities subpages" aria-expanded="false" aria-controls="navigation-opportunities-submenu" hidden><svg viewbox="0 0 10 6" aria-hidden="true" focusable="false"><path d="m1 1 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></button><ul class="navigation-submenu" id="navigation-opportunities-submenu" aria-label="Opportunities subpages"><li><a href="/opportunities/orchestra/"><span>Orchestra</span></a></li><li><a href="/opportunities/wind-band/"><span>Wind band</span></a></li><li><a href="/opportunities/choir/"><span>Choir</span></a></li><li><a href="/opportunities/keyboard/"><span>Keyboard</span></a></li><li><a href="/opportunities/club/"><span>Club</span></a></li></ul></li>
+      <li><a href="/contact/"><span>Contact</span></a></li>
+      <li><a href="/shop/"><span>Shop</span></a></li>
+</ul></nav>
+<button class="search-folded" id="open-event-search" type="button" aria-expanded="false" aria-controls="event-filter-panel">Search</button>
+<aside class="event-filter-panel" id="event-filter-panel" aria-label="Search and filter the portal" aria-hidden="true" inert>
+  <form id="event-filter-form" class="event-filter-form" role="search">
+    <div class="keyword-field">
+      <label class="visually-hidden" for="event-keyword">Search tasks, notifications and members</label>
+      <input type="search" id="event-keyword" name="keyword" placeholder="Type in to search" autocomplete="off">
+      <button type="submit" class="keyword-submit" aria-label="Search portal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="3"/><path d="m14 14 8 8" stroke="currentColor" stroke-width="3"/></svg></button>
     </div>
-  </div>  <header class="site-header">
-    <div class="container nav-wrap">
-      <a href="/" class="brand" aria-label="PUCO homepage">
-        <img src="../../PUCO-LOGO.png" alt="PUCO logo" />
-        <div class="brand-text">
-          <span class="brand-name">PUCO</span>
-          <span class="brand-tag">Peking Unnamed Chamber Orchestra</span>
+    <div class="filter-label"><h2>Filter</h2><button type="button" class="all-years" id="all-event-years">All years</button></div>
+    <div class="year-wheel" id="year-wheel" role="group" aria-label="Select a year. Scroll or use the arrow keys.">
+      <button type="button" class="year-neighbour" id="year-previous" aria-label="Select year 2024">2024</button>
+      <button type="button" class="year-current" id="year-current"><span id="year-current-text">2025</span></button>
+      <label class="visually-hidden" for="year-entry">Year. Leave blank for all years.</label><input type="text" inputmode="numeric" maxlength="4" class="year-entry" id="year-entry" name="year" value="2025" aria-describedby="event-filter-error" hidden>
+      <button type="button" class="year-neighbour" id="year-next" aria-label="Select year 2026">2026</button>
+    </div>
+    <div class="season-choices" role="group" aria-label="Music seasons. Select any number, or none for the whole year.">
+      <button type="button" data-season="spring" aria-pressed="false">spring</button>
+      <button type="button" data-season="summer" aria-pressed="false">summer</button>
+      <button type="button" data-season="autumn" aria-pressed="false">autumn</button>
+      <button type="button" data-season="winter" aria-pressed="false">winter</button>
+    </div>
+    <div class="month-choices"><label for="event-from-month">From</label><select id="event-from-month" name="from" aria-label="From month"><option value="">Month</option><option value="01" aria-label="January">Jan</option><option value="02" aria-label="February">Feb</option><option value="03" aria-label="March">Mar</option><option value="04" aria-label="April">Apr</option><option value="05" aria-label="May">May</option><option value="06" aria-label="June">Jun</option><option value="07" aria-label="July">Jul</option><option value="08" aria-label="August">Aug</option><option value="09" aria-label="September">Sept</option><option value="10" aria-label="October">Oct</option><option value="11" aria-label="November">Nov</option><option value="12" aria-label="December">Dec</option></select><label for="event-to-month">to</label><select id="event-to-month" name="to" aria-label="To month"><option value="">Month</option><option value="01" aria-label="January">Jan</option><option value="02" aria-label="February">Feb</option><option value="03" aria-label="March">Mar</option><option value="04" aria-label="April">Apr</option><option value="05" aria-label="May">May</option><option value="06" aria-label="June">Jun</option><option value="07" aria-label="July">Jul</option><option value="08" aria-label="August">Aug</option><option value="09" aria-label="September">Sept</option><option value="10" aria-label="October">Oct</option><option value="11" aria-label="November">Nov</option><option value="12" aria-label="December">Dec</option></select></div>
+    <button type="submit" class="filter-submit" id="event-search-submit">SEARCH</button>
+    <p class="filter-error" id="event-filter-error" role="alert" hidden></p>
+  </form>
+  <button type="button" class="filter-collapse" id="close-event-search" aria-label="Hide search filters and return to the portal"></button>
+</aside><main class="portal-shell events-canvas" id="portal-content"><div id="orchestra-portal" data-portal-v2="true"><p role="status">Loading orchestra portal…</p></div><div class="score-overlay" aria-hidden="true">
+        <div class="score-lines"><i></i><i></i><i></i><i></i><i></i></div>
+        <svg class="score-notation" viewbox="0 0 192 320" focusable="false">
+          <!-- Bravura glyph outlines, SIL Open Font License; see assets/BRAVURA-OFL.txt. -->
+          <defs>
+            <path id="score-g-clef" d="M376 415C374 427 376 428 382 434C398 449 419 470 438 491C522 583 572 702 572 815C572 902 548 988 507 1048C492 1070 466 1098 455 1098C441 1098 410 1072 390 1050C316 968 292 843 292 739C292 681 299 616 306 575C308 563 309 561 297 551C233 498 164 437 112 373C43 287 0 194 0 87C0 -87 119 -252 364 -252C387 -252 413 -250 433 -246C444 -244 446 -243 448 -255C460 -322 475 -409 475 -456C475 -604 375 -622 316 -622C262 -622 236 -606 236 -593C236 -586 245 -583 268 -576C299 -567 335 -540 335 -482C335 -427 300 -380 239 -380C172 -380 132 -433 132 -495C132 -560 171 -658 322 -658C389 -658 519 -628 519 -458C519 -401 501 -306 490 -244C488 -232 489 -233 503 -227C604 -187 671 -102 671 11C671 139 577 252 430 252C404 252 404 252 401 270ZM470 943C503 943 530 916 530 861C530 792 497 728 419 650C403 634 379 611 356 591C349 585 345 586 343 599C339 625 337 659 337 691C337 847 409 943 470 943ZM361 262C364 243 364 244 346 238C258 208 201 129 201 44C201 -46 248 -110 316 -133C324 -136 336 -139 343 -139C351 -139 355 -134 355 -128C355 -121 347 -118 340 -115C298 -97 268 -54 268 -8C268 49 307 92 368 109C384 113 386 112 388 101L438 -197C440 -208 439 -208 424 -211C408 -214 388 -216 368 -216C193 -216 80 -119 80 20C80 79 90 158 173 252C233 319 279 356 326 394C336 402 338 401 340 390ZM430 103C428 115 429 118 441 117C522 110 589 42 589 -46C589 -109 551 -160 495 -188C483 -194 481 -194 479 -182Z"></path>
+            <path id="score-sharp" d="M237 118C244 121 249 129 249 135V206C249 211 246 214 242 214C240 214 239 214 237 213C237 213 217 205 212 204C205 204 198 209 198 217V339C198 345 192 350 184 350C174 350 168 345 168 339V209C167 199 164 186 155 180C143 173 109 159 92 155C83 155 80 167 80 175V295C80 301 73 306 66 306C56 306 50 301 50 295V160C50 146 44 136 38 133C32 130 12 122 12 122C5 120 0 112 0 106V35C0 29 3 26 8 26C9 26 11 27 12 27C12 27 27 33 34 37C35 37 36 38 37 38C44 38 50 28 50 20V-79C50 -90 45 -99 39 -102C33 -104 12 -113 12 -113C5 -115 0 -123 0 -129V-200C0 -206 3 -209 8 -209C9 -209 11 -208 12 -208C12 -208 26 -202 35 -199C36 -198 37 -198 38 -198C45 -198 50 -209 50 -214V-337C50 -343 56 -348 63 -348C73 -348 80 -343 80 -337V-198C80 -185 85 -178 90 -176L151 -151C152 -151 154 -150 155 -150C163 -150 168 -162 168 -168V-293C168 -299 174 -304 181 -304C192 -304 198 -299 198 -293V-151C198 -143 202 -131 209 -128C216 -125 237 -117 237 -117C244 -114 249 -106 249 -100V-29C249 -24 246 -21 242 -21C240 -21 239 -21 237 -22L211 -32C205 -32 198 -26 198 -14V79C198 86 203 105 211 108ZM168 -45C162 -65 115 -85 92 -85C86 -85 81 -83 80 -80C78 -76 77 -54 77 -30C77 1 78 36 80 44C82 61 128 82 153 82C160 82 166 80 168 76C170 71 172 46 172 19C172 -8 170 -36 168 -45Z"></path>
+            <path id="score-flat" d="M12 -170C15 -174 18 -175 21 -175C24 -175 27 -173 27 -173C57 -156 81 -129 106 -112C195 -50 226 11 226 57C226 114 182 150 136 153C129 153 122 152 115 150C104 147 92 143 81 136C75 131 64 122 59 122C57 122 56 122 54 123C47 126 43 133 43 140C44 162 50 402 50 422C50 433 41 439 31 439C17 439 1 429 0 411C0 411 4 -160 12 -170ZM47 -81C47 -81 44 -21 44 19C44 35 45 47 46 51C50 63 76 85 90 93C99 98 108 100 116 100C126 100 135 96 141 89C151 78 157 61 157 42C157 24 152 3 140 -18C127 -42 98 -74 68 -93C64 -95 61 -96 58 -96C49 -96 47 -86 47 -81Z"></path>
+          </defs>
+          <!-- Rotate one correctly engraved horizontal staff as a complete unit. -->
+          <g transform="translate(192 0) rotate(90)" fill="currentColor">
+            <use href="#score-g-clef" transform="translate(10 120) scale(.096 -.096)"></use>
+            <g class="score-key"></g>
+          </g>
+        </svg>
+      </div>
+
+      <section class="event-results" id="portal-search-results" aria-label="Portal search results" aria-busy="false" hidden><div class="results-topline"><h2 class="results-heading" id="portal-results-heading" tabindex="-1"></h2><label class="result-order"><input type="checkbox" id="portal-oldest-first">Order from oldest to newest</label></div><p class="portal-results-date-note">Tasks use start dates; notifications use posting dates; members use join dates.</p><div id="portal-result-groups"></div></section></main><footer class="home-footer" id="donate">
+        <div class="footer-information">
+          <div><p>Peking Unnamed Chamber Orchestra</p><a href="mailto:admin@pkuco.org">admin@pkuco.org</a></div>
+          <nav aria-label="Footer"><a href="/about/">About</a><a href="/opportunities/club/">Club</a><a href="/shop/">Shop</a></nav>
         </div>
-      </a>
-      <button class="menu-toggle" aria-label="Open navigation"><i class="fa-solid fa-bars"></i></button>
-      <nav class="main-nav"><a href="/" class="active">Home</a><a href="/events/">Events</a><a href="/learn/">Learn</a><a href="/about/">About</a><a href="/opportunities/">Opportunities</a><a href="/#contact">Contact</a><a href="/shop/">Shop</a></nav>
-    </div>
-  </header><main><section class="section"><div class="container"><div class="section-heading"><p class="eyebrow">Internal portal</p><h1>Internal accounts, files, and messages.</h1><p>Administrator tools and member downloads are handled in this dashboard.</p></div><div id="internal-portal"></div></div></section></main>  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div class="footer-brand">
-        <a href="/" class="brand footer-brand-link">
-          <img src="../../PUCO-LOGO.png" alt="PUCO logo" />
-          <div class="brand-text">
-            <span class="brand-name">PUCO</span>
-            <span class="brand-tag">Peking Unnamed Chamber Orchestra</span>
-          </div>
-        </a>
-        <p>A chamber orchestra platform for concerts, musical learning, and open artistic participation.</p>
-      </div>
-      <div>
-        <h4>Explore</h4>
-        <ul>
-          <li><a href="/events/">Events</a></li>
-          <li><a href="/learn/">Learn</a></li>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/opportunities/">Opportunities</a></li>
-          <li><a href="/login/">Login</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Connect</h4>
-        <ul>
-          <li><a href="/#contact">Contact</a></li>
-          <li><a href="mailto:admin@pkuco.org">admin@pkuco.org</a></li>
-          <li><a href="/#donate">etanod</a></li>
-          <li><a href="/shop/">Shop</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="container footer-bottom">
-      <p>© 2026 PUCO. All rights reserved.</p>
-      <p>Website design: Hestaphin</p>
-    </div>
-  </footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/config.js"></script><script src="/app.js"></script></body></html>
+        <p class="copyright">© 2026 Peking Unnamed Chamber Orchestra.   Website design: Hestaphin</p>
+      </footer>
+      <div class="footer-red-bar" aria-hidden="true"></div>
+<script src="/homepage.js" defer></script><script src="/navigation.js?v=1.32" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/config.js?v=1.32"></script><script type="module" src="/portal/portal.js?v=1.32"></script></body></html>

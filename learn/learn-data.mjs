@@ -22,12 +22,12 @@ export const topics = [
 export const lessons = [
   {
     id: 'schuberts-wife', project: 'fun-facts', label: 'Fun facts',
-    title: 'Who is Schubert’s wife?', date: null, venue: '', legacyAnchor: 'schubert',
+    title: 'Who is Schumann’s wife?', date: null, venue: '', legacyAnchor: 'schubert',
     image: '/assets/event3.png', imageAlt: 'Sheet music flying through a blue room at night',
-    url: '/learn/fun-facts/schuberts-wife/',
+    url: '/learn/fun-facts/schumanns-wife/',
     paragraphs: ['Discover the stories behind the music in our listening events and teaching activities.'],
-    feature: ['Fun facts', 'Listening guides', 'Schubert'],
-    action: { title: 'See the learning event', url: '/events/schubert/' }
+    feature: ['Fun facts', 'Listening guides', 'Schumann'],
+    action: { title: 'See the learning event', url: '/events/schumann/' }
   },
   {
     id: 'major-keys', project: 'music-theory', label: 'Music theory',

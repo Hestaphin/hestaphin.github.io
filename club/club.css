@@ -1,0 +1,15 @@
+/* Keep the site's existing page and dashboard layout. */
+.club-membership [hidden], .club-dashboard [hidden] { display: none !important; }
+.club-membership h3 { margin: 0 0 12px; font-size: 24px; }
+.club-membership > div > p { max-width: 660px; }
+.club-membership form, #membership-checkout-form { scroll-margin-top: calc(var(--events-bars-height, 160px) + 90px); }
+.club-membership .small-note a { text-decoration: underline; text-underline-offset: 3px; }
+.club-dashboard .panel { min-width: 0; }
+.club-dashboard .panel :is(.form-error, .form-success) { color: #000; }
+.club-dashboard .stack-form label { margin-top: 8px; font-weight: 600; }
+.club-dashboard #club-refresh-payment { margin: 8px 0 20px; }
+.club-dashboard #club-security { scroll-margin-top: 160px; }
+.club-billing-table { max-width: 100%; overflow-x: auto; }
+.club-billing-table table { width: 100%; border-collapse: collapse; text-align: left; }
+.club-billing-table :is(th, td) { padding: 10px 14px 10px 0; border-bottom: 1px solid #d4d4d4; vertical-align: top; }
+.club-dashboard .dashboard-sidebar p { overflow-wrap: anywhere; }

@@ -125,14 +125,17 @@
     submit.textContent = 'Logging in…';
     [submit, closeButton, resetButton, ...tabs].forEach((button) => { button.disabled = true; });
     form.setAttribute('aria-busy', 'true');
+    let loginTimer;
     try {
       if (!window.COPKUAuth?.signInToPortal) throw new Error('Login is unavailable right now. Please try again.');
-      const destination = await window.COPKUAuth.signInToPortal(account, username.value.trim().toLowerCase(), password.value);
+      const expired = new Promise((_, reject) => { loginTimer = setTimeout(() => reject(new Error('Login timed out. Please try again shortly.')), 35000); });
+      const destination = await Promise.race([window.COPKUAuth.signInToPortal(account, username.value.trim().toLowerCase(), password.value), expired]);
       window.location.href = destination;
     } catch (error) {
       errorBox.textContent = error.message || 'Could not sign in. Please try again.';
       errorBox.hidden = false;
     } finally {
+      clearTimeout(loginTimer);
       busy = false;
       submit.textContent = 'Login';
       [submit, closeButton, resetButton, ...tabs].forEach((button) => { button.disabled = false; });

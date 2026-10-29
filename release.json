@@ -1,15 +1,17 @@
 {
-  "version": "1.35",
-  "release_number": 35,
-  "previous_saved_site_revision": 15,
-  "release_date": "2026-10-29",
+  "version": "1.36",
+  "release_number": 36,
+  "previous_saved_site_revision": 16,
+  "release_date": "2026-10-30",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.35.zip",
-  "zip_root": "COPKU_Website_v1.35",
+  "zip_filename": "COPKU_Website_v1.36.zip",
+  "zip_root": "COPKU_Website_v1.36",
   "changes": [
-    "Add editable unique resource IDs, private images and attachments, detail galleries and downloads.",
-    "Add durable daily/every-N-hours/every-N-days tasks with copied durations and recipients, duplicate suppression and Stop repeating.",
-    "Paginate tasks, notifications, replies and resources with 20/50/100 items per page, complete all-page badges and searches, and reply divider lines.",
-    "Apply the Orchestra Supabase resource/recurrence upgrade and deploy the booking handler; preserve all v1.34 score-preview assets."
-  ]
+    "Correct all seven booking-table column widths, including ID and Current user, to prevent vertical header text and excessive header height.",
+    "Use compact booking tabs, heading, resource rows and pagination text with refreshed CSS cache URLs.",
+    "Deliver only updated files over v1.35; no database, server function or JavaScript changes."
+  ],
+  "distribution": "patch",
+  "base_version": "1.35",
+  "patch_filename": "COPKU_v1.36_Update_Only.zip"
 }

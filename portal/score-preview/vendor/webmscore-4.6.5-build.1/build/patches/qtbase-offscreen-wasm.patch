@@ -1,0 +1,36 @@
+--- a/src/plugins/platforms/offscreen/qoffscreenintegration.cpp	2026-10-02 13:47:00.574190849 +0200
++++ b/src/plugins/platforms/offscreen/qoffscreenintegration.cpp	2026-10-02 13:47:00.576190886 +0200
+@@ -5,7 +5,10 @@
+ #include "qoffscreenwindow.h"
+ #include "qoffscreencommon.h"
+ 
+-#if defined(Q_OS_UNIX)
++#if defined(Q_OS_WASM)
++#include <QtGui/private/qfreetypefontdatabase_p.h>
++#include <QtCore/private/qeventdispatcher_wasm_p.h>
++#elif defined(Q_OS_UNIX)
+ #include <QtGui/private/qgenericunixeventdispatcher_p.h>
+ #if defined(Q_OS_MAC)
+ #include <qpa/qplatformfontdatabase.h>
+@@ -61,7 +64,9 @@
+ 
+ QOffscreenIntegration::QOffscreenIntegration(const QStringList& paramList)
+ {
+-#if defined(Q_OS_UNIX)
++#if defined(Q_OS_WASM)
++    m_fontDatabase.reset(new QFreeTypeFontDatabase());
++#elif defined(Q_OS_UNIX)
+ #if defined(Q_OS_MAC)
+     m_fontDatabase.reset(new QCoreTextFontDatabaseEngineFactory<QCoreTextFontEngine>);
+ #else
+@@ -341,7 +346,9 @@
+ 
+ QAbstractEventDispatcher *QOffscreenIntegration::createEventDispatcher() const
+ {
+-#if defined(Q_OS_UNIX)
++#if defined(Q_OS_WASM)
++    return new QEventDispatcherWasm();
++#elif defined(Q_OS_UNIX)
+     return createUnixEventDispatcher();
+ #elif defined(Q_OS_WIN)
+     return new QOffscreenEventDispatcher<QEventDispatcherWin32>();

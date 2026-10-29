@@ -1,0 +1,83 @@
+MuseScore browser engine distribution notice
+
+Package: @kreijstal/webmscore-wasm version 4.6.5-build.1
+License: GPL-3.0-only. The complete primary program license is
+LICENSES/webmscore-LICENSE.txt. Preserve this notice, LICENSES/ and build/.
+This handoff copies the published core loader, WASM, data and SoundFont without
+modification. The application owner supplies its browser Worker/API adapter.
+
+Exact package and reproducibility sources:
+https://registry.npmjs.org/@kreijstal%2Fwebmscore-wasm/4.6.5-build.1
+https://registry.npmjs.org/@kreijstal/webmscore-wasm/-/webmscore-wasm-4.6.5-build.1.tgz
+The publisher's build script, patches and complete package README are included
+under build/. The build pins partitioncloud/webmscore tag webmscore-4.6.5-1,
+commit c54bb4366a880ec8757c1d8efaa8c660f476c2c3:
+https://github.com/partitioncloud/webmscore/tree/c54bb4366a880ec8757c1d8efaa8c660f476c2c3
+https://github.com/partitioncloud/webmscore/archive/c54bb4366a880ec8757c1d8efaa8c660f476c2c3.tar.gz
+https://raw.githubusercontent.com/partitioncloud/webmscore/c54bb4366a880ec8757c1d8efaa8c660f476c2c3/LICENSE.txt
+https://raw.githubusercontent.com/partitioncloud/webmscore/c54bb4366a880ec8757c1d8efaa8c660f476c2c3/web-public/src/index.js
+https://raw.githubusercontent.com/partitioncloud/webmscore/c54bb4366a880ec8757c1d8efaa8c660f476c2c3/web-public/src/helper.js
+https://raw.githubusercontent.com/partitioncloud/webmscore/c54bb4366a880ec8757c1d8efaa8c660f476c2c3/web/audio/audiosynth.cpp
+
+Toolchain/source dependency pins from the publisher:
+Emscripten 6.0.9-git commit 4e4223852a0835923411059a3929907d7df1232e
+https://github.com/emscripten-core/emscripten/tree/4e4223852a0835923411059a3929907d7df1232e
+Qt 6.10.3 source modules qtbase, qtsvg, qt5compat, qtshadertools, qtdeclarative:
+https://download.qt.io/archive/qt/6.10/6.10.3/submodules/qtbase-everywhere-src-6.10.3.tar.xz
+https://download.qt.io/archive/qt/6.10/6.10.3/submodules/qtsvg-everywhere-src-6.10.3.tar.xz
+https://download.qt.io/archive/qt/6.10/6.10.3/submodules/qt5compat-everywhere-src-6.10.3.tar.xz
+https://download.qt.io/archive/qt/6.10/6.10.3/submodules/qtshadertools-everywhere-src-6.10.3.tar.xz
+https://download.qt.io/archive/qt/6.10/6.10.3/submodules/qtdeclarative-everywhere-src-6.10.3.tar.xz
+The build script initializes the pinned MuseScore source submodules, applies the
+included patches and rebuilds all WebAssembly objects from source.
+
+Bundled font notices:
+LICENSES/fonts/ contains the primary font license and README files from the
+pinned MuseScore source tree. The program license also includes its font
+embedding exception. Source tree:
+https://github.com/partitioncloud/webmscore/tree/c54bb4366a880ec8757c1d8efaa8c660f476c2c3/fonts
+
+SoundFont: FluidR3Mono_GM.sf3, MuseScore 2.1, version 2.312 (2016-12-05).
+MIT license; full attribution and permission notice in
+LICENSES/FluidR3Mono_License.md. Original stereo version Frank Wen 2000-2002;
+mono version Michael Cowgill 2014-2016; Temple Blocks Ethan Winer 2002;
+Drumline Percussion Michael Schorsch 2016. Preserve all acknowledgements.
+Exact pinned source:
+https://raw.githubusercontent.com/musescore/MuseScore/871c8ce2002e8b3c198f532fdb4fbcce7914f951/share/sound/FluidR3Mono_GM.sf3
+https://raw.githubusercontent.com/musescore/MuseScore/871c8ce2002e8b3c198f532fdb4fbcce7914f951/share/sound/FluidR3Mono_License.md
+
+Source availability when distributing the WebAssembly:
+GPLv3 sections 4-6 require retained notices and license, and equivalent access
+to Corresponding Source (including relevant build scripts and modifications).
+When using source hosted on another server, keep clear directions next to the
+binary and ensure the source remains available. The links above identify the
+exact build inputs, not a promise of long-term third-party availability.
+A modified or derivative combined program must comply with GPLv3 section 5;
+separate and independent works in an aggregate are treated by its final
+paragraph. A Worker boundary alone does not determine that classification.
+
+Deployment:
+Serve webmscore.lib.js as JavaScript, webmscore.lib.wasm as application/wasm,
+webmscore.lib.data as application/octet-stream. The ESM loader takes
+locateFile: path => new URL(path, vendorBase).href. No network score conversion
+service is used. No SharedArrayBuffer/COOP/COEP requirement: this binary's
+memory is not shared. It starts at 25 MiB and can grow to 2 GiB.
+CSP needs script-src 'self' 'wasm-unsafe-eval'; the unchanged core was compiled
+with DYNAMIC_EXECUTION=0 and contains no eval/new Function. A file-based module
+Worker can use worker-src 'self'; only the optional original Blob wrapper needs
+worker-src blob:. Use connect-src 'self' for asset requests, and add blob: to
+media-src and img-src when displaying generated audio/SVG through object URLs.
+
+SHA256 and uncompressed byte length:
+2ba26fdbec9522f5360bf5b1056c9e28b7ee57ff505013b478c8a5b29e8fb5ff  234507  webmscore.lib.js
+8a5d7e4fde704265cd150f08d9555c2f51afccd37311f569743289997a2a3d71  23194255  webmscore.lib.wasm
+68e82855c7e644e994c69754f66340baaf160630a5875c37500d6e8532b169d6  4195879  webmscore.lib.data
+cfcd66d89e8386823400eca64934b14fbea7bf48ba1f00d21189af1262794ec2  14563174  FluidR3Mono_GM.sf3
+
+COPKU adapter modifications (29 October 2026): inline.mjs retains the published
+high-level API and replaces the Node/research preamble with a same-origin
+locateFile loader. It runs directly inside the terminable worker.mjs supplied
+with this component. Runtime initialization also propagates loader rejection
+instead of leaving its readiness promise pending after a failed asset load.
+The modified adapter and all component modules are shipped
+as readable source under GPL-3.0-only next to the WebAssembly.

@@ -1,0 +1,20 @@
+--- a/src/corelib/platform/wasm/qwasmsuspendresumecontrol.cpp	2026-10-02 14:24:41.989271701 +0200
++++ b/src/corelib/platform/wasm/qwasmsuspendresumecontrol.cpp	2026-10-02 14:24:41.990271719 +0200
+@@ -265,7 +265,8 @@
+     val jsHandler = QWasmSuspendResumeControl::get()->jsEventHandlerAt(m_handlerIndex);
+     using ArgType = double; // emscripten::val::call() does not support int64_t
+     ArgType timoutValue = static_cast<ArgType>(timeout.count());
+-    ArgType timerId = val::global("window").call<ArgType>("setTimeout", jsHandler, timoutValue);
++    // the global object, not window: there is none in a Web Worker
++    ArgType timerId = val::global().call<ArgType>("setTimeout", jsHandler, timoutValue);
+     m_timerId = static_cast<int64_t>(std::round(timerId));
+ }
+ 
+@@ -276,6 +277,6 @@
+ 
+ void QWasmTimer::clearTimeout()
+ {
+-    val::global("window").call<void>("clearTimeout", double(m_timerId));
++    val::global().call<void>("clearTimeout", double(m_timerId));
+     m_timerId = 0;
+ }

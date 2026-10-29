@@ -1,0 +1,94 @@
+webmscore 4.6.5-1 (partitioncloud/webmscore) built with emscripten 6.0.9 and Qt 6.10.3
+instead of emsdk 3.1.14 and Qt 6.4.3:
+- link flags: EXTRA_EXPORTED_RUNTIME_METHODS is gone; export malloc/free as functions
+  and HEAPU8 (no longer on Module by default) with the runtime methods
+- link the offscreen platform plugin (built from source, see build.sh) instead of Qt's
+  browser one; upstream CI deletes the wasm plugin's CMake files and drops in a
+  prebuilt libqoffscreen.a
+- load .mscx: MscReader reads it from the directory it is in, which a relative
+  temporary file name ("XXXXXX.mscx") does not give ("File open error", also in the
+  4.6.5-1 release); create the temporary file under QDir::tempPath()
+- harfbuzz: its sources come from musescore/muse_deps, whose main branch no longer has
+  harfbuzz/7.1.0; fetch them from the last commit that does
+- freetype/brotli: add_subdirectory instead of subdirs(), which runs after Qt's
+  deferred deployment-info call and makes it fail on the not yet read directories
+
+diff --git a/buildscripts/cmake/SetupFreetypeBrotli.cmake b/buildscripts/cmake/SetupFreetypeBrotli.cmake
+index c89f8fa..70d1ec8 100644
+--- a/buildscripts/cmake/SetupFreetypeBrotli.cmake
++++ b/buildscripts/cmake/SetupFreetypeBrotli.cmake
+@@ -12,7 +12,7 @@ add_compile_definitions(FT_CONFIG_OPTION_USE_BROTLI)
+ 
+ include_directories(${MU_ROOT}/src/framework/draw/thirdparty/freetype)
+ 
+-subdirs(
+-    ${MU_ROOT}/thirdparty/brotli
+-    ${MU_ROOT}/src/framework/draw/thirdparty/freetype
+-)
++# add_subdirectory, not subdirs(): subdirs are only read after the top-level
++# CMakeLists, past Qt's deferred deployment-info call, which then cannot find them
++add_subdirectory(${MU_ROOT}/thirdparty/brotli brotli)
++add_subdirectory(${MU_ROOT}/src/framework/draw/thirdparty/freetype freetype)
+diff --git a/src/framework/draw/cmake/SetupHarfBuzz.cmake b/src/framework/draw/cmake/SetupHarfBuzz.cmake
+index e48a05f..763ee5f 100644
+--- a/src/framework/draw/cmake/SetupHarfBuzz.cmake
++++ b/src/framework/draw/cmake/SetupHarfBuzz.cmake
+@@ -37,7 +37,8 @@ endif()
+ # If not MUE_COMPILE_USE_SYSTEM_HARFBUZZ, or if it was not found,
+ # download and build harfbuzz
+ 
+-set(REMOTE_ROOT_URL https://raw.githubusercontent.com/musescore/muse_deps/main)
++# muse_deps/main reorganised its recipes; the commit that still has harfbuzz/7.1.0
++set(REMOTE_ROOT_URL https://raw.githubusercontent.com/musescore/muse_deps/96c2db711676fcd4267374fe15e6b6b919e14288)
+ set(remote_url ${REMOTE_ROOT_URL}/harfbuzz/7.1.0)
+ set(local_path ${PROJECT_BINARY_DIR}/_deps/harfbuzz)
+ if (NOT EXISTS ${local_path}/harfbuzz.cmake)
+diff --git a/web/CMakeLists.txt b/web/CMakeLists.txt
+index ebb81e5..648d3b4 100644
+--- a/web/CMakeLists.txt
++++ b/web/CMakeLists.txt
+@@ -81,8 +81,10 @@ set(WASM_LINK_FLAGS         "${WASM_LINK_FLAGS} -s ALLOW_TABLE_GROWTH=1")
+ set(WASM_LINK_FLAGS         "${WASM_LINK_FLAGS} -s ALLOW_MEMORY_GROWTH=1")
+ set(WASM_LINK_FLAGS         "${WASM_LINK_FLAGS} -s INITIAL_MEMORY=25MB")
+ # set(WASM_LINK_FLAGS         "${WASM_LINK_FLAGS} -s ASSERTIONS=1")
+-set(WASM_LINK_FLAGS         "${WASM_LINK_FLAGS} -s ASYNCIFY_IMPORTS")
+-set(WASM_LINK_FLAGS         "${WASM_LINK_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS='[\"_malloc\", \"_free\", \"ccall\", \"cwrap\", \"stringToUTF8\", \"UTF8ToString\", \"getValue\", \"setValue\"]'")
++# emscripten >= 3.1.27 (-s EXTRA_EXPORTED_RUNTIME_METHODS is gone; malloc/free are
++# functions, and HEAPU8 is no longer on Module unless exported)
++set(WASM_LINK_FLAGS         "${WASM_LINK_FLAGS} -s EXPORTED_FUNCTIONS=_malloc,_free")
++set(WASM_LINK_FLAGS         "${WASM_LINK_FLAGS} -s EXPORTED_RUNTIME_METHODS=ccall,cwrap,stringToUTF8,UTF8ToString,getValue,setValue,HEAPU8")
+ 
+ set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} -fsigned-char")
+ set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} -fPIC")
+@@ -162,6 +164,9 @@ add_executable(webmscore
+ 
+ set_target_properties (webmscore PROPERTIES LINK_FLAGS ${WASM_LINK_FLAGS})
+ 
++# The QGuiApplication runs on the offscreen platform (main.cpp), not Qt's browser one
++qt_import_plugins(webmscore INCLUDE_BY_TYPE platforms Qt6::QOffscreenIntegrationPlugin)
++
+ target_include_directories(webmscore PUBLIC
+     ${MU_ROOT} # for thirdparty/
+     ${MU_ROOT}/src/framework/global
+diff --git a/web/main.cpp b/web/main.cpp
+index 70fbd19..19b1a15 100644
+--- a/web/main.cpp
++++ b/web/main.cpp
+@@ -4,6 +4,7 @@
+ #include <QFontDatabase>
+ #include <QFile>
+ #include <QTemporaryFile>
++#include <QDir>
+ #include "global/log.h"
+ #include "global/defer.h"
+ #include "global/io/buffer.h"
+@@ -266,7 +267,8 @@ WasmRes _load(const char* format, const char* data, const uint32_t size, bool do
+     String _format = String::fromUtf8(format);  // file format of the data
+ 
+     // create a temporary file, and write `data` into it
+-    QTemporaryFile tempfile("XXXXXX." + _format);  // filename template for the temporary file
++    // (at an absolute path: an .mscx is read from the directory it is in, see MscReader::DirReader)
++    QTemporaryFile tempfile(QDir::tempPath() + "/XXXXXX." + _format);  // filename template for the temporary file
+     if (!tempfile.open()) { // a QTemporaryFile will always be opened in `QIODevice::ReadWrite` mode
+         throw QString("Cannot create a temporary file");
+     } else {

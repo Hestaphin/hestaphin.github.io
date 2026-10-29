@@ -1,6 +1,18 @@
 export const BOOKING_CATEGORIES=['Room','Instrument','Equipment','Transportation'];
 export const BOOKING_FILTER_FIELDS=['department','occupation_type','instrument','classification','rank','member_status'];
 export const BOOKING_TIMEZONE='Asia/Shanghai';
+export const BOOKING_ADMIN_DAYS=7;
+export function addBookingDays(day,days) {
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isSafeInteger(days))throw Error('Choose a valid booking date.');
+ const date=new Date(day+'T12:00:00Z');
+ if(!Number.isFinite(+date)||date.toISOString().slice(0,10)!==day)throw Error('Choose a valid booking date.');
+ date.setUTCDate(date.getUTCDate()+days);return date.toISOString().slice(0,10);
+}
+export function bookingDayWindow(role,value=new Date()) {
+ const today=bookingClock(value).day;return {min:today,max:addBookingDays(today,role==='admin'?BOOKING_ADMIN_DAYS-1:0)};
+}
+export function validateBookingDate(day) {try{return addBookingDays(day,0)===day;}catch{return false;}}
+export function bookingRepeatDays(value) {const n=Number(value);if(!Number.isSafeInteger(n)||n<1||n>3650)throw Error('Choose a whole number of days from 1 to 3650.');return n;}
 export function bookingClock(value=new Date()) {
  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:BOOKING_TIMEZONE,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(value)).map(p=>[p.type,p.value]));
  return {day:`${parts.year}-${parts.month}-${parts.day}`,minute:Number(parts.hour)*60+Number(parts.minute)};
@@ -33,6 +45,6 @@ export function canBookResource(resource,member) {
  return (!clearance.member_ids?.length||clearance.member_ids.includes(member.user_id))&&BOOKING_FILTER_FIELDS.every(key=>!clearance.filters?.[key]?.length||clearance.filters[key].includes(member[key]||''));
 }
 export function normalizeBookingSlots(input) {
- if(!Array.isArray(input)||!input.length||input.length>144||input.some(value=>!Number.isInteger(value)||value<0||value>143))throw Error('Select one or more 10-minute cells for today.');
+ if(!Array.isArray(input)||!input.length||input.length>144||input.some(value=>!Number.isInteger(value)||value<0||value>143))throw Error('Select one or more 10-minute cells.');
  return [...new Set(input)].sort((a,b)=>a-b);
 }

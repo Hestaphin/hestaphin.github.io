@@ -1,17 +1,18 @@
 {
-  "version": "1.36",
-  "release_number": 36,
-  "previous_saved_site_revision": 16,
+  "version": "1.37",
+  "release_number": 37,
+  "previous_saved_site_revision": 17,
   "release_date": "2026-10-30",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.36.zip",
-  "zip_root": "COPKU_Website_v1.36",
+  "zip_filename": "COPKU_Website_v1.37.zip",
+  "zip_root": "COPKU_Website_v1.37",
   "changes": [
-    "Correct all seven booking-table column widths, including ID and Current user, to prevent vertical header text and excessive header height.",
-    "Use compact booking tabs, heading, resource rows and pagination text with refreshed CSS cache URLs.",
-    "Deliver only updated files over v1.35; no database, server function or JavaScript changes."
+    "Admin bookings on seven calendar dates: today through today + six days in Beijing time.",
+    "Admin-only daily/every-N-days recurring bookings, rolling reservations, conflict reporting and stop controls.",
+    "MuseScore note highlighting, click-note playback and optional automatic page following; independent mapping Worker preserves audio fallback.",
+    "Update-only files over v1.36; booking database migration and Edge function applied to COPKU DATA."
   ],
   "distribution": "patch",
-  "base_version": "1.35",
-  "patch_filename": "COPKU_v1.36_Update_Only.zip"
+  "base_version": "1.36",
+  "patch_filename": "COPKU_v1.37_Update_Only.zip"
 }

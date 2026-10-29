@@ -1,22 +1,25 @@
-COPKU v1.36 — UPDATE FILES ONLY
-For an existing v1.35 website. This is a small layout patch, not a full website package.
+COPKU v1.37 — UPDATE ONLY (base: v1.36)
 
 1. Extract this ZIP.
-2. Open the extracted COPKU_v1.36_Update_Only folder.
-3. In your existing website folder, overwrite these four matching files, keeping their paths:
+2. Copy this folder's contents into your existing COMPLETE orchestra website
+   folder. Keep matching paths, replace matching files, and keep other files.
+3. Upload the resulting complete folder to your existing Netlify site.
+   The small update ZIP alone is not a complete site.
+4. Refresh the portal (Ctrl+Shift+R / Command+Shift+R if needed).
 
-   portal/booking.css
-   portal/internal/index.html
-   portal-preview/index.html
-   release.json
+Supabase is already updated for you. No manual database or scheduler steps
+are required. Included supabase files are source/reference copies only;
+do not run the migration again on your current configured project.
 
-Keep the other existing files in those folders. Publish the website as you normally do.
-The HTML files use a new stylesheet URL, so browsers will request the updated CSS.
+Booking: administrators can pick today through six days later (Beijing time).
+Select cells, then Recurring booking: every day or every N days.
+New dates are booked automatically as they enter the rolling seven-day window.
+Conflicts are shown without overwriting existing bookings or warnings.
 
-Changes:
-- Correct all seven resource-table column widths, including ID and Current user.
-- Prevent header text from stacking one letter per line and making a large grey bar.
-- Use smaller booking tabs, page heading, table text and page controls.
-- Keep table scrolling available on narrow screens.
+Scores: Preview an MSCZ file. Playing notes highlight blue; click a note to
+start there. Follow playback changes pages. Unsupported timing falls back to
+the existing preview/audio player.
 
-No Supabase, database, email, Stripe or server-function setup is needed.
+Read UPDATE_FROM_v1.36.md for the full behavior, limits and validation notes.
+Keep all existing large MuseScore engine/SoundFont/font files. They are unchanged.
+The separate email website is unchanged.

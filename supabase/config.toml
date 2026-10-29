@@ -1,0 +1,36 @@
+[functions.portal-password-help]
+verify_jwt = false
+[functions.portal-club-event]
+verify_jwt = false
+[functions.portal-admin]
+verify_jwt = false
+[functions.create-internal-user]
+verify_jwt = false
+[functions.delete-internal-user]
+verify_jwt = false
+
+[functions.create-shop-checkout]
+verify_jwt = false
+[functions.shop-stripe-webhook]
+verify_jwt = false
+
+[functions.portal-login]
+verify_jwt = false
+
+[functions.portal-account]
+verify_jwt = false
+
+[functions.shop-refund]
+verify_jwt = false
+
+# Public application form; the function validates origin, payload and server-side rate limits.
+[functions.submit-orchestra-application]
+verify_jwt = false
+
+# Booking authenticates the current orchestra user and enforces role/clearance.
+[functions.portal-booking]
+verify_jwt = false
+
+# Private scheduled worker authenticates with its Vault-held worker token.
+[functions.application-mail-worker]
+verify_jwt = false

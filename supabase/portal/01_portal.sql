@@ -1,0 +1,74 @@
+begin;
+create or replace function public.is_admin(uid uuid) returns boolean language sql stable security definer set search_path='' as $$ select exists(select 1 from public.profiles where user_id=uid and role='admin') $$;
+create or replace function public.portal_member() returns boolean language sql stable security definer set search_path='' as $$ select exists(select 1 from public.profiles where user_id=auth.uid() and role in ('admin','internal')) $$;
+create policy portal_directory on public.profiles for select to authenticated using(public.portal_member() and role in ('admin','internal'));
+create table public.portal_tasks(id uuid primary key default gen_random_uuid(),sender uuid not null references public.profiles(user_id) on delete cascade,title text not null check(length(title) between 1 and 200),body jsonb not null default '{}',kind text not null check(kind in ('rehearsal','workload','information')),starts_at timestamptz not null,ends_at timestamptz not null,withdrawn boolean not null default false,created_at timestamptz default now(),check(ends_at>starts_at));
+create table public.portal_task_recipients(task_id uuid references public.portal_tasks on delete cascade,user_id uuid references public.profiles(user_id) on delete cascade,mandatory boolean not null default true,urgent boolean not null default false,status text not null default 'unseen' check(status in ('unseen','seen','outstanding','completed','declined')),reason text,primary key(task_id,user_id));
+create table public.portal_notifications(id uuid primary key default gen_random_uuid(),author uuid not null references public.profiles(user_id) on delete cascade,subject text not null check(length(subject) between 1 and 200),body text not null, image_path text,pinned boolean not null default false,created_at timestamptz default now());
+create table public.portal_notification_reads(notification_id uuid references public.portal_notifications on delete cascade,user_id uuid references public.profiles(user_id) on delete cascade,primary key(notification_id,user_id));
+create table public.portal_replies(id uuid primary key default gen_random_uuid(),notification_id uuid not null references public.portal_notifications on delete cascade,author uuid not null references public.profiles(user_id) on delete cascade,body text not null check(length(body) between 1 and 10000),created_at timestamptz default now());
+create table public.portal_chat_requests(id uuid primary key default gen_random_uuid(),sender uuid not null references public.profiles(user_id) on delete cascade,recipient uuid not null references public.profiles(user_id) on delete cascade,status text not null default 'pending' check(status in ('pending','approved','revoked')),created_at timestamptz default now(),check(sender<>recipient));
+create unique index portal_chat_pair on public.portal_chat_requests(least(sender,recipient),greatest(sender,recipient));
+create table public.portal_chats(id uuid primary key default gen_random_uuid(),request_id uuid not null references public.portal_chat_requests on delete cascade,sender uuid not null references public.profiles(user_id) on delete cascade,body text not null default '',attachment_path text,attachment_name text,created_at timestamptz default now(),check(length(body)>0 or attachment_path is not null));
+create or replace function public.portal_can_task(t uuid) returns boolean language sql stable security definer set search_path='' as $$ select public.portal_member() and exists(select 1 from public.portal_tasks x where x.id=t and (x.sender=auth.uid() or (not x.withdrawn and exists(select 1 from public.portal_task_recipients r where r.task_id=t and r.user_id=auth.uid())))) $$;
+create or replace function public.portal_can_chat(r uuid) returns boolean language sql stable security definer set search_path='' as $$ select public.portal_member() and exists(select 1 from public.portal_chat_requests where id=r and status='approved' and auth.uid() in(sender,recipient)) $$;
+alter table public.portal_tasks enable row level security;
+alter table public.portal_task_recipients enable row level security;
+alter table public.portal_notifications enable row level security;
+alter table public.portal_notification_reads enable row level security;
+alter table public.portal_replies enable row level security;
+alter table public.portal_chat_requests enable row level security;
+alter table public.portal_chats enable row level security;
+grant select on public.portal_tasks,public.portal_task_recipients,public.portal_chat_requests to authenticated;
+grant select,insert,delete on public.portal_notifications to authenticated;
+grant update(pinned) on public.portal_notifications to authenticated;
+grant select,insert on public.portal_notification_reads,public.portal_replies,public.portal_chats to authenticated;
+create policy task_read on public.portal_tasks for select to authenticated using(public.portal_can_task(id));
+create policy recipient_read on public.portal_task_recipients for select to authenticated using(public.portal_can_task(task_id) and (user_id=auth.uid() or exists(select 1 from public.portal_tasks where id=task_id and sender=auth.uid())));
+create policy notification_read on public.portal_notifications for select to authenticated using(public.portal_member());
+create policy notification_post on public.portal_notifications for insert to authenticated with check(public.portal_member() and author=auth.uid() and not pinned and (image_path is null or split_part(image_path,'/',1)=auth.uid()::text));
+create policy notification_pin on public.portal_notifications for update to authenticated using(public.is_admin(auth.uid())) with check(public.is_admin(auth.uid()));
+create policy notification_delete on public.portal_notifications for delete to authenticated using(public.is_admin(auth.uid()));
+create policy reads_self on public.portal_notification_reads for all to authenticated using(public.portal_member() and user_id=auth.uid()) with check(public.portal_member() and user_id=auth.uid());
+create policy replies_read on public.portal_replies for select to authenticated using(public.portal_member());
+create policy replies_post on public.portal_replies for insert to authenticated with check(public.portal_member() and author=auth.uid());
+create policy requests_read on public.portal_chat_requests for select to authenticated using(public.portal_member() and auth.uid() in(sender,recipient));
+create policy chat_read on public.portal_chats for select to authenticated using(public.portal_can_chat(request_id));
+create policy chat_send on public.portal_chats for insert to authenticated with check(public.portal_can_chat(request_id) and sender=auth.uid() and (attachment_path is null or split_part(attachment_path,'/',1)=auth.uid()::text));
+create or replace function public.portal_send_task(p_title text,p_body jsonb,p_kind text,p_start timestamptz,p_end timestamptz,p_recipients jsonb) returns uuid language plpgsql security definer set search_path='' as $$ declare t uuid; r jsonb; begin
+if not public.is_admin(auth.uid()) then raise exception 'Administrator required'; end if;
+if p_body->>'attachment_path' is not null and split_part(p_body->>'attachment_path','/',1)<>auth.uid()::text then raise exception 'Invalid attachment owner'; end if;
+insert into public.portal_tasks(sender,title,body,kind,starts_at,ends_at) values(auth.uid(),p_title,p_body,p_kind,p_start,p_end) returning id into t;
+for r in select * from jsonb_array_elements(p_recipients) loop
+if not exists(select 1 from public.profiles where user_id=(r->>'user_id')::uuid and role in ('admin','internal')) then raise exception 'Invalid recipient'; end if;
+insert into public.portal_task_recipients(task_id,user_id,mandatory,urgent) values(t,(r->>'user_id')::uuid,(r->>'mandatory')::boolean,(r->>'urgent')::boolean); end loop;
+if not exists(select 1 from public.portal_task_recipients where task_id=t) then raise exception 'Choose recipients'; end if; return t; end $$;
+create or replace function public.portal_task_action(p_task uuid,p_action text,p_reason text default '') returns void language plpgsql security definer set search_path='' as $$ declare r public.portal_task_recipients; t public.portal_tasks; feedback uuid; begin
+select * into t from public.portal_tasks where id=p_task for update;
+if p_action='withdraw' then if t.sender<>auth.uid() then raise exception 'Sender required'; end if; update public.portal_tasks set withdrawn=true where id=p_task; return; end if;
+select * into r from public.portal_task_recipients where task_id=p_task and user_id=auth.uid() for update;
+if r.user_id is null or t.withdrawn or not public.portal_member() then raise exception 'Task unavailable'; end if;
+if p_action='seen' and r.status='unseen' then update public.portal_task_recipients set status='seen' where task_id=p_task and user_id=auth.uid();
+elsif p_action='accept' and r.status in ('unseen','seen') then update public.portal_task_recipients set status='outstanding' where task_id=p_task and user_id=auth.uid();
+elsif p_action='complete' and r.status='outstanding' then update public.portal_task_recipients set status='completed' where task_id=p_task and user_id=auth.uid();
+elsif p_action='decline' and r.status in ('unseen','seen') then
+if r.mandatory and length(trim(p_reason))=0 then raise exception 'A reason is required'; end if;
+update public.portal_task_recipients set status='declined',reason=p_reason where task_id=p_task and user_id=auth.uid();
+insert into public.portal_tasks(sender,title,body,kind,starts_at,ends_at) values(t.sender,left((select coalesce(full_name,email) from public.profiles where user_id=auth.uid())||' has declined your task: '||t.title,200),jsonb_build_object('text',p_reason),'information',now(),now()+interval '7 days') returning id into feedback;
+insert into public.portal_task_recipients values(feedback,t.sender,true,false,'unseen',null);
+else raise exception 'Invalid task transition'; end if; end $$;
+create or replace function public.portal_chat_action(p_person uuid,p_action text) returns void language plpgsql security definer set search_path='' as $$ declare r public.portal_chat_requests; begin
+if not public.portal_member() or p_person=auth.uid() or not exists(select 1 from public.profiles where user_id=p_person and role in ('admin','internal')) then raise exception 'Invalid member'; end if;
+select * into r from public.portal_chat_requests where least(sender,recipient)=least(auth.uid(),p_person) and greatest(sender,recipient)=greatest(auth.uid(),p_person) for update;
+if p_action='send' and (r.id is null or r.status='revoked') then
+insert into public.portal_chat_requests(sender,recipient) values(auth.uid(),p_person) on conflict(least(sender,recipient),greatest(sender,recipient)) do update set sender=auth.uid(),recipient=p_person,status='pending',created_at=now();
+elsif p_action='approve' and r.recipient=auth.uid() and r.status='pending' then update public.portal_chat_requests set status='approved' where id=r.id;
+elsif p_action='revoke' and r.id is not null then update public.portal_chat_requests set status='revoked' where id=r.id;
+else raise exception 'Request action unavailable'; end if; end $$;
+insert into storage.buckets(id,name,public,file_size_limit) values('portal-files','portal-files',false,20971520),('portal-images','portal-images',false,3145727) on conflict(id) do nothing;
+update storage.buckets set allowed_mime_types=array['image/png','image/jpeg','image/webp','image/gif'] where id='portal-images';
+create policy portal_upload on storage.objects for insert to authenticated with check(bucket_id in ('portal-files','portal-images') and public.portal_member() and (storage.foldername(name))[1]=auth.uid()::text);
+create policy portal_download on storage.objects for select to authenticated using(public.portal_member() and ((storage.foldername(name))[1]=auth.uid()::text or (bucket_id='portal-images' and exists(select 1 from public.portal_notifications where image_path=name)) or (bucket_id='portal-files' and (exists(select 1 from public.portal_tasks where body->>'attachment_path'=name and public.portal_can_task(id)) or exists(select 1 from public.portal_chats where attachment_path=name and public.portal_can_chat(request_id))))));
+revoke all on function public.portal_send_task(text,jsonb,text,timestamptz,timestamptz,jsonb),public.portal_task_action(uuid,text,text),public.portal_chat_action(uuid,text) from public,anon;
+grant execute on function public.portal_send_task(text,jsonb,text,timestamptz,timestamptz,jsonb),public.portal_task_action(uuid,text,text),public.portal_chat_action(uuid,text) to authenticated;
+commit;

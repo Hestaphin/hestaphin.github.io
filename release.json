@@ -1,0 +1,15 @@
+{
+  "version": "1.35",
+  "release_number": 35,
+  "previous_saved_site_revision": 15,
+  "release_date": "2026-10-29",
+  "timezone": "Asia/Shanghai",
+  "zip_filename": "COPKU_Website_v1.35.zip",
+  "zip_root": "COPKU_Website_v1.35",
+  "changes": [
+    "Add editable unique resource IDs, private images and attachments, detail galleries and downloads.",
+    "Add durable daily/every-N-hours/every-N-days tasks with copied durations and recipients, duplicate suppression and Stop repeating.",
+    "Paginate tasks, notifications, replies and resources with 20/50/100 items per page, complete all-page badges and searches, and reply divider lines.",
+    "Apply the Orchestra Supabase resource/recurrence upgrade and deploy the booking handler; preserve all v1.34 score-preview assets."
+  ]
+}

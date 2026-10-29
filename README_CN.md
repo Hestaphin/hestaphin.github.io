@@ -1,333 +1,96 @@
-# PUCO 网站接入 Supabase（纯网页后台操作版，不用本地，不用 Supabase CLI）
+# COPKU v1.32 更新
 
-这份更新版已经按你的新要求改好了两件事：
+本次在个人中心 Booking 下方添加 Email 链接，进入独立邮箱网站 `https://email.pkuco.org/`。邮箱系统单独提供 ZIP 和 Netlify 部署说明；本包不包含邮箱前后端代码。请阅读 `UPDATE_FROM_v1.31.md`。
 
-1. **不需要本地开发，也不需要 Supabase CLI**
-2. **membership 只有支付成功之后，才会创建账号**
-
-并且原来的页面布局没有做大改，只调整了 membership 页面里的实际流程文案和表单逻辑。
-
----
-
-# 一、现在的真实流程
-
-## 1）Internal login
-这一套还是：
-- 管理员 `admin@pkuco.org / 12345678` 登录
-- 管理员后台可改自己密码
-- 管理员可新建 internal 账号
-- internal 成员首次登录后可改密码
-- 管理员可给成员发文字、图片、文件
-- 管理员可删除除自己外的其他 internal 账号
-- 成员可登录后查看、下载管理员发来的内容
-- 有 logout
-- 有无操作自动 logout
-
-## 2）Membership login（已按你要求改）
-现在改成：
-- 会员先输入 **邮箱 + 选择付费项目**
-- 点击后直接去 Stripe 支付
-- **只有 Stripe webhook 确认支付成功后**，系统才会：
-  - 创建 Supabase Auth 账号
-  - 创建 `profiles` 里的 member 资料
-  - 写入 `membership_orders`
-  - 给这个邮箱发送激活邮件
-- 用户打开邮件里的激活链接
-- 回到 `/membership/` 页面设置密码
-- 然后再进入 membership portal
-
-也就是说：**没付款，不建账号。**
-
----
-
-# 二、你需要在 Supabase 后台做的事
-
-## 第 1 步：创建 Supabase 项目
-进入 Supabase 后台：
-- New project
-- 建一个项目，例如 `puco-site`
-- 记住数据库密码
+申请确认邮件的发件邮箱、发件人名称及 API 密钥现在只在 Supabase 和 Brevo 设置。管理员个人中心已移除这些输入框及保存功能，只保留邮件配置状态、具体申请的投递状态及重试操作。请先阅读 `UPDATE_FROM_v1.30.md`。v1.30 的预约、报名表及紧急审核任务均保留。上传完整网站文件即可更新页面。以下为历史说明。
 
-项目建好后，去：
-- **Project Settings → API**
+# COPKU v1.29 更新
 
-记下这两个值：
-- Project URL
-- anon public key
+新增“申请”管理页（乐队申请、古典音乐营审批）、按参考图制作的报名表、历史审批与暂停／恢复／永久撤销，以及合唱队和键盘队。已完成本次 Supabase 数据库和函数更新，无需重新手动配置。请阅读 `UPDATE_FROM_v1.28.md`，并上传完整网站文件。以下为历史说明。
 
-然后打开代码里的：
-- `site/config.js`
+# COPKU v1.28 更新
 
-把里面的占位内容改成你自己的：
+已更新讨论删除权限、任务成员筛选与表格、EN / 中文和分组中文用词。数据库更新已完成，无需重新设置。请阅读 `UPDATE_FROM_v1.27.md` 并上传完整网站文件。以下为历史说明。
 
-```js
-window.PUCO_SUPABASE_URL = '你的 Project URL';
-window.PUCO_SUPABASE_ANON_KEY = '你的 anon key';
-```
+# COPKU v1.27 更新
 
----
+本次 Supabase 数据库及相关函数已更新，无需重新手动配置。请阅读 `UPDATE_FROM_v1.26.md`，上传完整网站文件后使用。以下保留历史版本说明。
 
-## 第 2 步：运行数据库 SQL
-进入：
-- **SQL Editor**
+# COPKU v1.26 更新
 
-把下面这个文件里的全部内容复制进去执行：
-- `site/supabase/schema.sql`
+本次为页面文字及中文用词更正。请阅读 `UPDATE_FROM_v1.25.md`，无需修改 Supabase 或 Stripe。以下为历史版本说明。
 
-这个 SQL 会创建：
-- `profiles`
-- `membership_plans`
-- `membership_checkout_requests`
-- `membership_orders`
-- `internal_messages`
-- `internal_message_recipients`
-- `internal-files` storage bucket
-- RLS 策略
+# COPKU v1.25 更新
 
----
+已完成本次 Supabase 与 Stripe 退款设置，无需重做。请阅读 `UPDATE_FROM_v1.24.md` 和 `SUPABASE_STRIPE_SETUP_v1.25.md`，上传完整网站文件后使用。新增表格、点击数值编辑、联系人搜索、图片透明度及 EN/CN 切换。下方保留历史说明。
 
-## 第 3 步：手动创建初始管理员
-进入：
-- **Authentication → Users → Add user**
+# COPKU v1.24 更新
 
-手动创建：
-- email: `admin@pkuco.org`
-- password: `12345678`
-- 邮箱确认设为已确认
+已完成本次 Supabase 数据库及账号函数更新，无需重复手动设置。上传网站文件后即可使用个人主页、人员资料管理、未读角标、回复通知、10MB 附件及账号激活。请先阅读 `UPDATE_FROM_v1.23.md` 和 `MEMBER_FIELDS_v1.24.md`；下方是历史版本说明。
 
-创建后，复制这个用户的 UUID。
+# COPKU v1.23 更新
 
-然后回到 **SQL Editor** 执行：
+完整网站上传步骤请先阅读 `UPDATE_FROM_v1.22.md`。已连接的 Supabase 数据库更新、审批修复和 Stripe 商店设置记录在 `SUPABASE_SETUP_v1.23.md`、`SHOP_STRIPE_SETUP_v1.23.md`；无需重做旧版基础设置。下面保留 v1.19 的历史说明。
 
-```sql
-insert into public.profiles (user_id, email, full_name, role)
-values (
-  '这里换成管理员UUID',
-  'admin@pkuco.org',
-  'PUCO Administrator',
-  'admin'
-)
-on conflict (user_id) do update
-set role = 'admin',
-    email = excluded.email,
-    full_name = excluded.full_name;
-```
+# COPKU v1.19：免费基础会员及两套独立账号
 
-这样管理员就真正可用了。
+Club 可以免费注册 **Membership Basic**。升级和付款已经移到 Club 会员后台。
 
----
+Orchestra 和 Club 使用不同的 Supabase 项目、账号、密码、会话及后台。同一个邮箱可以分别注册两套账号，密码可以不同；退出或修改 Club 密码不会影响 Orchestra。
 
-# 三、Stripe 要怎么接
+本次已经修改并检查网站代码，但**尚未替你在 Supabase 执行 SQL、创建项目、部署函数或修改 Stripe**。Club 新项目的公开配置现在留空，所以配置完成前不会把 Club 用户误写入乐团系统。
 
-## 第 4 步：在 Stripe 建会员价格
-你需要在 Stripe 后台创建 3 个价格：
-- Membership Standard
-- Membership Supporter
-- Membership Patron
+## 免费注册：先完成这些步骤
 
-每一个都会得到一个 `price_xxx`。
+1. 保留原有 Orchestra 项目，另外新建一个 Supabase 项目，例如 `COPKU Club`。
+2. 在**新 Club 项目**的 SQL Editor 中执行 `supabase/club/migrations/202610200001_club_basic.sql`。不要在原有乐团项目运行这份脚本。
+3. 在 Club 的 Authentication 设置中开启 Email/Password、允许新用户注册，密码最少 8 位，保留邮箱验证；配置自定义 SMTP，才能给普通访客发送验证邮件。
+4. Authentication → URL Configuration 的 Site URL 填网站根地址。Redirect URLs 添加以下三个地址；如果使用其他域名，一并替换：
 
-然后回到 Supabase 的 SQL Editor，把数据库里的价格 id 更新掉：
+   ```text
+   https://copku-homepage-october-2026.neonlake16.chatgpt.site/portal/membership/
+   https://copku-homepage-october-2026.neonlake16.chatgpt.site/portal/membership/?welcome=1
+   https://copku-homepage-october-2026.neonlake16.chatgpt.site/portal/membership/?set_password=1
+   ```
 
-```sql
-update public.membership_plans
-set stripe_price_id = 'price_xxx'
-where slug = 'Membership Standard';
+5. 把 Club 项目的 Project URL 和 publishable key（或公开 anon key）填入网站 `config.js` 的两个新字段，再重新部署网站：
 
-update public.membership_plans
-set stripe_price_id = 'price_xxx'
-where slug = 'Membership Supporter';
+   ```js
+   window.COPKU_CLUB_SUPABASE_URL = 'https://你的Club项目.supabase.co';
+   window.COPKU_CLUB_SUPABASE_PUBLISHABLE_KEY = '你的Club公开密钥';
+   ```
 
-update public.membership_plans
-set stripe_price_id = 'price_xxx'
-where slug = 'Membership Patron';
-```
+原有 `PUCO_SUPABASE_URL`、`PUCO_SUPABASE_ANON_KEY` 继续供 Orchestra 使用，保持不变。不要在网页中填写 service-role、secret key、Stripe 密钥或数据库密码。乐团项目不需要开放公众注册。
 
----
+Club 注册入口是 `/opportunities/club/#club-registration-form`；登录选择 Club，后台地址是 `/portal/membership/`。Orchestra 后台仍是 `/portal/internal/`。基础会员无需付款，付费过期后仍可使用基础会员后台。
 
-# 四、不用 CLI，直接在 Supabase 后台创建 Edge Functions
+## 会员升级和付款
 
-你说了不要本地，也不要 Supabase CLI，所以这次全部改成 **后台手动创建**。
+在 Club 项目配置三个原有付费档位：Standard CNY 199、Supporter CNY 399、Patron CNY 999，各为 12 个月、一次性付款。基础会员不在付费计划表中。
 
-进入：
-- **Edge Functions**
+新建的付费计划默认没有启用。完成 Stripe Price ID 和密钥配置后再启用。
 
-你需要创建 4 个函数，名字要和代码目录一致：
-- `create-internal-user`
-- `delete-internal-user`
-- `create-checkout-session`
-- `stripe-webhook`
+在 **Club Supabase 后台 → Edge Functions → Deploy a new function → Via Editor** 创建两个函数。将对应文件完整复制到编辑器的 `index.ts` 后部署，不需要 Supabase CLI：
 
-做法是：
-1. 在 Supabase Dashboard 里点 **Create function**
-2. 名字输入上面对应名字
-3. 把压缩包中对应文件的代码复制进去
+| 函数名称 | 文件 |
+| --- | --- |
+| `create-club-checkout` | `supabase/club/functions/create-club-checkout/index.ts` |
+| `club-stripe-webhook` | `supabase/club/functions/club-stripe-webhook/index.ts` |
 
-对应关系：
-- `site/supabase/functions/create-internal-user/index.ts`
-- `site/supabase/functions/delete-internal-user/index.ts`
-- `site/supabase/functions/create-checkout-session/index.ts`
-- `site/supabase/functions/stripe-webhook/index.ts`
+给 Club 项目的 Edge Functions 配置 `STRIPE_SECRET_KEY`、`STRIPE_WEBHOOK_SIGNING_SECRET`、`SITE_URL`。checkout 保留 JWT 验证；**仅 webhook 关闭 JWT 验证**，由代码验证 Stripe 签名。
 
-保存并部署。
+Stripe webhook 地址为 `https://你的Club项目.supabase.co/functions/v1/club-stripe-webhook`，监听 completed、async_payment_succeeded、async_payment_failed、expired 四个 checkout.session 事件。所有价格、测试/正式密钥及签名密钥必须配套。
 
----
+具体操作、SQL 更新价格示例、四个完整事件名和检查步骤见 **`supabase/club/SETUP.md`**。网页里的支付成功返回参数不能升级会员；必须经过服务器验证 Stripe 付款，再原子写入订单和会员状态。同一付款重复通知不会重复延长时间。
 
-# 五、在后台设置函数 Secrets
+续费相同有效档位会延长原到期时间；升级更高档位从付款时重新计算，剩余时间不折抵，不自动续费。退款和拒付需要管理员审核并调整权益。
 
-进入：
-- **Project Settings → Edge Functions → Secrets**
+## 已有 Club 账号
 
-至少加下面这些：
+旧项目中的 Club 账号不会自动成为新项目账号，也不会被删除或修改。若已有付费会员，先导出旧 `role = member` 的记录和订单，让会员在新项目用同邮箱注册或重新邀请，再在新 Club 项目恢复已核实的付费档位与到期日。不要复制乐团 admin/internal 账号或密码。旧激活邮件要从新项目重新发送。
 
-```txt
-STRIPE_SECRET_KEY=你的 Stripe secret key
-STRIPE_WEBHOOK_SIGNING_SECRET=你的 Stripe webhook signing secret
-SITE_URL=https://你的网站域名
-```
+旧付款仍在处理时先完成对账，再停用旧 membership checkout 和旧 Stripe webhook。新后台记录新 Club 付款，历史订单保留为旧系统档案。详细迁移说明在 `supabase/club/SETUP.md` 第 5 部分。
 
-例如：
+网站发布权限仍保持原来的仅所有者可访问；准备开放公众注册时，再单独调整网站访问权限。
 
-```txt
-SITE_URL=https://pkuco.org
-```
-
-如果你现在还是先在 GitHub Pages 上测试，就填测试域名。
-
----
-
-# 六、Stripe webhook 怎么填
-
-进入 Stripe 后台，创建 webhook endpoint。
-
-地址填：
-
-```txt
-https://你的-project-ref.supabase.co/functions/v1/stripe-webhook
-```
-
-监听事件至少加这两个：
-- `checkout.session.completed`
-- `checkout.session.expired`
-
-然后 Stripe 会给你一个 webhook signing secret，把它填进刚才的：
-- `STRIPE_WEBHOOK_SIGNING_SECRET`
-
----
-
-# 七、现在 membership 页面到底怎么工作
-
-## 前端逻辑
-现在 `/membership/` 页面已经改成：
-
-### Step 1
-输入：
-- 邮箱
-- 会员档位
-
-点击后会调用：
-- `create-checkout-session`
-
-这个函数会：
-1. 在 `membership_checkout_requests` 先记录一条待支付请求
-2. 创建 Stripe Checkout Session
-3. 跳转到 Stripe 托管支付页
-
-### Step 2
-支付成功后，用户会回到 `/membership/?checkout=success`
-
-这时页面会提示：
-- 支付已收到
-- 请去邮箱打开激活邮件
-- 回到当前页面设置密码
-
-### 后台 webhook
-真正完成“建账号”的不是前端，而是 `stripe-webhook`：
-
-它收到 `checkout.session.completed` 后，会：
-1. 找到 `membership_checkout_requests`
-2. 检查这个邮箱有没有现成账号
-3. 如果没有，就**这时才创建账号**，并发送激活邮件
-4. 创建 / 更新 `profiles`
-5. 写入 `membership_orders`
-6. 把会员状态设为 `active`
-
-所以这版逻辑完全符合你的要求：
-
-**支付成功之前，没有会员账号。**
-
----
-
-# 八、你部署静态网页时要上传哪些文件
-
-把 `site/` 整个目录部署到你的网站空间即可。
-
-关键文件是：
-- `index.html`
-- `app.js`
-- `style.css`
-- `config.js`
-- 各页面目录
-
-如果你是 GitHub Pages，也还是一样上传网页文件；只是 Supabase 和 Stripe 在云端工作，不需要你本地跑项目。
-
----
-
-# 九、这次和上一版相比，改了什么
-
-这次重点改动是：
-
-## 1. 去掉“先注册账号再付款”
-旧版是：
-- 先邮箱验证
-- 先创建账号
-- 再付款
-
-新版是：
-- 先付款
-- **付款成功后再建账号**
-
-## 2. 去掉“必须 CLI 部署”的说明
-旧版说明里有：
-- `supabase login`
-- `supabase link`
-- CLI deploy
-
-这次已经改成：
-- 直接在 Supabase Dashboard 里手动创建函数
-- 手动粘贴代码
-- 手动部署
-
----
-
-# 十、你现在最先要做的顺序
-
-你可以完全按下面顺序来：
-
-1. 创建 Supabase 项目
-2. 在 `site/config.js` 填 URL 和 anon key
-3. 跑 `site/supabase/schema.sql`
-4. 手动创建管理员 `admin@pkuco.org`
-5. 给管理员写入 `profiles` 的 admin 角色
-6. 在 Stripe 建 3 个 price
-7. 把 `price_xxx` 写回数据库
-8. 在 Supabase 后台创建 4 个 Edge Functions
-9. 配置 Edge Function secrets
-10. 在 Stripe 配 webhook 到 `stripe-webhook`
-11. 部署整个 `site/` 到你的网站
-12. 测试 internal 登录
-13. 测试 membership 付款 → 收邮件 → 设密码 → 登录
-
----
-
-# 十一、这份压缩包里你重点看哪里
-
-最关键的是这几个文件：
-
-- `site/app.js`
-- `site/membership/index.html`
-- `site/supabase/schema.sql`
-- `site/supabase/functions/create-checkout-session/index.ts`
-- `site/supabase/functions/stripe-webhook/index.ts`
-
-这几个文件就是这次“付款成功后才建会员账号”的核心。
+本次检查包含实际前端与函数代码的模拟认证/支付，以及嵌入式 PostgreSQL 中的触发器、权限、RLS、升级事务和重复通知检查。没有发送真实邮件、创建真实账号或进行真实扣款；浏览器视觉检查尚未进行。

@@ -1,18 +1,17 @@
 {
-  "version": "1.40",
-  "release_number": 40,
-  "previous_saved_site_revision": 20,
+  "version": "1.41",
+  "release_number": 41,
+  "previous_saved_site_revision": 21,
   "release_date": "2026-10-30",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.40.zip",
-  "zip_root": "COPKU_Website_v1.40",
+  "zip_filename": "COPKU_Website_v1.41.zip",
+  "zip_root": "COPKU_Website_v1.41",
   "changes": [
-    "Show instrument classification in the booking table and resource details.",
-    "Set Strings, Woodwind, Brasswind, Keyboard, Percussion or Others in instrument resource settings.",
-    "Filter instrument classes with member-style multi-select checkboxes before pagination; retain selections across refresh and resource navigation.",
-    "Persist classifications with a checked admin-only, backwards-compatible resource writer."
+    "Allow multiple resources in the same category to share a name while keeping inventory IDs unique.",
+    "Save resource media and inventory IDs using the created record UUID, never a resource name lookup.",
+    "Keep same-name resource settings and reservations independent and align the private demo with live behavior."
   ],
   "distribution": "patch",
-  "base_version": "1.39",
-  "patch_filename": "COPKU_v1.40_Update_Only.zip"
+  "base_version": "1.40",
+  "patch_filename": "COPKU_v1.41_Update_Only.zip"
 }

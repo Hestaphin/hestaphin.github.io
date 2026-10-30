@@ -1,52 +1,43 @@
-# COPKU v1.40 — instrument classifications and booking filters
+# COPKU v1.41 — allow resources with the same name
 
-This update-only package is for the complete v1.39 orchestra website.
+The connected orchestra Supabase project is already updated. Refresh your
+portal: rooms, instruments, equipment and transportation resources can share
+the same display name. Each resource's inventory ID remains unique.
 
-## Install the website update
+## What changed
 
-1. Extract `COPKU_v1.40_Update_Only.zip`.
-2. Merge the files inside its folder into your existing complete v1.39 website
-   folder, replacing matching files and keeping the other files.
-3. Deploy that merged complete folder to your current Netlify website.
-   The patch alone is not a complete website.
-4. Refresh the portal (Ctrl+Shift+R on Windows or Command+Shift+R on Mac).
+- Removed the database index that made resource names unique within a category.
+- Kept the UUID primary key and case-insensitive inventory ID uniqueness.
+- Corrected resource saving to use the UUID returned by the resource writer.
+  It no longer looks up a newly created resource by its name. Same-name
+  instruments keep their own ID, files, classification, settings and bookings.
+- Applied the same behavior to the private demo and updated the source scripts
+  used for fresh installation.
 
-The Supabase database upgrade and `portal-booking` function version 8 were
-already applied to the connected orchestra project. No manual SQL or function
-deployment is required. Backend source and the recorded migration are included
-for version history; do not reapply an already recorded migration.
+Both recorded database migrations and `portal-booking` Edge Function version 9
+have been applied. No manual Supabase setup or SQL is required. Existing website
+code already benefits from the server fix; the website does not need redeployment
+for repeated names to work.
 
-## Use the classifications
+## Keep your website files up to date
 
-- Go to **Booking → Instrument**, open an instrument, then choose
-  **Resource settings → Instrument classification** as administrator.
-- Choose **Strings, Woodwind, Brasswind, Keyboard, Percussion, or Others**.
-  The saved class appears in the booking table and the instrument's detail page.
-- Open the **Instrument classification** filter above the table and tick one
-  or several classes. The table shows instruments in any selected class.
-  No selected classes means all instruments. **Clear filters** restores all.
-- Existing instruments show **Not assigned** until an administrator assigns
-  their class. A separate Not assigned checkbox helps find these instruments.
-- Filtering happens before pagination. Counts and pages describe the filtered
-  list; changing the filter returns to the first page. Selections stay in place
-  during schedule refresh, date changes and returning from an instrument.
-- Members can view/filter the classifications. Only administrators can edit
-  resource settings. Both English and Chinese labels are included.
-
-Room, Equipment and Transportation tables retain their existing columns.
-Existing booking ownership, clearance, media, warning and recurring rules are
-preserved. This update does not change the separate email website.
+This is an update-only package for the complete v1.40 website. Merge the files
+inside `COPKU_v1.41_Update_Only` into your existing complete v1.40 website folder
+and replace matching files, preserving the remaining files. For a Netlify
+redeployment, deploy the merged complete folder. The patch alone is not a full
+website. Backend source and recorded migrations are included for version
+history; do not reapply migrations already recorded in the connected project.
 
 ## Verification
 
-New controller and backend tests passed for multi-class filtering, unassigned
-resources, filtered pagination/counts, navigation/refresh, classification saves,
-administrator permissions, invalid inputs and older client compatibility.
-Existing booking/date/recurrence/media checks passed. Transactional checks in
-the connected database passed for all six classes, persistence in snapshots,
-stale-write rejection, restricted function grants and database constraints.
-All test resource changes were rolled back. The security advisory set is
-unchanged from before the upgrade.
+Live database checks passed in all four booking categories: creation and rename
+with identical names, correct UUIDs and inventory IDs, case-insensitive duplicate
+ID rejection, no partial record after a rejected ID, and independent booking and
+cancellation for same-name resources. Test data was rolled back; no fixtures
+remain. Classification, stale-write, permission and older-client regression
+checks also passed. The security advisory set is unchanged.
 
-Browser visual verification was unavailable because the managed preview service
-was not running. Functional tests and the static build were checked separately.
+Controller/demo checks passed for displaying and opening both same-name items,
+separate settings and bookings, classification filtering, resource files and
+recurring booking controls. This change does not alter the portal's layout or
+the separate email website.

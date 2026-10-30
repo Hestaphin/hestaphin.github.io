@@ -74,7 +74,7 @@ export function createBookingHandler(makeClient=createClient,env=Deno.env) {
    for(const [code,message]of Object.entries(messages))if(String(error.message||'').includes(code))return respond({error:message,code},code.includes('REQUIRED')||['BOOKING_CLEARANCE','BOOKING_SERIES_OWNER'].includes(code)?403:409);
    if(String(error.message||'').includes('BOOKING_BAD_INSTRUMENT_CLASS'))return respond({error:'Choose a valid instrument classification.'},400);
    if(String(error.message||'').includes('BOOKING_BAD_MEDIA'))return respond({error:'Check the resource files. New files must be your own uploads, no larger than 10 MB each.'},400);
-   if(error.code==='23505')return respond({error:String(error.message||'').includes('resource_code')?'This resource ID is already used.':'A resource with this name already exists in this category.'},409);
+   if(error.code==='23505')return respond({error:String(error.message||'').includes('resource_code')?'This resource ID is already used.':'This booking record already exists. Refresh and try again.'},409);
    console.error('portal-booking',error.code||'DATABASE');return respond({error:'Booking could not be updated. Please refresh and try again.'},503);
   }
  };

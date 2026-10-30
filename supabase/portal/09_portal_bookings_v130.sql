@@ -10,7 +10,7 @@ create table if not exists public.portal_booking_resources (
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default clock_timestamp()
 );
-create unique index if not exists portal_booking_resource_name on public.portal_booking_resources(category,lower(name));
+-- Resource names are display labels and may repeat; identity is the UUID/ID.
 create table if not exists public.portal_booking_slots (
  resource_id uuid not null references public.portal_booking_resources(id) on delete cascade,
  booking_day date not null,

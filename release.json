@@ -1,18 +1,18 @@
 {
-  "version": "1.39",
-  "release_number": 39,
-  "previous_saved_site_revision": 19,
+  "version": "1.40",
+  "release_number": 40,
+  "previous_saved_site_revision": 20,
   "release_date": "2026-10-30",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.39.zip",
-  "zip_root": "COPKU_Website_v1.39",
+  "zip_filename": "COPKU_Website_v1.40.zip",
+  "zip_root": "COPKU_Website_v1.40",
   "changes": [
-    "General MSCZ highlighting fix: linear-time note tagging, native grace ownership and beat anchors, delayed principals, after-graces, trills and tremolo gates.",
-    "Match the bundled audio exporter single-pass timeline; preserve tempo changes, compressed multi-measure rests and separate MIDI staff/port identities.",
-    "Keep remaining notes/pages usable when one notation detail is unsupported; retain private on-device processing and original downloads.",
-    "Validated all twelve pages of the supplied ensemble score and independent notation/tempo/tie fixtures."
+    "Show instrument classification in the booking table and resource details.",
+    "Set Strings, Woodwind, Brasswind, Keyboard, Percussion or Others in instrument resource settings.",
+    "Filter instrument classes with member-style multi-select checkboxes before pagination; retain selections across refresh and resource navigation.",
+    "Persist classifications with a checked admin-only, backwards-compatible resource writer."
   ],
   "distribution": "patch",
-  "base_version": "1.38",
-  "patch_filename": "COPKU_v1.39_Update_Only.zip"
+  "base_version": "1.39",
+  "patch_filename": "COPKU_v1.40_Update_Only.zip"
 }

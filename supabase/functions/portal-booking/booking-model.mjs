@@ -1,4 +1,10 @@
 export const BOOKING_CATEGORIES=['Room','Instrument','Equipment','Transportation'];
+export const INSTRUMENT_CLASSIFICATIONS=['strings','woodwind','brasswind','keyboard','percussion','others'];
+export const instrumentClassLabel=value=>INSTRUMENT_CLASSIFICATIONS.includes(value)?value[0].toUpperCase()+value.slice(1):'Not assigned';
+export function validateInstrumentClassification(value,category) {
+ if(category==='Instrument'?!INSTRUMENT_CLASSIFICATIONS.includes(value):value!==null)throw Error('Choose a valid instrument classification.');
+ return value;
+}
 export const BOOKING_FILTER_FIELDS=['department','occupation_type','instrument','classification','rank','member_status'];
 export const BOOKING_TIMEZONE='Asia/Shanghai';
 export const BOOKING_ADMIN_DAYS=7;

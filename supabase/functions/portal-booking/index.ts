@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
-import { BOOKING_CATEGORIES,validateClearance,normalizeBookingSlots,validateBookingDate,bookingRepeatDays } from './booking-model.mjs';
+import { BOOKING_CATEGORIES,validateClearance,validateInstrumentClassification,normalizeBookingSlots,validateBookingDate,bookingRepeatDays } from './booking-model.mjs';
 import { validateResourceMedia } from './resource-media.mjs';
 
 export function createBookingHandler(makeClient=createClient,env=Deno.env) {
@@ -30,13 +30,15 @@ export function createBookingHandler(makeClient=createClient,env=Deno.env) {
     if((body.resource_id!=null&&!uuid(body.resource_id))||!BOOKING_CATEGORIES.includes(body.category)||typeof body.name!=='string'||!body.name.trim()||body.name.length>120||typeof body.description!=='string'||body.description.length>2000)return respond({error:'Check the resource name and details.'},400);
     let clearance;try{clearance=validateClearance(body.clearance);}catch(error){return respond({error:error.message},400);}
     if(body.resource_id&&!Number.isFinite(Date.parse(body.expected_updated_at)))return respond({error:'Reload the resource settings before saving.'},400);
-    const enhanced=Object.hasOwn(body,'resource_code')||Object.hasOwn(body,'images')||Object.hasOwn(body,'attachments');
+    const classified=Object.hasOwn(body,'instrument_classification');let classification={};
+    if(classified){try{classification={p_instrument_classification:validateInstrumentClassification(body.instrument_classification,body.category)};}catch(error){return respond({error:error.message},400);}}
+    const enhanced=classified||Object.hasOwn(body,'resource_code')||Object.hasOwn(body,'images')||Object.hasOwn(body,'attachments');
     let media={};
     if(enhanced){
      if(typeof body.resource_code!=='string'||!body.resource_code.trim()||body.resource_code.trim().length>64)return respond({error:'Enter a resource ID of up to 64 characters.'},400);
      try{media={p_resource_code:body.resource_code.trim(),p_images:validateResourceMedia(body.images||[],true),p_attachments:validateResourceMedia(body.attachments||[])};}catch(error){return respond({error:error.message},400);}
     }
-    const {data,error}=await db.rpc(enhanced?'portal_booking_save_resource_v135':'portal_booking_save_resource',{p_actor:auth.user.id,p_id:body.resource_id||null,p_name:body.name.trim(),p_category:body.category,p_description:body.description.trim(),p_clearance:clearance,p_expected_updated_at:body.expected_updated_at||null,...media});
+    const {data,error}=await db.rpc(classified?'portal_booking_save_resource_v140':enhanced?'portal_booking_save_resource_v135':'portal_booking_save_resource',{p_actor:auth.user.id,p_id:body.resource_id||null,p_name:body.name.trim(),p_category:body.category,p_description:body.description.trim(),p_clearance:clearance,p_expected_updated_at:body.expected_updated_at||null,...media,...classification});
     if(error)throw error;return respond({resource:data});
    }
    if(body.action==='resource_media'){
@@ -70,6 +72,7 @@ export function createBookingHandler(makeClient=createClient,env=Deno.env) {
   }catch(error){
    const messages={BOOKING_DATE_RANGE:'Administrators can choose today and the following six days. Refresh the calendar.',BOOKING_BAD_REPEAT:'Choose a whole-number interval from 1 to 3650 days.',BOOKING_SERIES_OWNER:'Only the creator can stop this recurring booking.',BOOKING_MEMBER_REQUIRED:'An orchestra member account is required.',BOOKING_ADMIN_REQUIRED:'Administrator required.',BOOKING_TODAY_ONLY:'Only today can be booked. Refresh the schedule.',BOOKING_ELAPSED:'Elapsed time cells cannot be booked.',BOOKING_CLEARANCE:'You do not have clearance to book this resource.',BOOKING_CONFLICT:'Some selected cells were booked by another member. Refresh and choose free cells.',BOOKING_WARNING:'Warning periods cannot be booked.',BOOKING_OWN_ONLY:'You can cancel only cells that you booked.',BOOKING_WARNING_ONLY:'Select warning cells to clear.',BOOKING_RESOURCE_CHANGED:'This resource was changed by another administrator. Reload its settings.',BOOKING_RESOURCE_MISSING:'The resource is no longer available.',BOOKING_BAD_CLEARANCE:'Check the booking clearance settings.'};
    for(const [code,message]of Object.entries(messages))if(String(error.message||'').includes(code))return respond({error:message,code},code.includes('REQUIRED')||['BOOKING_CLEARANCE','BOOKING_SERIES_OWNER'].includes(code)?403:409);
+   if(String(error.message||'').includes('BOOKING_BAD_INSTRUMENT_CLASS'))return respond({error:'Choose a valid instrument classification.'},400);
    if(String(error.message||'').includes('BOOKING_BAD_MEDIA'))return respond({error:'Check the resource files. New files must be your own uploads, no larger than 10 MB each.'},400);
    if(error.code==='23505')return respond({error:String(error.message||'').includes('resource_code')?'This resource ID is already used.':'A resource with this name already exists in this category.'},409);
    console.error('portal-booking',error.code||'DATABASE');return respond({error:'Booking could not be updated. Please refresh and try again.'},503);

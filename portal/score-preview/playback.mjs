@@ -3,8 +3,8 @@
 // Measured against WAV with the pinned 4.6.5 encoder (2,257 samples at 44.1 kHz).
 // This is a fixed encoder delay, not a scale derived from MP3 tail/duration.
 export const MP3_OFFSET_MS = 2257 / 44100 * 1000;
-export function createPlaybackIndex(input,{maxReferences=2000000}={}) {
- if(!Array.isArray(input)||!input.length||input.length>200000)throw Error('NOTE_MAP_UNAVAILABLE');
+export function createPlaybackIndex(input,{anchors=[],maxReferences=2000000}={}) {
+ if(!Array.isArray(input)||!Array.isArray(anchors)||!(input.length+anchors.length)||input.length+anchors.length>200000)throw Error('NOTE_MAP_UNAVAILABLE');
  const rows=input.map((n,i)=>{
   if(!Number.isSafeInteger(n.id)||n.id<0||!Number.isSafeInteger(n.page)||n.page<0||![n.startMs,n.endMs].every(Number.isFinite)||n.startMs<0||n.endMs<=n.startMs||n.endMs>86400000)throw Error('NOTE_MAP_UNAVAILABLE');
   return {...n,eventId:i};
@@ -13,6 +13,11 @@ export function createPlaybackIndex(input,{maxReferences=2000000}={}) {
  boundaries.sort((a,b)=>a.at-b.at||Number(a.on)-Number(b.on));
  const frames=[],active=new Map(),occurrences=new Map();let references=0;
  for(const n of rows){if(!occurrences.has(n.id))occurrences.set(n.id,[]);occurrences.get(n.id).push(n);}
+ for(const n of anchors){
+  if(!Number.isSafeInteger(n.id)||n.id<0||!Number.isSafeInteger(n.page)||n.page<0||!Number.isFinite(n.startMs)||n.startMs<0||n.startMs>86400000)throw Error('NOTE_MAP_UNAVAILABLE');
+  if(!occurrences.has(n.id))occurrences.set(n.id,[]);occurrences.get(n.id).push({...n,endMs:n.startMs});
+ }
+ for(const list of occurrences.values())list.sort((a,b)=>a.startMs-b.startMs);
  for(let i=0;i<boundaries.length;){const at=boundaries[i].at;while(i<boundaries.length&&boundaries[i].at===at){const e=boundaries[i++];if(e.on)active.set(e.n.eventId,e.n);else active.delete(e.n.eventId);}
   references+=active.size;if(references>maxReferences)throw Error('NOTE_MAP_UNAVAILABLE');
   const playing=[...active.values()];let focus=playing[0];for(const n of playing)if(n.startMs>focus.startMs)focus=n;

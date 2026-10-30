@@ -40,15 +40,36 @@ export function parseXml(source,{maxNodes=300000,maxDepth=128}={}) {
 const kids=(n,name)=>n.children.filter(x=>x.name===name),kid=(n,name)=>n.children.find(x=>x.name===name);
 const text=(n,name)=>kid(n,name)?.text?.trim()||'';
 function* walk(n){for(const c of n.children){yield c;yield*walk(c);}}
-function replacements(source,items){for(const x of items.sort((a,b)=>b.start-a.start||b.end-a.end))source=source.slice(0,x.start)+x.text+source.slice(x.end);return source;}
+function replacements(source,items){
+ // Assemble once. Re-copying the complete MSCX for every note is quadratic
+ // and can exhaust the Worker timeout on ordinary full ensemble scores.
+ const parts=[];let cursor=0;
+ for(const x of items.sort((a,b)=>a.start-b.start||a.end-b.end)){
+  if(x.start<cursor||x.end<x.start)fail('XML_EDIT_OVERLAP');
+  parts.push(source.slice(cursor,x.start),x.text);cursor=x.end;
+ }
+ parts.push(source.slice(cursor));return parts.join('');
+}
 export function tagNativeMscx(source,{maxNotes=100000}={}){
- const tree=parseXml(source),edits=[],notes=[];
+ const tree=parseXml(source),edits=[],notes=[],chords=new Map();
  for(const chord of walk(tree))if(chord.name==='Chord')for(const note of kids(chord,'Note')){
   if(notes.length>=maxNotes)fail('NOTE_LIMIT');const code=0x120001+notes.length;if(code>=0xffffff)fail('COLOR_LIMIT');
   const color='#'+code.toString(16).padStart(6,'0');
-  notes.push({id:notes.length,color,eid:text(note,'eid')||null,pitch:num(text(note,'pitch'),NaN)});
+  const graceKind=chord.children.find(x=>/^(acciaccatura|appoggiatura|grace\d+(after)?)$/i.test(x.name))?.name||null;
+  const identity={id:notes.length,color,eid:text(note,'eid')||null,pitch:num(text(note,'pitch'),NaN),graceKind};
+  notes.push(identity);if(!chords.has(chord))chords.set(chord,[]);chords.get(chord).push(identity);
   for(const c of kids(note,'color'))edits.push({start:c.start,end:c.end,text:''});
   edits.push({start:note.closeStart,end:note.closeStart,text:`<color r="${code>>16&255}" g="${code>>8&255}" b="${code&255}" a="255"/>`});
+ }
+ // MuseScore serializes both before- and after-grace chords before their
+ // owner. MusicXML drops the after designation, so retain it from MSCX.
+ for(const parent of [tree,...walk(tree)]){
+  let pending=[];
+  for(const chord of parent.children)if(chord.name==='Chord'){
+   const group=chords.get(chord)||[];
+   if(group[0]?.graceKind)pending.push(...group);
+   else if(group.length){for(const grace of pending)grace.ownerId=group[0].id;pending=[];}
+  }
  }
  if(!notes.length)fail('NO_NOTES');return {xml:replacements(source,edits),notes};
 }
@@ -102,45 +123,55 @@ export async function tagMsczNotes(input,options={}){
 }
 export function readMusicXml(source,colors){
  const tree=parseXml(source),root=tree.children.find(x=>x.name==='score-partwise');if(!root)fail('MUSICXML_FORMAT');
- const byColor=new Map(colors.map(x=>[lower(x.color),x]));const parts=[],notes=[],warnings=[];let measureLengths=[];
- const partDefs=new Map(kids(kid(root,'part-list')||{children:[]},'score-part').map(p=>[p.attrs.id,p]));
+ const byColor=new Map(colors.map(x=>[lower(x.color),x])),parts=[],notes=[],measureLengths=[],layoutSpans=[];
+ const partDefs=new Map(kids(kid(root,'part-list')||{children:[]},'score-part').map(p=>[p.attrs.id,p]));let staffCount=0;
  for(const part of kids(root,'part')){
-  const def=partDefs.get(part.attrs.id),instruments=new Map((def?kids(def,'midi-instrument'):[]).map(x=>[x.attrs.id,{channel:num(text(x,'midi-channel'),1)-1,unpitched:num(text(x,'midi-unpitched'),NaN)-1}]));
-  let divisions=1,transpose=0,defaultLength=4;const measures=[];
+  const def=partDefs.get(part.attrs.id),devices=new Map((def?kids(def,'midi-device'):[]).map(x=>[x.attrs.id,num(x.attrs.port,1)-1]));
+  const instruments=new Map((def?kids(def,'midi-instrument'):[]).map(x=>[x.attrs.id,{channel:num(text(x,'midi-channel'),1)-1,port:devices.get(x.attrs.id)??0,unpitched:num(text(x,'midi-unpitched'),NaN)-1}]));
+  let divisions=1,transpose=0,defaultLength=4,staves=1;const measures=[];
   for(const [measureIndex,m]of kids(part,'measure').entries()){
    let cursor=0,lastStart=0,maxEnd=0;const localNotes=[];
    for(const item of m.children){
     if(item.name==='attributes'){
      const d=num(text(item,'divisions'),divisions);if(!finite(d)||d<=0)fail('MUSICXML_DIVISIONS');divisions=d;
+     staves=Math.max(staves,num(text(item,'staves'),1));
      const time=kid(item,'time');if(time){const beats=text(time,'beats').split('+').reduce((n,x)=>n+Number(x),0),bt=num(text(time,'beat-type'));if(beats>0&&bt>0)defaultLength=beats*4/bt;}
      const tr=kid(item,'transpose');if(tr)transpose=num(text(tr,'chromatic'))+12*num(text(tr,'octave-change'));
+     for(const style of kids(item,'measure-style')){const span=num(text(style,'multiple-rest'),1);if(Number.isSafeInteger(span)&&span>1)layoutSpans[measureIndex]=Math.max(layoutSpans[measureIndex]||1,span);}
     }else if(item.name==='backup'||item.name==='forward')cursor+=(item.name==='backup'?-1:1)*num(text(item,'duration'))/divisions;
     else if(item.name==='note'){
      const grace=!!kid(item,'grace'),chord=!!kid(item,'chord'),duration=num(text(item,'duration'))/divisions;if(!finite(duration)||duration<0)fail('MUSICXML_DURATION');
      const start=chord?lastStart:cursor;if(!chord){lastStart=start;if(!grace)cursor+=duration;}maxEnd=Math.max(maxEnd,start+duration,cursor);
      const color=lower(kid(item,'notehead')?.attrs.color||item.attrs.color),identity=byColor.get(color),pitch=kid(item,'pitch'),unpitched=kid(item,'unpitched');
-     const instrument=instruments.get(kid(item,'instrument')?.attrs.id)||instruments.values().next().value||{channel:0,unpitched:NaN};
+     const instrument=instruments.get(kid(item,'instrument')?.attrs.id)||instruments.values().next().value||{channel:0,port:0,unpitched:NaN};
+     const staff=text(item,'staff')||'1';staves=Math.max(staves,num(staff,1));
      let midi=NaN;if(pitch)midi=12*(num(text(pitch,'octave'))+1)+({C:0,D:2,E:4,F:5,G:7,A:9,B:11}[text(pitch,'step')]??NaN)+num(text(pitch,'alter'))+transpose;else if(unpitched)midi=instrument.unpitched;
-     if(identity){const ties=kids(item,'tie').map(x=>x.attrs.type);const note={...identity,part:part.attrs.id,measure:measureIndex,voice:text(item,'voice')||'1',staff:text(item,'staff')||'1',startQ:start,durationQ:duration,grace,midi,channel:instrument.channel,tieStart:ties.includes('start'),tieStop:ties.includes('stop')};notes.push(note);localNotes.push(note);if(grace)warnings.push('GRACE_NOTE_TIMING');}
+     if(identity){const ties=kids(item,'tie').map(x=>x.attrs.type),notations=kid(item,'notations');const note={...identity,part:part.attrs.id,measure:measureIndex,voice:text(item,'voice')||'1',staff,startQ:start,durationQ:duration,grace:grace||!!identity.graceKind,afterGrace:/after$/i.test(identity.graceKind||''),midi,channel:instrument.channel,port:instrument.port,tieStart:ties.includes('start'),tieStop:ties.includes('stop'),ornament:!!(notations&&kid(notations,'ornaments')),tremolo:notations?kid(kid(notations,'ornaments')||{children:[]},'tremolo')?.attrs.type||null:null};notes.push(note);localNotes.push(note);}
     }
    }
    const length=maxEnd>0?maxEnd:defaultLength;measures.push({index:measureIndex,lengthQ:length,notes:localNotes});measureLengths[measureIndex]=Math.max(measureLengths[measureIndex]||0,length);
   }
-  parts.push({id:part.attrs.id,measures});
+  if(!Number.isSafeInteger(staves)||staves<1||staves>256)fail('MUSICXML_STAVES');
+  for(const m of measures)for(const n of m.notes)n.track=staffCount+num(n.staff,1)-1;
+  parts.push({id:part.attrs.id,measures,staffOffset:staffCount,staves});staffCount+=staves;
  }
- if(!notes.length)fail('MUSICXML_COLOR_JOIN');return {notes,parts,measureLengths,warnings:[...new Set(warnings)]};
+ if(!notes.length)fail('MUSICXML_COLOR_JOIN');return {notes,parts,measureLengths,layoutSpans,staffCount,warnings:[]};
 }
 export function parseMidi(input){
- const b=input instanceof Uint8Array?input:new Uint8Array(input),v=new DataView(b.buffer,b.byteOffset,b.byteLength);const str=(p,n)=>String.fromCharCode(...b.subarray(p,p+n));
- if(b.length<14||str(0,4)!=='MThd'||v.getUint16(8)>1)fail('MIDI_FORMAT');const ppq=v.getUint16(12);if(!ppq||(ppq&0x8000))fail('MIDI_SMPTE');const tracks=v.getUint16(10),tempos=[{tick:0,us:500000,order:-1}],notes=[];let p=8+v.getUint32(4),order=0,totalEvents=0,maxTick=0;
+ const b=input instanceof Uint8Array?input:new Uint8Array(input),v=new DataView(b.buffer,b.byteOffset,b.byteLength),str=(p,n)=>String.fromCharCode(...b.subarray(p,p+n));
+ if(b.length<14||str(0,4)!=='MThd'||v.getUint16(8)>1)fail('MIDI_FORMAT');const ppq=v.getUint16(12);if(!ppq||(ppq&0x8000))fail('MIDI_SMPTE');
+ const trackCount=v.getUint16(10),tracks=[],tempos=[{tick:0,us:500000,order:-1}],notes=[];let p=8+v.getUint32(4),order=0,totalEvents=0,maxTick=0;
  const vl=(d,s)=>{let n=0;for(let i=0;i<4;i++){if(s>=d.length)fail('MIDI_TRUNCATED');const c=d[s++];n=n*128+(c&127);if(c<128)return[n,s];}fail('MIDI_VARLEN');};
- for(let ti=0;ti<tracks;ti++){
-  if(p+8>b.length||str(p,4)!=='MTrk')fail('MIDI_TRACK');const end=p+8+v.getUint32(p+4);if(end>b.length)fail('MIDI_TRACK');const d=b.subarray(p+8,end);p=end;let i=0,tick=0,running=0;const active=new Map();
-  while(i<d.length){if(++totalEvents>1500000)fail('MIDI_LIMIT');let dt;[dt,i]=vl(d,i);tick+=dt;maxTick=Math.max(maxTick,tick);let status=d[i];if(status&128)i++;else status=running;
-   if(status===255){const type=d[i++];let n;[n,i]=vl(d,i);if(type===81&&n===3)tempos.push({tick,us:(d[i]<<16)|(d[i+1]<<8)|d[i+2],order:order++});i+=n;}
-   else if(status===240||status===247){let n;[n,i]=vl(d,i);i+=n;running=0;}
-   else {if(status<128||status>=240)fail('MIDI_STATUS');running=status;const type=status>>4,channel=status&15,a=d[i++],c=[12,13].includes(type)?0:d[i++];if(a==null||c==null)fail('MIDI_TRUNCATED');const key=channel+':'+a;
-    if(type===9&&c>0){const row={channel,pitch:a,onTick:tick,offTick:null,velocity:c};notes.push(row);const q=active.get(key)||[];q.push(row);active.set(key,q);}
+ for(let ti=0;ti<trackCount;ti++){
+  if(p+8>b.length||str(p,4)!=='MTrk')fail('MIDI_TRACK');const end=p+8+v.getUint32(p+4);if(end>b.length)fail('MIDI_TRACK');const d=b.subarray(p+8,end);p=end;
+  let i=0,tick=0,running=0,port=0;const active=new Map(),track={id:ti,name:'',ports:[]};tracks.push(track);
+  while(i<d.length){
+   if(++totalEvents>1500000)fail('MIDI_LIMIT');let dt;[dt,i]=vl(d,i);tick+=dt;maxTick=Math.max(maxTick,tick);let status=d[i];if(status&128)i++;else status=running;
+   if(status===255){const type=d[i++];let n;[n,i]=vl(d,i);if(i+n>d.length)fail('MIDI_TRUNCATED');if(type===81&&n===3)tempos.push({tick,us:(d[i]<<16)|(d[i+1]<<8)|d[i+2],order:order++});if(type===33&&n===1){port=d[i];if(!track.ports.includes(port))track.ports.push(port);}if(type===3)track.name=new TextDecoder().decode(d.subarray(i,i+n));i+=n;}
+   else if(status===240||status===247){let n;[n,i]=vl(d,i);if(i+n>d.length)fail('MIDI_TRUNCATED');i+=n;running=0;}
+   else {
+    if(status<128||status>=240)fail('MIDI_STATUS');running=status;const type=status>>4,channel=status&15,a=d[i++],c=[12,13].includes(type)?0:d[i++];if(a==null||c==null||a>127||c>127)fail('MIDI_TRUNCATED');const key=port+':'+channel+':'+a;
+    if(type===9&&c>0){const row={track:ti,port,channel,pitch:a,onTick:tick,offTick:null,velocity:c};notes.push(row);const q=active.get(key)||[];q.push(row);active.set(key,q);}
     else if(type===8||(type===9&&c===0)){const row=active.get(key)?.shift();if(row)row.offTick=tick;}
    }
   }
@@ -149,35 +180,87 @@ export function parseMidi(input){
  for(const t of tempos){if(!t.us)fail('MIDI_TEMPO');ms+=(t.tick-previousTick)*us/ppq/1000;previousTick=t.tick;us=t.us;if(timing.at(-1)?.tick===t.tick)timing.pop();timing.push({tick:t.tick,ms,us});}
  function toMs(tick){let lo=0,hi=timing.length;while(lo<hi){const m=(lo+hi)>>1;if(timing[m].tick<=tick)lo=m+1;else hi=m;}const x=timing[Math.max(0,lo-1)];return x.ms+(tick-x.tick)*x.us/ppq/1000;}
  for(const n of notes){n.startMs=toMs(n.onTick);n.endMs=toMs(n.offTick??n.onTick);}
- return {ppq,tempos:timing,notes,maxTick,toMs,durationMs:toMs(maxTick)};
+ return {ppq,tracks,trackCount,tempos:timing,notes,maxTick,toMs,durationMs:toMs(maxTick)};
 }
-export function buildPlaybackMap(music,positions,midi,{alignmentToleranceMs=12,onsetToleranceTicks=2,strictOnsets=true,maxPlaybackNotes=200000}={}){
- if(!positions?.elements?.length||positions.elements.length!==music.measureLengths.length||!positions.events?.length)fail('MEASURE_LAYOUT_MISMATCH');
- const geometryByMeasure=new Map(positions.elements.map(x=>[x.id,x])),perMeasure=new Map();for(const n of music.notes){const list=perMeasure.get(n.measure)||[];list.push(n);perMeasure.set(n.measure,list);}
- const playback=[],measures=[],warnings=[...music.warnings],byPitch=new Map();let tick=0;
- for(const n of midi.notes){const key=n.channel+':'+n.pitch,list=byPitch.get(key)||[];list.push(n);byPitch.set(key,list);}
- for(const list of byPitch.values())list.sort((a,b)=>a.onTick-b.onTick);
+export function buildPlaybackMap(music,positions,midi,{alignmentToleranceMs=12,onsetToleranceTicks=2,strictOnsets=true,expandRepeats=true,maxPlaybackNotes=200000}={}){
+ if(!positions?.elements?.length||!music.measureLengths?.length)fail('MEASURE_LAYOUT_MISMATCH');
+ const groups=[];for(let m=0;m<music.measureLengths.length;){const span=positions.elements.length===music.measureLengths.length?1:Math.min(music.layoutSpans?.[m]||1,music.measureLengths.length-m);groups.push(Array.from({length:span},(_,i)=>m+i));m+=span;}
+ if(groups.length!==positions.elements.length)fail('MEASURE_LAYOUT_MISMATCH');
+ const geometry=new Map(positions.elements.map(x=>[Number(x.id),x])),perMeasure=new Map();
+ for(const n of music.notes){const list=perMeasure.get(n.measure)||[];list.push(n);perMeasure.set(n.measure,list);}
+ const byTrack=new Map(),byPort=new Map();for(const n of midi.notes){for(const [map,key]of [[byTrack,n.track+':'+n.pitch],[byPort,(n.port||0)+':'+n.channel+':'+n.pitch]]){const list=map.get(key)||[];list.push(n);map.set(key,list);}}
+ for(const map of [byTrack,byPort])for(const list of map.values())list.sort((a,b)=>a.onTick-b.onTick);
+ const useTracks=Number.isSafeInteger(music.staffCount)&&music.staffCount>0&&music.staffCount===midi.trackCount;
+ const listFor=note=>useTracks?byTrack.get(note.track+':'+note.midi)||[]:byPort.get((note.port||0)+':'+note.channel+':'+note.midi)||[];
+ const lowerBound=(list,tick)=>{let lo=0,hi=list.length;while(lo<hi){const m=(lo+hi)>>1;if(list[m].onTick<tick)lo=m+1;else hi=m;}return lo;};
  const matchMidi=(note,onset)=>{
-  const list=byPitch.get(note.channel+':'+note.midi)||[];let lo=0,hi=list.length;
-  while(lo<hi){const mid=(lo+hi)>>1;if(list[mid].onTick<=onset+onsetToleranceTicks)lo=mid+1;else hi=mid;}
-  if(note.tieStop){for(let i=lo-1;i>=Math.max(0,lo-64);i--){const n=list[i];if(n.onTick<=onset+onsetToleranceTicks&&(n.offTick??-1)>onset-onsetToleranceTicks)return n;}return null;}
-  const n=list[lo-1];return n&&Math.abs(n.onTick-onset)<=onsetToleranceTicks?n:null;
+  const list=listFor(note),at=lowerBound(list,onset-onsetToleranceTicks);
+  for(let i=at;i<list.length&&list[i].onTick<=onset+onsetToleranceTicks;i++)if((list[i].offTick??0)>list[i].onTick)return list[i];
+  if(note.tieStop){for(let i=at-1;i>=Math.max(0,at-64);i--)if((list[i].offTick??-1)>onset-onsetToleranceTicks)return list[i];}
+  return null;
  };
- for(const [pass,event]of positions.events.entries()){
-  const measure=Number(event.elid),length=music.measureLengths[measure],geo=geometryByMeasure.get(measure);if(!geo||!finite(length)||!finite(event.position)||length<=0)fail('MEASURE_EVENT_INVALID');
-  const nativeMs=event.position,midiMs=midi.toMs(tick);if(Math.abs(nativeMs-midiMs)>alignmentToleranceMs)fail('MIDI_MEASURE_ALIGNMENT');
-  measures.push({pass,measure,page:geo.page,tick,startMs:midiMs,nativeMs});
-  for(const note of perMeasure.get(measure)||[]){
-   if(note.grace||note.durationQ<=0)continue;
-   const onset=tick+note.startQ*midi.ppq,end=onset+note.durationQ*midi.ppq,matched=matchMidi(note,onset);
-   if(!matched){if(strictOnsets)fail('MIDI_NOTE_ONSET_MISMATCH');warnings.push('MIDI_NOTE_ONSET_MISMATCH');continue;}
-   if(playback.length>=maxPlaybackNotes)fail('PLAYBACK_MAP_LIMIT');
-   playback.push({id:note.id,color:note.color,part:note.part,voice:note.voice,staff:note.staff,measure,pass,page:geo.page,pitch:note.midi,startTick:onset,endTick:end,startMs:midi.toMs(onset),endMs:midi.toMs(end),midiStartMs:matched.startMs,midiEndMs:matched.endMs,tieStart:note.tieStart,tieStop:note.tieStop});
+ const measures=[],rows=[],playback=[],anchors=[],warnings=new Set(),claimed=new Set();let tick=0;
+ const events=expandRepeats?positions.events:groups.map((_,elid)=>({elid,position:null}));if(!events?.length)fail('MEASURE_EVENT_INVALID');
+ for(const event of events){
+  const id=Number(event.elid),geo=geometry.get(id),group=groups[id];if(!geo||!group||!Number.isSafeInteger(geo.page)||geo.page<0)fail('MEASURE_EVENT_INVALID');
+  if(expandRepeats&&(!finite(event.position)||Math.abs(event.position-midi.toMs(tick))>alignmentToleranceMs))fail('MIDI_MEASURE_ALIGNMENT');
+  for(const measure of group){
+   const length=music.measureLengths[measure];if(!finite(length)||length<=0)fail('MEASURE_EVENT_INVALID');const pass=measures.length;measures.push({pass,measure,page:geo.page,tick,startMs:midi.toMs(tick),nativeMs:event.position});
+   for(const note of perMeasure.get(measure)||[]){
+    if(rows.length>=maxPlaybackNotes)fail('PLAYBACK_MAP_LIMIT');if(!finite(note.startQ)||note.startQ<0||!finite(note.durationQ)||note.durationQ<0)fail('MUSICXML_DURATION');
+    const onset=tick+note.startQ*midi.ppq,end=onset+note.durationQ*midi.ppq;
+    rows.push({note,id:note.id,color:note.color,part:note.part,voice:note.voice,staff:note.staff,measure,pass,page:geo.page,pitch:note.midi,nominalStart:onset,nominalEnd:end,startTick:onset,endTick:end,tieStart:note.tieStart,tieStop:note.tieStop});
+   }
+   tick+=length*midi.ppq;
   }
-  tick+=length*midi.ppq;
  }
- playback.sort((a,b)=>a.startMs-b.startMs||a.id-b.id);
- return {notes:playback,measures,durationMs:midi.toMs(tick),midiDurationMs:midi.durationMs,warnings:[...new Set(warnings)]};
+ const rowKey=(r,id=r.id)=>r.pass+':'+r.part+':'+r.staff+':'+id,owners=new Map();for(const row of rows)if(!row.note.grace){const key=rowKey(row);if(!owners.has(key))owners.set(key,row);}
+ const beforeOwners=new Set(rows.filter(r=>r.note.grace&&!r.note.afterGrace&&r.note.ownerId!=null).map(r=>rowKey(r,r.note.ownerId)));
+ const afterOwners=new Set(rows.filter(r=>r.note.grace&&r.note.afterGrace&&r.note.ownerId!=null).map(r=>rowKey(r,r.note.ownerId)));
+ // Two-note tremolos alternate over the combined chord span, including the
+ // second head before its written onset. Resolve their actual repeated gates.
+ const voices=new Map();for(const row of rows)if(!row.note.grace){const key=row.part+':'+row.staff+':'+row.voice,list=voices.get(key)||[];list.push(row);voices.set(key,list);}
+ for(const voice of voices.values()){
+  const chords=new Map();for(const row of voice){const list=chords.get(row.nominalStart)||[];list.push(row);chords.set(row.nominalStart,list);}
+  let pending=null;for(const chord of [...chords.values()].sort((a,b)=>a[0].nominalStart-b[0].nominalStart)){
+   if(chord.some(r=>r.note.tremolo==='start'))pending=chord;
+   if(pending&&chord.some(r=>r.note.tremolo==='stop')){const start=pending[0].nominalStart,end=Math.max(...chord.map(r=>r.nominalEnd));for(const row of [...pending,...chord])row.tremoloSpan={start,end};pending=null;}
+   if(chord.some(r=>r.note.tremolo==='single'))for(const row of chord)row.tremoloSpan={start:row.nominalStart,end:row.nominalEnd};
+  }
+ }
+ const output=row=>{const {note,nominalStart,nominalEnd,...value}=row;return value;};
+ let notationCount=0,graceAnchorCount=0,graceEventCount=0;
+ for(const row of rows)if(!row.note.grace&&row.note.durationQ>0){
+  const note=row.note;
+  if(row.tremoloSpan){
+   const {start,end}=row.tremoloSpan,list=listFor(note);let found=0;const seen=new Set();
+   for(let i=lowerBound(list,start-onsetToleranceTicks);i<list.length&&list[i].onTick<end;i++){
+    const gate=list[i],key=gate.onTick+':'+gate.offTick;if((gate.offTick??0)<=gate.onTick||seen.has(key))continue;seen.add(key);claimed.add(gate);
+    if(playback.length>=maxPlaybackNotes)fail('PLAYBACK_MAP_LIMIT');
+    playback.push(output({...row,startTick:gate.onTick,endTick:Math.min(gate.offTick,end),startMs:gate.startMs,endMs:midi.toMs(Math.min(gate.offTick,end)),midiStartMs:gate.startMs,midiEndMs:gate.endMs,midiTrack:gate.track,midiPort:gate.port,timing:'performed-tremolo'}));found++;
+   }
+   if(found)continue;
+   row.startTick=start;row.endTick=end;
+  }
+  let matched=matchMidi(note,row.nominalStart);
+  if(!matched&&beforeOwners.has(rowKey(row))){const list=listFor(note);for(let i=lowerBound(list,row.nominalStart);i<list.length&&list[i].onTick<row.nominalEnd;i++)if((list[i].offTick??0)>list[i].onTick){matched=list[i];row.startTick=matched.onTick;break;}}
+  if(!matched){if(strictOnsets)fail('MIDI_NOTE_ONSET_MISMATCH');notationCount++;row.timing='notation';}else{claimed.add(matched);row.timing=row.startTick===row.nominalStart?'midi':'performed';row.midiStartMs=matched.startMs;row.midiEndMs=matched.endMs;row.midiTrack=matched.track;row.midiPort=matched.port;}
+  if(matched&&afterOwners.has(rowKey(row))&&matched.offTick>row.startTick)row.endTick=Math.min(row.endTick,matched.offTick);
+  row.startMs=midi.toMs(row.startTick);row.endMs=midi.toMs(row.endTick);if(row.endMs>row.startMs){if(playback.length>=maxPlaybackNotes)fail('PLAYBACK_MAP_LIMIT');playback.push(output(row));}
+ }
+ const lastGrace=new Map();
+ for(const row of rows)if(row.note.grace){
+  const note=row.note,owner=note.ownerId==null?null:owners.get(rowKey(row,note.ownerId));
+  const beat=owner?(note.afterGrace?owner.nominalEnd:owner.nominalStart):row.nominalStart;
+  const right=note.afterGrace?beat:Math.max(beat,owner?.startTick??beat),left=note.afterGrace?(owner?.nominalStart??Math.max(0,beat-midi.ppq)):Math.max(0,beat-midi.ppq);
+  const group=rowKey(row,note.ownerId??'grace')+':'+Boolean(note.afterGrace),list=listFor(note);let matched;
+  for(let i=lowerBound(list,Math.max(left,lastGrace.get(group)??left));i<list.length&&list[i].onTick<=right+onsetToleranceTicks;i++)if(!claimed.has(list[i])&&(list[i].offTick??0)>list[i].onTick){matched=list[i];break;}
+  if(matched){if(playback.length>=maxPlaybackNotes)fail('PLAYBACK_MAP_LIMIT');claimed.add(matched);lastGrace.set(group,matched.onTick);row.startTick=matched.onTick;row.endTick=matched.offTick;row.startMs=matched.startMs;row.endMs=matched.endMs;row.midiStartMs=matched.startMs;row.midiEndMs=matched.endMs;row.midiTrack=matched.track;row.midiPort=matched.port;row.timing='performed-grace';playback.push(output(row));graceEventCount++;}
+  else {row.startTick=beat;row.endTick=beat;row.startMs=midi.toMs(beat);row.endMs=row.startMs;row.timing='beat-anchor';anchors.push(output(row));graceAnchorCount++;}
+ }
+ if(notationCount)warnings.add('NOTATED_TIMING');if(graceAnchorCount)warnings.add('GRACE_BEAT_ANCHOR');
+ playback.sort((a,b)=>a.startMs-b.startMs||a.id-b.id);anchors.sort((a,b)=>a.startMs-b.startMs||a.id-b.id);
+ return {notes:playback,anchors,measures,durationMs:midi.toMs(tick),midiDurationMs:midi.durationMs,warnings:[...warnings],diagnostics:{notationCount,graceAnchorCount,graceEventCount},playbackOrder:expandRepeats?'expanded':'single-pass'};
 }
 function multiply(a,b){return[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]];}
 function matrix(value=''){

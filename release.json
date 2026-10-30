@@ -1,17 +1,18 @@
 {
-  "version": "1.38",
-  "release_number": 38,
-  "previous_saved_site_revision": 18,
+  "version": "1.39",
+  "release_number": 39,
+  "previous_saved_site_revision": 19,
   "release_date": "2026-10-30",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.38.zip",
-  "zip_root": "COPKU_Website_v1.38",
+  "zip_filename": "COPKU_Website_v1.39.zip",
+  "zip_root": "COPKU_Website_v1.39",
   "changes": [
-    "Use a single separator between discussion replies and above reply pagination.",
-    "Remove the floating portal-demo link from the official homepage.",
-    "Exclude demo portal files from future official website release ZIPs."
+    "General MSCZ highlighting fix: linear-time note tagging, native grace ownership and beat anchors, delayed principals, after-graces, trills and tremolo gates.",
+    "Match the bundled audio exporter single-pass timeline; preserve tempo changes, compressed multi-measure rests and separate MIDI staff/port identities.",
+    "Keep remaining notes/pages usable when one notation detail is unsupported; retain private on-device processing and original downloads.",
+    "Validated all twelve pages of the supplied ensemble score and independent notation/tempo/tie fixtures."
   ],
   "distribution": "patch",
-  "base_version": "1.37",
-  "patch_filename": "COPKU_v1.38_Update_Only.zip"
+  "base_version": "1.38",
+  "patch_filename": "COPKU_v1.39_Update_Only.zip"
 }

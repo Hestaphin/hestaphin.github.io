@@ -1,39 +1,56 @@
 {
-  "from": "1.37",
-  "to": "1.38",
-  "remove_from_official_site": [
-    "portal-preview/"
-  ],
+  "from": "1.38",
+  "to": "1.39",
   "files": [
     {
-      "path": "UPDATE_FROM_v1.37.md",
-      "bytes": 1217,
-      "sha256": "b53b23f49401eefc844cc1c5e4793f05f02e0bd8d556e9d079024dc5a867c79c"
-    },
-    {
-      "path": "index.html",
-      "bytes": 16934,
-      "sha256": "ec62a97c3842d95bf52c6fd170ec770be147a7cac0c08752042e7a2394d4fe1c"
+      "path": "UPDATE_FROM_v1.38.md",
+      "bytes": 3851,
+      "sha256": "9dd4d42008357160683245a33375fb645fa8233294409686355cc4e9ebc0b5c5"
     },
     {
       "path": "portal/internal/index.html",
       "bytes": 14309,
-      "sha256": "0d1a8476bf8d1e90e56e4b687dbbee4cb2b640ae390147fcc31da737a8fc96d3"
+      "sha256": "3b80f33b210850be67d1b490ae7e63d19bf4059a939e7694c82707b4e054f24a"
     },
     {
-      "path": "portal/portal.css",
-      "bytes": 48236,
-      "sha256": "4748c99ab4f086952fad2d2c0b4e0107cf0c7328b281326c963da836343650dd"
+      "path": "portal/portal.js",
+      "bytes": 106204,
+      "sha256": "4c22830939b883af5b5f37b8d75dc1065f39074a3cc695d6c486bf7d5d72f676"
+    },
+    {
+      "path": "portal/score-preview/licences.html",
+      "bytes": 2937,
+      "sha256": "86ff6856bb5a2b923ddf74d06557df16b36edf08b30ae1717cef63a6d64bdacb"
+    },
+    {
+      "path": "portal/score-preview/mapping-engine.mjs",
+      "bytes": 2156,
+      "sha256": "4902e4a959438fe599eb7476ff42a1fe2b7834a2c40bed25a264344b888ad87c"
+    },
+    {
+      "path": "portal/score-preview/mapping-worker.mjs",
+      "bytes": 724,
+      "sha256": "d9644ed0c43c7595b0e419b716feee1cb090e04a999342cfd4cb0f153cff08c4"
+    },
+    {
+      "path": "portal/score-preview/note-map.mjs",
+      "bytes": 31286,
+      "sha256": "3a75c1331e6b6ec71d43cc9eec22d89a46051b326462e764147d247e750a323e"
+    },
+    {
+      "path": "portal/score-preview/playback.mjs",
+      "bytes": 4150,
+      "sha256": "b1fb75b7c7081ddb5821904ee8ea5eb6bf5d818883489e48422691bd4bfe74dd"
+    },
+    {
+      "path": "portal/score-preview/preview.mjs",
+      "bytes": 21423,
+      "sha256": "cab6669fb90dd39ab1e71f0c55d9243c195078d9d4c35c6d604d2fefdba4f4a2"
     },
     {
       "path": "release.json",
-      "bytes": 587,
-      "sha256": "548c70630438f7b6ac09d9b1438e2d715bfaa4f79727bba55110f02388fcc621"
-    },
-    {
-      "path": "tools/package_release.py",
-      "bytes": 3217,
-      "sha256": "cfd000e8e994d5c5ba91cdfdd850c4bb9097c5c1337324c08391c2343c02d4de"
+      "bytes": 929,
+      "sha256": "a651fa5acedd0acec2400cddc5756665b30a1ee69812ffb9893ad823206b68e6"
     }
   ]
 }

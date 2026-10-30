@@ -1,6 +1,10 @@
 {
-  "version": "1.41",
+  "version": "1.42",
   "base_version": "1.40",
+  "supported_base_versions": [
+    "1.40",
+    "1.41"
+  ],
   "files": [
     {
       "path": "UPDATE_FROM_v1.40.md",
@@ -8,29 +12,44 @@
       "sha256": "36628e53e8eef243e9a82f1ca951d415b2dd9864ab5f2c9105b39711c2ad9d4c"
     },
     {
+      "path": "UPDATE_FROM_v1.41.md",
+      "bytes": 3737,
+      "sha256": "a5ac13b95834fe939fd78656b9e61d7f1aec54d46517307fac53910bd8e2c672"
+    },
+    {
+      "path": "language.js",
+      "bytes": 43891,
+      "sha256": "5aec820685e14524de145eed72a2bb48dd48267050e6dffadd939651adf2b194"
+    },
+    {
+      "path": "portal/booking-ui.mjs",
+      "bytes": 31319,
+      "sha256": "b2912e2cb0db6238a81675cd6554f35085152da428988d903eac274f7a25acc3"
+    },
+    {
+      "path": "portal/booking.css",
+      "bytes": 13328,
+      "sha256": "d6d9ea87829592c33cb723b3fe0422801928782855e8dd805c17358c6718c12d"
+    },
+    {
       "path": "portal/internal/index.html",
       "bytes": 14309,
-      "sha256": "3a5e90d71fdb33c44ac876b17336cd320a88b33517924062c3df6e843e571bc7"
+      "sha256": "6ec6374ffc7c06be70283bcd1d72f11fc60d397c724ed44383d5a840ecf37ac7"
+    },
+    {
+      "path": "portal/portal.js",
+      "bytes": 106204,
+      "sha256": "b61b47e95d0c3a18e3352f473839bce90a4ab4cff03c5dd4e37ed2a1ed7b5085"
     },
     {
       "path": "release.json",
-      "bytes": 681,
-      "sha256": "52782241557ac61351c6a82274810cb2f78125b1bda135f6a8636d8edc790dd4"
+      "bytes": 873,
+      "sha256": "d3e647846c01cfa7e39644ed13d0f83469302e305211cd728ab6e9d21efaaa9c"
     },
     {
       "path": "supabase/functions/portal-booking/index.ts",
-      "bytes": 9338,
-      "sha256": "0fe553d70224c31df1f6c7f68f1edee4b0ee8c9313504370d7ccff692bfba4fe"
-    },
-    {
-      "path": "supabase/portal/09_portal_bookings_v130.sql",
-      "bytes": 17167,
-      "sha256": "547fe9bfd72858b155809ec3990c0d2a7df302ec8430bdff0429d1bfd10f423c"
-    },
-    {
-      "path": "supabase/portal/13_resources_and_recurring_tasks_v135.sql",
-      "bytes": 14191,
-      "sha256": "6451781d57feb4eb696366186a60e9d982d6782dbf08940b36854ba320429f62"
+      "bytes": 9665,
+      "sha256": "a137bfb8c00ded7e34694e40bb07d07bf49905357d1e2cafb67417602919e267"
     },
     {
       "path": "supabase/migrations/20261030081502_booking_resource_uuid_writer_v141.sql",
@@ -41,14 +60,24 @@
       "path": "supabase/migrations/20261030081641_allow_duplicate_resource_names_v141.sql",
       "bytes": 222,
       "sha256": "dc362784531814733fc1e85e790a92afb95345582e3b3f202f390d968f9d2e1a"
+    },
+    {
+      "path": "supabase/migrations/20261030150720_recurring_warnings_v142.sql",
+      "bytes": 12652,
+      "sha256": "66bf9462419699e4ee2e7f71043e2a0553e060868104ba4a8e30b26ce2e22d83"
+    },
+    {
+      "path": "supabase/portal/09_portal_bookings_v130.sql",
+      "bytes": 17167,
+      "sha256": "547fe9bfd72858b155809ec3990c0d2a7df302ec8430bdff0429d1bfd10f423c"
+    },
+    {
+      "path": "supabase/portal/13_resources_and_recurring_tasks_v135.sql",
+      "bytes": 14191,
+      "sha256": "6451781d57feb4eb696366186a60e9d982d6782dbf08940b36854ba320429f62"
     }
   ],
-  "supabase": {
-    "already_applied": true,
-    "edge_function_version": 9,
-    "migrations": [
-      "20261030081502_booking_resource_uuid_writer_v141",
-      "20261030081641_allow_duplicate_resource_names_v141"
-    ]
-  }
+  "backend_already_applied": true,
+  "portal_booking_function_version": 10,
+  "recurring_warning_migration": "20261030150720_recurring_warnings_v142"
 }

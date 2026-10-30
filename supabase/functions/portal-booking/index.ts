@@ -57,9 +57,11 @@ export function createBookingHandler(makeClient=createClient,env=Deno.env) {
    }
    if(body.action==='create_series'){
     if(member.role!=='admin')return respond({error:'Administrator required.'},403);
+    const kind=body.kind===undefined?'booked':body.kind;
+    if(!['booked','warning'].includes(kind))return respond({error:'Choose a recurring booking or warning.'},400);
     if(!uuid(body.resource_id)||!uuid(body.request_id)||!validateBookingDate(body.day))return respond({error:'Choose a resource, date and repeat interval.'},400);
     let slots,days;try{slots=normalizeBookingSlots(body.slots);days=bookingRepeatDays(body.repeat_days);}catch(error){return respond({error:error.message},400);}
-    const {data,error}=await db.rpc('portal_booking_create_series',{p_actor:auth.user.id,p_resource:body.resource_id,p_day:body.day,p_slots:slots,p_repeat_days:days,p_request_id:body.request_id});
+    const {data,error}=await db.rpc(kind==='warning'?'portal_booking_create_warning_series':'portal_booking_create_series',{p_actor:auth.user.id,p_resource:body.resource_id,p_day:body.day,p_slots:slots,p_repeat_days:days,p_request_id:body.request_id});
     if(error)throw error;return respond(data);
    }
    if(body.action==='stop_series'){
@@ -70,7 +72,7 @@ export function createBookingHandler(makeClient=createClient,env=Deno.env) {
    }
    return respond({error:'Invalid booking action.'},400);
   }catch(error){
-   const messages={BOOKING_DATE_RANGE:'Administrators can choose today and the following six days. Refresh the calendar.',BOOKING_BAD_REPEAT:'Choose a whole-number interval from 1 to 3650 days.',BOOKING_SERIES_OWNER:'Only the creator can stop this recurring booking.',BOOKING_MEMBER_REQUIRED:'An orchestra member account is required.',BOOKING_ADMIN_REQUIRED:'Administrator required.',BOOKING_TODAY_ONLY:'Only today can be booked. Refresh the schedule.',BOOKING_ELAPSED:'Elapsed time cells cannot be booked.',BOOKING_CLEARANCE:'You do not have clearance to book this resource.',BOOKING_CONFLICT:'Some selected cells were booked by another member. Refresh and choose free cells.',BOOKING_WARNING:'Warning periods cannot be booked.',BOOKING_OWN_ONLY:'You can cancel only cells that you booked.',BOOKING_WARNING_ONLY:'Select warning cells to clear.',BOOKING_RESOURCE_CHANGED:'This resource was changed by another administrator. Reload its settings.',BOOKING_RESOURCE_MISSING:'The resource is no longer available.',BOOKING_BAD_CLEARANCE:'Check the booking clearance settings.'};
+   const messages={BOOKING_REQUEST_CHANGED:'This repeat request was already used for a different action. Start again.',BOOKING_DATE_RANGE:'Administrators can choose today and the following six days. Refresh the calendar.',BOOKING_BAD_REPEAT:'Choose a whole-number interval from 1 to 3650 days.',BOOKING_SERIES_OWNER:'Only the creator can stop this recurring booking.',BOOKING_MEMBER_REQUIRED:'An orchestra member account is required.',BOOKING_ADMIN_REQUIRED:'Administrator required.',BOOKING_TODAY_ONLY:'Only today can be booked. Refresh the schedule.',BOOKING_ELAPSED:'Elapsed time cells cannot be booked.',BOOKING_CLEARANCE:'You do not have clearance to book this resource.',BOOKING_CONFLICT:'Some selected cells were booked by another member. Refresh and choose free cells.',BOOKING_WARNING:'Warning periods cannot be booked.',BOOKING_OWN_ONLY:'You can cancel only cells that you booked.',BOOKING_WARNING_ONLY:'Select warning cells to clear.',BOOKING_RESOURCE_CHANGED:'This resource was changed by another administrator. Reload its settings.',BOOKING_RESOURCE_MISSING:'The resource is no longer available.',BOOKING_BAD_CLEARANCE:'Check the booking clearance settings.'};
    for(const [code,message]of Object.entries(messages))if(String(error.message||'').includes(code))return respond({error:message,code},code.includes('REQUIRED')||['BOOKING_CLEARANCE','BOOKING_SERIES_OWNER'].includes(code)?403:409);
    if(String(error.message||'').includes('BOOKING_BAD_INSTRUMENT_CLASS'))return respond({error:'Choose a valid instrument classification.'},400);
    if(String(error.message||'').includes('BOOKING_BAD_MEDIA'))return respond({error:'Check the resource files. New files must be your own uploads, no larger than 10 MB each.'},400);

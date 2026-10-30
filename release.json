@@ -1,17 +1,22 @@
 {
-  "version": "1.41",
-  "release_number": 41,
-  "previous_saved_site_revision": 21,
+  "version": "1.42",
+  "release_number": 42,
+  "previous_saved_site_revision": 22,
   "release_date": "2026-10-30",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.41.zip",
-  "zip_root": "COPKU_Website_v1.41",
+  "zip_filename": "COPKU_Website_v1.42.zip",
+  "zip_root": "COPKU_Website_v1.42",
   "changes": [
-    "Allow multiple resources in the same category to share a name while keeping inventory IDs unique.",
-    "Save resource media and inventory IDs using the created record UUID, never a resource name lookup.",
-    "Keep same-name resource settings and reservations independent and align the private demo with live behavior."
+    "Add administrator-only recurring warnings: every day or every chosen number of days, preserving selected time cells.",
+    "Use the existing rolling seven-day scheduler, with repeat history, per-day clearing and safe stopping of future warnings.",
+    "Retain existing recurring booking behavior, including daily/custom intervals, conflicts and member restrictions.",
+    "Include the v1.41 same-name resource correction in the cumulative update files."
   ],
   "distribution": "patch",
   "base_version": "1.40",
-  "patch_filename": "COPKU_v1.41_Update_Only.zip"
+  "patch_filename": "COPKU_v1.42_Update_Only.zip",
+  "supported_base_versions": [
+    "1.40",
+    "1.41"
+  ]
 }

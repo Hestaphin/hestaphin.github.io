@@ -1,4 +1,4 @@
-import {createBookingController} from './booking-ui.mjs?v=1.40';
+import {createBookingController} from './booking-ui.mjs?v=1.42';
 import {portalPager, readAllRows} from './pagination.mjs?v=1.35';
 import {taskRecurrence, recurrenceLabel} from './recurrence-model.mjs?v=1.35';
 import { escapeHTML as e, taskDates, validateImage, validateNotificationFiles, isPreviewImage, countdown } from './model.mjs?v=1.35';

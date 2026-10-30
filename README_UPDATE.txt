@@ -1,43 +1,68 @@
-# COPKU v1.41 — allow resources with the same name
+# COPKU v1.42 — recurring bookings and warnings
 
-The connected orchestra Supabase project is already updated. Refresh your
-portal: rooms, instruments, equipment and transportation resources can share
-the same display name. Each resource's inventory ID remains unique.
+Recurring bookings were already available. This update adds the missing
+administrator-only recurring warning option, using the same time grid and
+daily/custom-day interval controls.
 
-## What changed
+## Install the update
 
-- Removed the database index that made resource names unique within a category.
-- Kept the UUID primary key and case-insensitive inventory ID uniqueness.
-- Corrected resource saving to use the UUID returned by the resource writer.
-  It no longer looks up a newly created resource by its name. Same-name
-  instruments keep their own ID, files, classification, settings and bookings.
-- Applied the same behavior to the private demo and updated the source scripts
-  used for fresh installation.
+This cumulative patch works over v1.40 or v1.41 and includes the v1.41 same-name
+resource correction. Merge the files inside `COPKU_v1.42_Update_Only` into your
+complete existing orchestra
+website folder and replace matching files. Keep the remaining website files.
+Redeploy the merged complete folder to Netlify, then refresh the portal with
+Ctrl+Shift+R (Windows) or Command+Shift+R (Mac). The patch alone is not a full site.
 
-Both recorded database migrations and `portal-booking` Edge Function version 9
-have been applied. No manual Supabase setup or SQL is required. Existing website
-code already benefits from the server fix; the website does not need redeployment
-for repeated names to work.
+The connected orchestra Supabase project is already updated. The recorded
+`recurring_warnings_v142` migration and portal-booking function version 10 have
+been applied. No manual SQL, scheduler or function setup is needed. Backend
+source and the recorded migration are included for version history.
 
-## Keep your website files up to date
+## Repeat 06:00–08:00 every day or every four days
 
-This is an update-only package for the complete v1.40 website. Merge the files
-inside `COPKU_v1.41_Update_Only` into your existing complete v1.40 website folder
-and replace matching files, preserving the remaining files. For a Netlify
-redeployment, deploy the merged complete folder. The patch alone is not a full
-website. Backend source and recorded migrations are included for version
-history; do not reapply migrations already recorded in the connected project.
+1. Sign in as an administrator. Open **Booking**, choose the resource category,
+   then click the resource name.
+2. Choose the start date using **Booking date**. Administrators can choose today
+   and the following six dates. Choose a future date if a booking's start time
+   today has already passed.
+3. Click the **06:00** cell, then hold **Shift** and click **07:50**. This selects
+   exactly twelve 10-minute cells: **06:00–08:00**, or 120 minutes.
+4. Click **Recurring booking** to reserve those cells, or **Recurring warning**
+   to block them as warnings. The recurring action also applies to the start
+   date you chose.
+5. Select **Every day**, or choose **Every number of days** and enter **4**.
+6. Click **Start recurring booking** or **Start recurring warning**.
+
+Each repeat uses the same selected cells. The system fills a rolling seven-day
+calendar automatically and continues as the calendar moves forward, until you
+stop the series. An interval longer than seven days is still remembered and
+applied when its next date enters that window. All booking dates use Beijing time.
+
+## Conflicts, clearing and stopping
+
+Recurring bookings preserve other users' bookings and warning periods; conflicts
+are listed. Recurring warnings replace bookings in the selected cells on each
+repeat date, just like the administrator's one-time warning action. Review this
+before confirming. Clearing a warning does not restore a replaced booking.
+
+On the resource detail page, **Your recurring bookings and warnings** lists the
+type, interval, dates and current state. **Stop repeats** stops future scheduling
+and releases this series' bookings/warnings from tomorrow onward. Today's cells
+are kept. Later manual changes with different ownership remain in place.
+
+For just one date, select the appropriate cells and click **Cancel booking** or
+**Clear warning**. That date is not automatically reapplied by the series.
+Members cannot create, clear or stop administrator warning series.
 
 ## Verification
 
-Live database checks passed in all four booking categories: creation and rename
-with identical names, correct UUIDs and inventory IDs, case-insensitive duplicate
-ID rejection, no partial record after a rejected ID, and independent booking and
-cancellation for same-name resources. Test data was rolled back; no fixtures
-remain. Classification, stale-write, permission and older-client regression
-checks also passed. The security advisory set is unchanged.
+Controller/backend tests passed for exact 06:00–08:00 selection, daily and four-day
+intervals, warning replacement, idempotent retries, rolling calendar extension,
+individual clearing, stopping, later manual changes and member restrictions.
+Transactional checks in the connected database passed for these operations and
+the existing recurring-booking behavior. Test changes were rolled back. The
+existing rolling scheduler remains active; no extra scheduler job was added.
 
-Controller/demo checks passed for displaying and opening both same-name items,
-separate settings and bookings, classification filtering, resource files and
-recurring booking controls. This change does not alter the portal's layout or
-the separate email website.
+The login endpoint also returned its normal invalid-credential response for a
+synthetic non-account probe after the earlier database incident. No password was
+read or changed, and no full project restart was performed.

@@ -1,22 +1,23 @@
 {
-  "version": "1.42",
-  "release_number": 42,
-  "previous_saved_site_revision": 22,
-  "release_date": "2026-10-30",
+  "version": "1.43",
+  "release_number": 43,
+  "previous_saved_site_revision": 23,
+  "release_date": "2026-10-31",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.42.zip",
-  "zip_root": "COPKU_Website_v1.42",
+  "zip_filename": "COPKU_Website_v1.43.zip",
+  "zip_root": "COPKU_Website_v1.43",
   "changes": [
-    "Add administrator-only recurring warnings: every day or every chosen number of days, preserving selected time cells.",
-    "Use the existing rolling seven-day scheduler, with repeat history, per-day clearing and safe stopping of future warnings.",
-    "Retain existing recurring booking behavior, including daily/custom intervals, conflicts and member restrictions.",
-    "Include the v1.41 same-name resource correction in the cumulative update files."
+    "Unify booking and warning as Status values in one form with shared one-time/daily/custom-day scheduling.",
+    "Add Classification to rooms, instruments, equipment and transportation, including Plucked string for instruments.",
+    "Preserve existing instrument classifications and old clients; order every inventory table by its displayed ID before pagination.",
+    "Retain same-name resources and existing rolling schedules without adding a scheduler."
   ],
   "distribution": "patch",
   "base_version": "1.40",
-  "patch_filename": "COPKU_v1.42_Update_Only.zip",
+  "patch_filename": "COPKU_v1.43_Update_Only.zip",
   "supported_base_versions": [
     "1.40",
-    "1.41"
+    "1.41",
+    "1.42"
   ]
 }

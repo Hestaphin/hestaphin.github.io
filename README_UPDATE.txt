@@ -1,68 +1,30 @@
-# COPKU v1.42 — recurring bookings and warnings
+COPKU v1.43 — UPDATE FILES ONLY
 
-Recurring bookings were already available. This update adds the missing
-administrator-only recurring warning option, using the same time grid and
-daily/custom-day interval controls.
+Supports the complete v1.40, v1.41 or v1.42 orchestra website.
 
-## Install the update
+1. Extract this ZIP.
+2. Open the COPKU_v1.43_Update_Only folder and copy its contents into your
+   complete existing website folder. Replace matching files; keep other files.
+3. Deploy the MERGED COMPLETE website folder to Netlify. Do not deploy only
+   these update files.
+4. Hard-refresh with Ctrl+Shift+R (Windows) or Command+Shift+R (Mac).
 
-This cumulative patch works over v1.40 or v1.41 and includes the v1.41 same-name
-resource correction. Merge the files inside `COPKU_v1.42_Update_Only` into your
-complete existing orchestra
-website folder and replace matching files. Keep the remaining website files.
-Redeploy the merged complete folder to Netlify, then refresh the portal with
-Ctrl+Shift+R (Windows) or Command+Shift+R (Mac). The patch alone is not a full site.
+SUPABASE IS ALREADY UPDATED. No manual SQL or function setup is required.
+The included backend source and migrations record the installed changes.
+Do not rerun already-applied migrations. The separate email site is unchanged.
 
-The connected orchestra Supabase project is already updated. The recorded
-`recurring_warnings_v142` migration and portal-booking function version 10 have
-been applied. No manual SQL, scheduler or function setup is needed. Backend
-source and the recorded migration are included for version history.
+CURRENT WORKFLOW:
+Booking -> resource -> select date/time -> Status: Booked or Warning ->
+Repeat: Does not repeat / Every day / Every number of days -> Save booking.
+For every four days, select Every number of days and enter 4.
+06:00–08:00 = click 06:00, Shift-click 07:50 (120 minutes).
+Warning replaces bookings. Both statuses share the same repeating scheduler.
 
-## Repeat 06:00–08:00 every day or every four days
+Classification now applies to all four resource categories. Existing instrument
+classifications are kept. All tables sort by the displayed ID, not the name.
 
-1. Sign in as an administrator. Open **Booking**, choose the resource category,
-   then click the resource name.
-2. Choose the start date using **Booking date**. Administrators can choose today
-   and the following six dates. Choose a future date if a booking's start time
-   today has already passed.
-3. Click the **06:00** cell, then hold **Shift** and click **07:50**. This selects
-   exactly twelve 10-minute cells: **06:00–08:00**, or 120 minutes.
-4. Click **Recurring booking** to reserve those cells, or **Recurring warning**
-   to block them as warnings. The recurring action also applies to the start
-   date you chose.
-5. Select **Every day**, or choose **Every number of days** and enter **4**.
-6. Click **Start recurring booking** or **Start recurring warning**.
+Read UPDATE_FROM_v1.42.md for current instructions and classification options.
+Older update guides in your original folder describe previous versions.
 
-Each repeat uses the same selected cells. The system fills a rolling seven-day
-calendar automatically and continues as the calendar moves forward, until you
-stop the series. An interval longer than seven days is still remembered and
-applied when its next date enters that window. All booking dates use Beijing time.
-
-## Conflicts, clearing and stopping
-
-Recurring bookings preserve other users' bookings and warning periods; conflicts
-are listed. Recurring warnings replace bookings in the selected cells on each
-repeat date, just like the administrator's one-time warning action. Review this
-before confirming. Clearing a warning does not restore a replaced booking.
-
-On the resource detail page, **Your recurring bookings and warnings** lists the
-type, interval, dates and current state. **Stop repeats** stops future scheduling
-and releases this series' bookings/warnings from tomorrow onward. Today's cells
-are kept. Later manual changes with different ownership remain in place.
-
-For just one date, select the appropriate cells and click **Cancel booking** or
-**Clear warning**. That date is not automatically reapplied by the series.
-Members cannot create, clear or stop administrator warning series.
-
-## Verification
-
-Controller/backend tests passed for exact 06:00–08:00 selection, daily and four-day
-intervals, warning replacement, idempotent retries, rolling calendar extension,
-individual clearing, stopping, later manual changes and member restrictions.
-Transactional checks in the connected database passed for these operations and
-the existing recurring-booking behavior. Test changes were rolled back. The
-existing rolling scheduler remains active; no extra scheduler job was added.
-
-The login endpoint also returned its normal invalid-credential response for a
-synthetic non-account probe after the earlier database incident. No password was
-read or changed, and no full project restart was performed.
+Functional and connected-database checks passed, with test fixtures rolled back.
+Visual browser verification was unavailable because the preview service was down.

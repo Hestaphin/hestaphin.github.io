@@ -1,6 +1,17 @@
 export const BOOKING_CATEGORIES=['Room','Instrument','Equipment','Transportation'];
-export const INSTRUMENT_CLASSIFICATIONS=['strings','woodwind','brasswind','keyboard','percussion','others'];
-export const instrumentClassLabel=value=>INSTRUMENT_CLASSIFICATIONS.includes(value)?value[0].toUpperCase()+value.slice(1):'Not assigned';
+export const RESOURCE_CLASSIFICATIONS={Room:['storage','practice','other'],Instrument:['strings','plucked_string','woodwind','brasswind','keyboard','percussion','others'],Equipment:['trolley','manual_tools','electrical_tools','environment_control','other'],Transportation:['vehicle','electric_assist','other']};
+export const INSTRUMENT_CLASSIFICATIONS=RESOURCE_CLASSIFICATIONS.Instrument;
+const resourceClassLabels={plucked_string:'Plucked string',manual_tools:'Manual tools',electrical_tools:'Electrical tools',environment_control:'Environment control',electric_assist:'Electric-assist'};
+export const resourceClassLabel=value=>Object.values(RESOURCE_CLASSIFICATIONS).some(values=>values.includes(value))?(resourceClassLabels[value]||value[0].toUpperCase()+value.slice(1)):'Not assigned';
+export const instrumentClassLabel=resourceClassLabel;
+export const resourceClassification=resource=>resource.classification??(resource.category==='Instrument'?resource.instrument_classification:null)??null;
+export function validateResourceClassification(value,category) {
+ if(!RESOURCE_CLASSIFICATIONS[category]?.includes(value))throw Error('Choose a valid classification for this resource type.');
+ return value;
+}
+export function sortBookingResources(resources) {
+ return [...resources].sort((a,b)=>String(a.resource_code||'').localeCompare(String(b.resource_code||''),'en',{numeric:true,sensitivity:'base'})||String(a.id).localeCompare(String(b.id),'en'));
+}
 export function validateInstrumentClassification(value,category) {
  if(category==='Instrument'?!INSTRUMENT_CLASSIFICATIONS.includes(value):value!==null)throw Error('Choose a valid instrument classification.');
  return value;
@@ -27,7 +38,7 @@ export const slotTime=index=>`${String(Math.floor(index/6)).padStart(2,'0')}:${S
 export const slotRangeText=range=>range?`${slotTime(range.start)}–${slotTime(range.end)}`:'—';
 export function slotRanges(slots=[]) {
  const rows=[...slots].sort((a,b)=>a.slot_index-b.slot_index),ranges=[];
- for(const row of rows){const previous=ranges.at(-1);if(previous&&previous.end===row.slot_index&&previous.kind===row.kind&&previous.user_id===row.user_id)previous.end++;else ranges.push({start:row.slot_index,end:row.slot_index+1,kind:row.kind,user_id:row.user_id||null});}
+ for(const row of rows){const previous=ranges.at(-1);if(previous&&previous.end===row.slot_index&&previous.kind===row.kind&&previous.user_id===(row.user_id||null))previous.end++;else ranges.push({start:row.slot_index,end:row.slot_index+1,kind:row.kind,user_id:row.user_id||null});}
  return ranges;
 }
 export function bookingSummary(slots,minute) {

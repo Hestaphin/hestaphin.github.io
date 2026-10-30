@@ -1,23 +1,25 @@
 {
-  "version": "1.43",
-  "release_number": 43,
-  "previous_saved_site_revision": 23,
+  "version": "1.44",
+  "release_number": 44,
+  "previous_saved_site_revision": 24,
   "release_date": "2026-10-31",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.43.zip",
-  "zip_root": "COPKU_Website_v1.43",
+  "zip_filename": "COPKU_Website_v1.44.zip",
+  "zip_root": "COPKU_Website_v1.44",
   "changes": [
-    "Unify booking and warning as Status values in one form with shared one-time/daily/custom-day scheduling.",
-    "Add Classification to rooms, instruments, equipment and transportation, including Plucked string for instruments.",
-    "Preserve existing instrument classifications and old clients; order every inventory table by its displayed ID before pagination.",
-    "Retain same-name resources and existing rolling schedules without adding a scheduler."
+    "Rename member Instrument labels to Specific / \u4e13\u804c while preserving existing personnel data.",
+    "Add Material / \u7269\u8d44 with Uniform / \u5236\u670d and Supplies / \u8865\u7ed9 navigation.",
+    "Add uniform classifications, item images, complete measurement-size tables and group assignment templates.",
+    "Add multi-line new/exchange applications, urgent mandatory decision tasks, approval/rejection history and collection-to-issue workflow.",
+    "Preserve previous uniform records during pending/rejected exchanges and enforce eligibility on the server."
   ],
   "distribution": "patch",
   "base_version": "1.40",
-  "patch_filename": "COPKU_v1.43_Update_Only.zip",
+  "patch_filename": "COPKU_v1.44_Update_Only.zip",
   "supported_base_versions": [
     "1.40",
     "1.41",
-    "1.42"
+    "1.42",
+    "1.43"
   ]
 }

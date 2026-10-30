@@ -26,8 +26,8 @@ export function validateMember(input,{creating=false}={}) {
  if((creating&&!member.username)||(member.username&&!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(member.username)))throw Error('Username must have 3–40 letters, numbers, dots, underscores or hyphens, and start with a letter or number.');
  if(creating&&!member.department)throw Error('Choose a department.');
  if(member.department&&!DEPARTMENTS.includes(member.department))throw Error('Choose a listed department.');
- if(member.department){if(!occupationsFor(member.department).includes(member.occupation_type))throw Error('Choose an occupation for this department.');const allowed=instrumentsFor(member.occupation_type);if(allowed.length?!allowed.includes(member.instrument):member.instrument!==null)throw Error('Choose an instrument for this occupation, or None for other occupations.');}
- else if(member.occupation_type||member.instrument)throw Error('Choose the department before its occupation and instrument.');
+ if(member.department){if(!occupationsFor(member.department).includes(member.occupation_type))throw Error('Choose an occupation for this department.');const allowed=instrumentsFor(member.occupation_type);if(allowed.length?!allowed.includes(member.instrument):member.instrument!==null)throw Error('Choose a specific for this occupation, or None for other occupations.');}
+ else if(member.occupation_type||member.instrument)throw Error('Choose the department before its occupation and specific.');
  if((creating&&!member.classification)||(member.classification&&!CLASSIFICATIONS.includes(member.classification)))throw Error('Choose a classification.');
  if(member.classification?!RANKS[member.classification].includes(member.rank):Boolean(member.rank))throw Error('Choose a rank for this classification.');
  if(['Trainee','Cadet'].includes(member.rank))member.member_status='probationary';

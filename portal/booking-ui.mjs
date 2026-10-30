@@ -3,7 +3,7 @@ import {validateResourceFiles} from './resource-media.mjs?v=1.37';
 import {RESOURCE_CLASSIFICATIONS,resourceClassLabel,resourceClassification,sortBookingResources,BOOKING_FILTER_FIELDS,bookingClock,bookingSummary,slotTime,slotRangeText,slotRanges,canBookResource,validateClearance,bookingDayWindow,bookingRepeatDays} from './booking-model.mjs?v=1.43';
 import {DEPARTMENTS,CLASSIFICATIONS,MEMBER_STATUSES,RANKS,occupationsFor,instrumentsFor,titleCase} from './member-fields.mjs?v=1.37';
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const labels={department:'Department',occupation_type:'Occupation',instrument:'Instrument',classification:'Classification',rank:'Rank',member_status:'Status'};
+const labels={department:'Department',occupation_type:'Occupation',instrument:'Specific',classification:'Classification',rank:'Rank',member_status:'Status'};
 const tr=value=>window.COPKU_I18N?.translate(value)||value;
 export function createBookingController({container,category,invoke,member,members,status,modal,uploadFile}) {
  let snapshot=null,resourceId=null,selected=new Set(),anchor=null,editing=false,destroyed=false,request=0,working=false,tooltipTimer,mediaVersion=0,selectedDay=null;

@@ -28,7 +28,10 @@ def main():
         raise SystemExit('Write the ZIP outside dist so it cannot include itself.')
     destination.mkdir(parents=True, exist_ok=True)
     output = destination / release['zip_filename']
-    files = sorted(path for path in root.rglob('*') if path.is_file())
+    # The sample portal belongs only to the private review Site. Never include
+    # its accounts, role switcher or controls in an official website release.
+    files = sorted(path for path in root.rglob('*')
+                   if path.is_file() and path.relative_to(root).parts[0] != 'portal-preview')
     entries = {name + '/' + path.relative_to(root).as_posix(): path for path in files}
     # Include the same helper in the downloadable release so it can be repackaged.
     entries[name + '/tools/package_release.py'] = Path(__file__).resolve()

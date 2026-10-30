@@ -1,106 +1,39 @@
 {
-  "from": "1.36",
-  "to": "1.37",
+  "from": "1.37",
+  "to": "1.38",
+  "remove_from_official_site": [
+    "portal-preview/"
+  ],
   "files": [
     {
-      "path": "UPDATE_FROM_v1.36.md",
-      "bytes": 4799,
-      "sha256": "a84a98acc5e324f6839d66345f09a8f101b91f7fe146caa042631665edd9f96a"
+      "path": "UPDATE_FROM_v1.37.md",
+      "bytes": 1217,
+      "sha256": "b53b23f49401eefc844cc1c5e4793f05f02e0bd8d556e9d079024dc5a867c79c"
     },
     {
-      "path": "language.js",
-      "bytes": 42523,
-      "sha256": "57356ce9991e48196f0689a2582e734d201b135b3b8c50a1c301911f053c582c"
-    },
-    {
-      "path": "portal-preview/demo-data.js",
-      "bytes": 42202,
-      "sha256": "39e995588f839bb611ef5adfa5b280558b5115badd3d4700ba2497112c650108"
-    },
-    {
-      "path": "portal-preview/index.html",
-      "bytes": 15176,
-      "sha256": "2cb82a89917bbd65f5c2eb31c683f6e5c2c8695983f5819c3688a6845360ae56"
-    },
-    {
-      "path": "portal/booking-model.mjs",
-      "bytes": 4407,
-      "sha256": "a581c5922b8aad90517c1d6f69c844e5f57c7997dfe0d765a0b805e9c9ce088e"
-    },
-    {
-      "path": "portal/booking-ui.mjs",
-      "bytes": 27178,
-      "sha256": "6587730d09a6fcfce8ed6fd1bba00eca43e98e761a889310e7b312a7305581f6"
-    },
-    {
-      "path": "portal/booking.css",
-      "bytes": 11589,
-      "sha256": "79d76d7913bef2a76c19342593f0dab405262240ad144bf5ebcb7567d4c3a6ee"
+      "path": "index.html",
+      "bytes": 16934,
+      "sha256": "ec62a97c3842d95bf52c6fd170ec770be147a7cac0c08752042e7a2394d4fe1c"
     },
     {
       "path": "portal/internal/index.html",
       "bytes": 14309,
-      "sha256": "134a98401042ac24ad995ced9c810c281a237f9aaa2b033bd1cdb99e4bad6672"
+      "sha256": "0d1a8476bf8d1e90e56e4b687dbbee4cb2b640ae390147fcc31da737a8fc96d3"
     },
     {
-      "path": "portal/portal.js",
-      "bytes": 106204,
-      "sha256": "fa2e7afaef7fc7c33e1c4d686d2d9a816f7fe4175801bba528db644a960e91fc"
-    },
-    {
-      "path": "portal/score-preview/licences.html",
-      "bytes": 2656,
-      "sha256": "97162cdec6628216eab89e0539a4245c90bf8bc73160dd3fb809428cdea87bfd"
-    },
-    {
-      "path": "portal/score-preview/mapping-engine.mjs",
-      "bytes": 1866,
-      "sha256": "4070ee9c966c4dec4f2651bf6f9b14d24f3cf61da80344c06befce9bffec5a0b"
-    },
-    {
-      "path": "portal/score-preview/mapping-worker.mjs",
-      "bytes": 620,
-      "sha256": "065a9491884937ca104753cdc92ac5333cfefecba715abec021bc92125df2617"
-    },
-    {
-      "path": "portal/score-preview/note-map.mjs",
-      "bytes": 23066,
-      "sha256": "0d64499f74c3af7b1e9da14fdc6b23e39807ecdcee6dbf4cdf3919afd36057d8"
-    },
-    {
-      "path": "portal/score-preview/playback.mjs",
-      "bytes": 3688,
-      "sha256": "4651e9722f8c98cd62e4f4e04d8afe3a066627ac13dd65cd4605467c50b15da2"
-    },
-    {
-      "path": "portal/score-preview/preview.css",
-      "bytes": 5121,
-      "sha256": "861d8cdc99fe1a3506828432da3eb504cc2c3d089f4eda48ed4455223abe3f87"
-    },
-    {
-      "path": "portal/score-preview/preview.mjs",
-      "bytes": 19609,
-      "sha256": "7b6c42287b1cbb3bbc0b44f3a639e44eeff9c42b065b6922d82a3361f20f4456"
+      "path": "portal/portal.css",
+      "bytes": 48236,
+      "sha256": "4748c99ab4f086952fad2d2c0b4e0107cf0c7328b281326c963da836343650dd"
     },
     {
       "path": "release.json",
-      "bytes": 819,
-      "sha256": "a5e167471261e91035c7299f95b51b4b36ebe4d795167cfb47a6000fd1277c4c"
+      "bytes": 587,
+      "sha256": "548c70630438f7b6ac09d9b1438e2d715bfaa4f79727bba55110f02388fcc621"
     },
     {
-      "path": "supabase/functions/portal-booking/booking-model.mjs",
-      "bytes": 4407,
-      "sha256": "a581c5922b8aad90517c1d6f69c844e5f57c7997dfe0d765a0b805e9c9ce088e"
-    },
-    {
-      "path": "supabase/functions/portal-booking/index.ts",
-      "bytes": 8784,
-      "sha256": "62c49040f4c52a0a678f310d845327d57dbd092f9f71dd42e09407b66a5b914a"
-    },
-    {
-      "path": "supabase/portal/14_recurring_bookings_v137.sql",
-      "bytes": 18434,
-      "sha256": "00fbc42d43390f9e7b11ec0576b7e45818b8a6419bfd508ebb3579b1d8c08996"
+      "path": "tools/package_release.py",
+      "bytes": 3217,
+      "sha256": "cfd000e8e994d5c5ba91cdfdd850c4bb9097c5c1337324c08391c2343c02d4de"
     }
   ]
 }

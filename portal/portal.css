@@ -341,7 +341,7 @@ body.orchestra-portal {
 .portal-notice-list {max-height:50dvh;overflow:auto;border-top:1px solid #999;}
 .portal-notice-list button {display:block;width:100%;text-align:left;font-size:17px;background:white;border:0;border-bottom:1px solid #ccc;padding:14px;}
 .portal-notice-list small {display:block;color:#666;margin-top:5px;}.portal-notice-list p {padding:14px;margin:0;}
-.notification-reply {padding:15px 0;border-bottom:1px solid #bbb;}.notification-reply blockquote {margin:8px 0;padding:8px 12px;border-left:2px solid #999;font-size:16px;color:#555;white-space:pre-wrap;}.notification-reply .reply-target {font-size:16px;}
+.notification-reply {padding:15px 0;}.notification-reply blockquote {margin:8px 0;padding:8px 12px;border-left:2px solid #999;font-size:16px;color:#555;white-space:pre-wrap;}.notification-reply .reply-target {font-size:16px;}
 #reply-target-label {font-size:17px;margin-top:16px;}#reply-form textarea {display:block;width:100%;font-size:18px;}
 .selected-files {display:flex;flex-wrap:wrap;gap:6px;}.selected-file {display:inline-flex;align-items:center;gap:7px;font-size:15px;min-width:0;}.selected-file > span {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;}.selected-file button {font-size:14px!important;border:1px solid #999;background:white;padding:2px 6px!important;}
 .portal-chat-open .chat-compose-actions {flex-wrap:wrap;}.portal-chat-open .chat-compose-actions output {flex:1 1 180px;white-space:normal;}.portal-chat-open .chat-compose-actions .selected-file > span {max-width:180px;}

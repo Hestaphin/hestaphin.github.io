@@ -1,18 +1,17 @@
 {
-  "version": "1.37",
-  "release_number": 37,
-  "previous_saved_site_revision": 17,
+  "version": "1.38",
+  "release_number": 38,
+  "previous_saved_site_revision": 18,
   "release_date": "2026-10-30",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.37.zip",
-  "zip_root": "COPKU_Website_v1.37",
+  "zip_filename": "COPKU_Website_v1.38.zip",
+  "zip_root": "COPKU_Website_v1.38",
   "changes": [
-    "Admin bookings on seven calendar dates: today through today + six days in Beijing time.",
-    "Admin-only daily/every-N-days recurring bookings, rolling reservations, conflict reporting and stop controls.",
-    "MuseScore note highlighting, click-note playback and optional automatic page following; independent mapping Worker preserves audio fallback.",
-    "Update-only files over v1.36; booking database migration and Edge function applied to COPKU DATA."
+    "Use a single separator between discussion replies and above reply pagination.",
+    "Remove the floating portal-demo link from the official homepage.",
+    "Exclude demo portal files from future official website release ZIPs."
   ],
   "distribution": "patch",
-  "base_version": "1.36",
-  "patch_filename": "COPKU_v1.37_Update_Only.zip"
+  "base_version": "1.37",
+  "patch_filename": "COPKU_v1.38_Update_Only.zip"
 }

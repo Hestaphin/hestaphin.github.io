@@ -1,46 +1,67 @@
 {
-  "version": "1.47",
+  "version": "1.48",
   "base_commit": "0b697d884bd0bf6d5a4d9f41f9f66e64a210a126",
   "supported_base_versions": [
-    "1.46"
+    "1.46",
+    "1.47"
   ],
   "distribution": "update-only",
   "supabase_changes_required": false,
+  "supabase_already_applied": {
+    "project_id": "mqthckhoxtqtyuhtdunl",
+    "migration": "20261031135732_optional_member_email_v148",
+    "functions": {
+      "create-internal-user": 20,
+      "portal-login": 7,
+      "portal-account": 8,
+      "portal-password-help": 11
+    }
+  },
   "files": [
     {
-      "path": "UPDATE_FROM_v1.46.md",
-      "bytes": 1955,
-      "sha256": "a301dd939e57b2f31e4b49a374fa6a542b3ddacf12d28c2b954818c9f0ca5c02"
+      "path": "UPDATE_FROM_v1.47.md",
+      "bytes": 4349,
+      "sha256": "18933a01996401268f7a25fef46edb9e9ec742f0400183293c0c231a85d6fccd"
+    },
+    {
+      "path": "language.js",
+      "bytes": 52159,
+      "sha256": "e8565c05645a71ffc0be57e840a49f4fdc652c42c93df8dec1a66d9f08676696"
     },
     {
       "path": "portal/internal/index.html",
       "bytes": 14380,
-      "sha256": "18ec24bd2c738cdf0d2ddbf2b83e2d818bf96001e40c520dc06fc892e89fe01b"
+      "sha256": "cb6caf8714d6e1f7c75e5876a838bf4f4ca9cfa39c206accf70b1d3bd533d33d"
+    },
+    {
+      "path": "portal/member-fields.mjs",
+      "bytes": 4640,
+      "sha256": "10df639b575d5e6a8279a7b1ae0215b3d18a04cd83916ba8c2f18c6a34b87e7e"
     },
     {
       "path": "portal/portal.js",
-      "bytes": 107265,
-      "sha256": "0423993f7ca838e06b84184fe40adff24233c15545c928b11858da32b0e41aef"
+      "bytes": 107544,
+      "sha256": "b08a0917142373773c941eec75015d225783295ac38d16de93f9f621698de25c"
     },
     {
       "path": "portal/score-preview/licences.html",
-      "bytes": 3276,
-      "sha256": "86cdf6c2dc8685ba387d9d9b769d0e4c4be12597c5674a6b870c55dc5e3f611b"
+      "bytes": 3529,
+      "sha256": "934b09a2bb327aa9cebac8ac56bddcf98044cf24e921cf7fed7a1aaab31139d2"
     },
     {
       "path": "portal/score-preview/mapping-engine.mjs",
-      "bytes": 2213,
-      "sha256": "6456314419a31d4b2be42b903c89b86637d714642395facc8e409d4ddece4c93"
+      "bytes": 2382,
+      "sha256": "62057bb1b21b0efd1b47ee16b2cecc01731815fca8edc25fc77fc7180fe829b8"
     },
     {
       "path": "portal/score-preview/mapping-worker.mjs",
       "bytes": 724,
-      "sha256": "f71ce49ed7bc8eb4035525834c4bbb6e2d173d895803a467c646619f19f79e5b"
+      "sha256": "77d249d959a3016fc89d51e8d6df11481f2a266aa7d9d0f1d88275e0a602c023"
     },
     {
       "path": "portal/score-preview/note-map.mjs",
-      "bytes": 33248,
-      "sha256": "a1ac941081fa823a55fab7b70d3183dba3dd99b38af072de5d331ce00821d5ba"
+      "bytes": 33488,
+      "sha256": "61e7d7ad0613b1531506df973e13f39f0451995c62fe3e18dea535d2948eb9f6"
     },
     {
       "path": "portal/score-preview/playback.mjs",
@@ -54,13 +75,43 @@
     },
     {
       "path": "portal/score-preview/preview.mjs",
-      "bytes": 22399,
-      "sha256": "f849b28fe27744cc67b8afa542a193c31855411be237050207dcf0f54cf91637"
+      "bytes": 24360,
+      "sha256": "46718f190dc4dc591118b7341fd3916a1c5b07b2127f3f54a95bafbf25e659ec"
+    },
+    {
+      "path": "portal/score-preview/viewport.mjs",
+      "bytes": 3935,
+      "sha256": "aead5263a1881191415fdd4386995e3289b93303cbc8714f2e7757d8433b6cb8"
     },
     {
       "path": "release.json",
-      "bytes": 640,
-      "sha256": "5f557c01862bc1fbb118e57de37f1ab06a69c39abad80b57c412327ad18e4f2a"
+      "bytes": 758,
+      "sha256": "355b69c2eb616ce5146301f1866460a6c90f13f8af978ece132df2ba22169b26"
+    },
+    {
+      "path": "supabase/functions/create-internal-user/index.ts",
+      "bytes": 7167,
+      "sha256": "63d4c6cd5d3916aef36e45d4abf2a30f74adbac4da3c28070d909064441fb734"
+    },
+    {
+      "path": "supabase/functions/portal-account/index.ts",
+      "bytes": 7536,
+      "sha256": "ac19d40445b167f0f144c7e7cf69ec82370c0c19cf913703046243db16251796"
+    },
+    {
+      "path": "supabase/functions/portal-login/index.ts",
+      "bytes": 4590,
+      "sha256": "94d6ce19d6c23c816b54d3887af52e1d1d77baf1ba7c727ef7accbd8d9eae7b1"
+    },
+    {
+      "path": "supabase/functions/portal-password-help/index.ts",
+      "bytes": 2862,
+      "sha256": "961b455ce3f6e4298dfa756ad3b7fae43d3567c721eade83064a389c36047693"
+    },
+    {
+      "path": "supabase/migrations/20261031135732_optional_member_email_v148.sql",
+      "bytes": 479,
+      "sha256": "d1b9f5dc198210db2e12a881cacc23334cd2a001fc8722a447dc8e63c3a3e3ff"
     }
   ]
 }

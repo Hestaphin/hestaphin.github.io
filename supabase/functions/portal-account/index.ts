@@ -22,9 +22,10 @@ const instrumentsFor=occupation=>INSTRUMENTS[occupation]||INSTRUMENTS[String(occ
 const titleCase=value=>value?value[0].toUpperCase()+value.slice(1):'Not assigned';
 function validateMember(input,{creating=false}={}) {
  const text=n=>String(input[n]??'').trim();
- const member={full_name:text('full_name'),email:text('email').toLowerCase(),username:text('username').toLowerCase()||null,department:text('department')||null,occupation_type:text('occupation_type')||null,instrument:text('instrument')||null,classification:text('classification')||null,rank:text('rank')||null,member_status:text('member_status')||'active'};
+ const member={full_name:text('full_name'),email:text('email').toLowerCase()||null,username:text('username').toLowerCase()||null,department:text('department')||null,occupation_type:text('occupation_type')||null,instrument:text('instrument')||null,classification:text('classification')||null,rank:text('rank')||null,member_status:text('member_status')||'active'};
  if(!member.full_name||member.full_name.length>120)throw Error('Enter a name of at most 120 characters.');
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)||member.email.length>254)throw Error('Enter a valid email address.');
+ if(member.email&&(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)||member.email.length>254||member.email.endsWith('@accounts.pkuco.invalid')))throw Error('Enter a valid email address.');
+ if(!member.email&&!member.username)throw Error('A username is required when email is blank.');
  if((creating&&!member.username)||(member.username&&!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(member.username)))throw Error('Username must have 3–40 letters, numbers, dots, underscores or hyphens, and start with a letter or number.');
  if(creating&&!member.department)throw Error('Choose a department.');
  if(member.department&&!DEPARTMENTS.includes(member.department))throw Error('Choose a listed department.');
@@ -59,7 +60,8 @@ export function createPortalAccountHandler(makeClient=createClient,env=Deno.env)
    if(current.error||!current.data)return respond({error:'Orchestra member not found.'},404);
    const member=validateMember({...current.data,...body.member});
    if(member.username){const duplicate=await db.from('profiles').select('user_id').eq('username',member.username).neq('user_id',body.user_id).maybeSingle();if(duplicate.error)throw duplicate.error;if(duplicate.data)return respond({error:'This username is already in use.',code:'USERNAME_TAKEN'},409);}
-   const emailChanged=member.email!==current.data.email.toLowerCase();
+   if(!member.email&&(current.data.email||current.data.role!=='internal'))throw Error('Enter a valid email address.');
+   const emailChanged=member.email!==((current.data.email||'').toLowerCase()||null);
    if(emailChanged){const change=await db.auth.admin.updateUserById(body.user_id,{email:member.email,email_confirm:true});if(change.error)throw change.error;}
    const {email,...fields}=member;
    const saved=await db.from('profiles').update(fields).eq('user_id',body.user_id).select('*').single();

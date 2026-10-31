@@ -1,19 +1,21 @@
 {
-  "version": "1.47",
-  "release_number": 47,
-  "previous_saved_site_revision": 27,
+  "version": "1.48",
+  "release_number": 48,
+  "previous_saved_site_revision": 28,
   "release_date": "2026-10-31",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.47.zip",
-  "zip_root": "COPKU_Website_v1.47",
+  "zip_filename": "COPKU_Website_v1.48.zip",
+  "zip_root": "COPKU_Website_v1.48",
   "changes": [
-    "Highlight the current playing bar across all staves in translucent pink, including rests and compressed multi-measure rests.",
-    "Keep note highlighting, click-to-play, speed, zoom and page following working with the bar overlay."
+    "Allow an administrator to create a username account with no contact email while preserving activation and account protections.",
+    "Keep the viewed instrument and scroll position across score page changes, with image-load synchronization and user scroll priority.",
+    "Include the v1.47 current bar highlight for v1.46 installations."
   ],
   "distribution": "patch",
   "base_version": "1.46",
-  "patch_filename": "COPKU_v1.47_Update_Only.zip",
+  "patch_filename": "COPKU_v1.48_Update_Only.zip",
   "supported_base_versions": [
-    "1.46"
+    "1.46",
+    "1.47"
   ]
 }

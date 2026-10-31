@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import { readScoreResponse, ScorePreviewError, scoreTime } from './model.mjs';
 import { createPlaybackIndex, hitNote, highlightSvg, barHighlightSvg, MP3_OFFSET_MS } from './playback.mjs?v=1.47';
+import {captureScoreViewport,restoreScoreViewport} from './viewport.mjs?v=1.48';
 let activePreview;
 const words = {
   en: { title: 'Score preview', close: 'Close score preview', loading: 'Loading score…', preparing: 'Preparing playback…', ready: 'Score ready', audioReady: 'Audio ready. Press Play in the player.', play: 'Play score', previous: 'Previous page', next: 'Next page', page: 'Page', zoom: 'Zoom', fit: 'Fit width', speed: 'Playback speed', download: 'Download original', notice: 'Player source & licences', note: 'Standard instrument sounds. Audio is prepared when you press Play.', failed: 'This score could not be previewed. You can still download the original attachment.', unavailable: 'The attachment is unavailable. Close this window and refresh the task or notification.', large: 'The score exceeds the 10 MB attachment limit.', complex: 'This compressed score is too large to preview safely.', unsupported: 'This score is damaged, empty, or uses a newer unsupported MuseScore format.', audioFailed: 'Playback could not be prepared. The score preview is still available.', timeout: 'Preparing this score took too long. Close the window and try again.', controls: 'Score pages and playback', follow: 'Follow playback', mapping: 'Preparing playback highlights…', mapped: 'The pink bar follows playback. Click a note to play from there.', mapFailed: 'Note highlighting is unavailable for this score. Preview and playback still work.', startNote: 'Play from note', mappedPartial: 'Click a note to play from there. Some notes use their written beat for timing.', mapTiming: 'The note timeline could not be matched. Score pages and audio remain available.', mapTimeout: 'Note tracking took too long. Close this score and reopen it to retry.', mapPage: 'Note tracking is unavailable on this page. Other pages and audio remain available.' },
@@ -33,7 +34,7 @@ export function createScoreWorkerClient(worker, { timeout = 120000 } = {}) {
     close() { if (!closed) { closed = true; worker.terminate(); } failAll('CLOSED'); }
   };
 }
-export function openScorePreview({ name, fetchScore, opener, document: doc = document, makeWorker = () => new Worker(new URL('./worker.mjs?v=1.37', import.meta.url), { type: 'module' }), makeMappingWorker = () => new Worker(new URL('./mapping-worker.mjs?v=1.47', import.meta.url), { type: 'module' }) }) {
+export function openScorePreview({ name, fetchScore, opener, document: doc = document, makeWorker = () => new Worker(new URL('./worker.mjs?v=1.37', import.meta.url), { type: 'module' }), makeMappingWorker = () => new Worker(new URL('./mapping-worker.mjs?v=1.48', import.meta.url), { type: 'module' }) }) {
   activePreview?.close();
   const dialog = doc.createElement('dialog'); dialog.className = 'score-preview-dialog'; dialog.dataset.userContent = '';
   dialog.innerHTML = '<header class="score-preview-header"><div><p class="score-preview-eyebrow"></p><h2 id="score-preview-name"></h2><p class="score-preview-composer" hidden></p></div><button type="button" class="score-preview-close">×</button></header><section class="score-preview-controls"><button type="button" class="score-play" disabled></button><audio controls preload="metadata" hidden></audio><label class="score-speed-label" hidden><span></span><select class="score-speed"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label><label class="score-follow-label" hidden><input type="checkbox" class="score-follow" checked><span></span></label><div class="score-page-tools"><button type="button" class="score-previous" disabled>‹</button><span class="score-page-count"></span><button type="button" class="score-next" disabled>›</button><label class="score-zoom-label"><span></span><select class="score-zoom"><option value="fit"></option><option value="100">100%</option><option value="125">125%</option><option value="150">150%</option><option value="200">200%</option></select></label></div></section><p class="score-preview-status" role="status" aria-live="polite"></p><p class="score-preview-error" role="alert" hidden></p><p class="score-map-status" role="status" hidden></p><div class="score-preview-stage" aria-busy="true" tabindex="0"><div class="score-paper" hidden><img class="score-page-image" alt=""><img class="score-bar-highlight" alt="" hidden><img class="score-note-highlight" alt="" hidden><div class="score-note-targets"></div></div></div><footer class="score-preview-footer"><span class="score-preview-note"></span><a class="score-download" hidden></a><a class="score-source" target="_blank" rel="noopener"></a></footer>';
@@ -43,6 +44,7 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
   let closed = false, mappingClient, playback, geometry, overlayUrl, frameHandle, audioPromise, pendingSeek = null, mapStatus = '', mappingReadyStatus = 'mapped', highlightKey = '', followingPage = null, client, fileUrl, audioUrl, pages = 0, page = 0, duration = 0, pageSequence = 0, currentStatus = 'loading', audioPreparing = false;
   const geometryCache = new Map(), geometryRequests = new Map();
   let barOverlayUrl, barHighlightKey = '';
+  let viewedPage = false, pendingViewport;
   const text = () => words[window.COPKU_I18N?.language === 'cn' ? 'cn' : 'en'];
   function refreshLabels() {
     const t = text(); dialog.setAttribute('aria-label', t.title); q('.score-preview-eyebrow').textContent = t.title;
@@ -70,12 +72,32 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
     return url;
   }
   function displayPage(index, url) {
-    page = index; q('.score-page-image').src = url; paper.hidden = false; stage.scrollTop = 0; stage.scrollLeft = 0;
+    const memory = viewedPage ? captureScoreViewport(geometry, viewportMetrics()) : null; viewedPage = true;
+    page = index; pendingViewport = memory ? {memory,index,url,sequence:pageSequence} : null;
+    q('.score-page-image').src = url; paper.hidden = false;
+    if (!memory) { stage.scrollTop = 0; stage.scrollLeft = 0; }
     stage.setAttribute('aria-busy', 'false'); q('.score-previous').disabled = page === 0; q('.score-next').disabled = page >= pages - 1;
     currentStatus = audioPreparing ? 'preparing' : 'ready'; refreshLabels();
     geometry = null; highlightKey = ''; clearBarHighlight(); q('.score-note-highlight').hidden = true; q('.score-note-targets').replaceChildren?.();
     if (playback) void loadGeometry(index);
+    restorePendingViewport();
   }
+  function viewportMetrics() {
+    const p=paper.getBoundingClientRect(),s=stage.getBoundingClientRect();
+    return {scrollTop:Number(stage.scrollTop)||0,scrollLeft:Number(stage.scrollLeft)||0,paperTop:p.top,paperHeight:p.height,paperWidth:p.width,viewportTop:s.top+(stage.clientTop||0),viewportHeight:stage.clientHeight||s.height,maxTop:stage.scrollHeight-stage.clientHeight,maxLeft:stage.scrollWidth-stage.clientWidth};
+  }
+  function restorePendingViewport(finish=false) {
+    const pending=pendingViewport,image=q('.score-page-image');
+    if (closed||!pending||pending.index!==page||pending.sequence!==pageSequence||pending.url!==image.src||image.complete===false) return;
+    const measureId=playback?.at(Math.max(0,(Number(audio.currentTime)||0)*1000-MP3_OFFSET_MS)).measure?.layoutId;
+    const position=restoreScoreViewport(pending.memory,geometry,viewportMetrics(),{measureId});
+    stage.scrollTop=position.top;stage.scrollLeft=position.left;
+    if (geometry||finish||!mappingClient) pendingViewport=null;
+  }
+  q('.score-page-image').addEventListener('load',()=>restorePendingViewport());
+  // Scrolling or dragging after a page arrives takes priority over a late map.
+  for (const event of ['wheel','touchmove','pointerdown']) stage.addEventListener(event,()=>{pendingViewport=null;},{passive:true});
+  stage.addEventListener('keydown',event=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End',' '].includes(event.key))pendingViewport=null;});
   async function changePage(index) {
     if (closed || index < 0 || index >= pages) return;
     const sequence = ++pageSequence; stage.setAttribute('aria-busy', 'true'); q('.score-previous').disabled = true; q('.score-next').disabled = true;
@@ -93,7 +115,7 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
   }, { once: true });
   q('.score-preview-close').onclick = close;
   q('.score-previous').onclick = () => { if (!audio.paused) q('.score-follow').checked = false; return changePage(page - 1); }; q('.score-next').onclick = () => { if (!audio.paused) q('.score-follow').checked = false; return changePage(page + 1); };
-  q('.score-zoom').onchange = event => { const value = event.target.value; paper.style.width = value === 'fit' ? '100%' : `${Number(value)}%`; };
+  q('.score-zoom').onchange = event => { pendingViewport=null;const value = event.target.value; paper.style.width = value === 'fit' ? '100%' : `${Number(value)}%`; };
   q('.score-speed').onchange = event => { audio.playbackRate = Number(event.target.value); };
   function cancelFrame() { if (frameHandle != null) { (window.cancelAnimationFrame || clearTimeout)(frameHandle); frameHandle = null; } }
   function tick() { frameHandle = null; if (closed) return; updateHighlight(); if (!audio.paused && !audio.ended) frameHandle = window.requestAnimationFrame ? window.requestAnimationFrame(tick) : setTimeout(tick, 40); }
@@ -128,7 +150,7 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
   }
   function disableMapping(error) {
     if (closed) return; mappingClient?.close(); mappingClient = null; playback = null; geometry = null; geometryCache.clear();
-    mapStatus = error?.code === 'TIMEOUT' ? 'mapTimeout' : error?.code === 'NOTE_MAP_TIMING' ? 'mapTiming' : 'mapFailed'; q('.score-follow-label').hidden = true; clearBarHighlight(); q('.score-note-highlight').hidden = true; q('.score-note-targets').replaceChildren?.(); refreshLabels();
+    mapStatus = error?.code === 'TIMEOUT' ? 'mapTimeout' : error?.code === 'NOTE_MAP_TIMING' ? 'mapTiming' : 'mapFailed'; q('.score-follow-label').hidden = true; clearBarHighlight(); q('.score-note-highlight').hidden = true; q('.score-note-targets').replaceChildren?.(); refreshLabels();restorePendingViewport(true);
   }
   function clearBarHighlight() {
     barLayer.hidden = true; barHighlightKey = '';
@@ -171,12 +193,12 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
       button.style.width = `${(b.width + 4) / width * 100}%`; button.style.height = `${(b.height + 4) / height * 100}%`;
       button.onclick = event => { event.stopPropagation(); seekNote(n.id); }; layer.append(button);
     }
-    updateHighlight();
+    restorePendingViewport();updateHighlight();
   }
   function pageUnavailable(error) {
     if (closed) return;
     if (['CLOSED','TIMEOUT','WORKER_FAILED'].includes(error?.code)) { disableMapping(error); return; }
-    geometry = null; clearBarHighlight(); q('.score-note-highlight').hidden = true; q('.score-note-targets').replaceChildren?.(); mapStatus = 'mapPage'; refreshLabels();
+    geometry = null; clearBarHighlight(); q('.score-note-highlight').hidden = true; q('.score-note-targets').replaceChildren?.(); mapStatus = 'mapPage'; refreshLabels();restorePendingViewport(true);
   }
   async function loadGeometry(index) {
     try {

@@ -17,11 +17,11 @@ export function createPasswordHelpHandler(makeClient=createClient,env=Deno.env) 
    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('help|'+ip+'|'+identifier));
    const rate=await db.rpc('portal_login_attempt',{p_key:Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('')});
    if(rate.error||!rate.data)return respond({ok:true,message});
-   const profile=await db.from('profiles').select('user_id,email,full_name,activation_required').eq(identifier.includes('@')?'email':'username',identifier).in('role',['admin','internal']).maybeSingle();
+   const profile=await db.from('profiles').select('user_id,email,username,full_name,activation_required').eq(identifier.includes('@')?'email':'username',identifier).in('role',['admin','internal']).maybeSingle();
    if(profile.error)throw profile.error;
    const p=profile.data;
-   if(p?.activation_required){const sent=await db.auth.resetPasswordForEmail(p.email,{redirectTo:(get('SITE_URL')||'https://www.pkuco.org').replace(/\/$/,'')+'/portal/reset-password/'});if(sent.error)throw sent.error;}
-   else if(p){const day=new Date().toISOString().slice(0,10);const event=await db.rpc('portal_admin_event',{p_key:'password:'+p.user_id+':'+day,p_title:'Orchestra password help: '+(p.full_name||p.email),p_text:'Password assistance was requested for '+p.email+'. Verify the member identity privately, then send a password reset email.'});if(event.error)throw event.error;}
+   if(p?.activation_required&&p.email){const sent=await db.auth.resetPasswordForEmail(p.email,{redirectTo:(get('SITE_URL')||'https://www.pkuco.org').replace(/\/$/,'')+'/portal/reset-password/'});if(sent.error)throw sent.error;}
+   else if(p){const day=new Date().toISOString().slice(0,10);const event=await db.rpc('portal_admin_event',{p_key:'password:'+p.user_id+':'+day,p_title:'Orchestra password help: '+(p.full_name||p.username||p.email),p_text:'Password assistance was requested for '+(p.username||p.email)+'. Verify the member identity privately. '+(p.email?'Then send a password reset email.':'This account has no email. Add the member contact email in Accounts before sending a recovery email.')});if(event.error)throw event.error;}
    return respond({ok:true,message});
   }catch{return respond({error:'Could not request assistance. Please try again later.'},503);}
  };

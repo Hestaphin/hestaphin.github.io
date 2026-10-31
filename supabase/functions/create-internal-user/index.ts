@@ -22,9 +22,10 @@ const instrumentsFor=occupation=>INSTRUMENTS[occupation]||INSTRUMENTS[String(occ
 const titleCase=value=>value?value[0].toUpperCase()+value.slice(1):'Not assigned';
 function validateMember(input,{creating=false}={}) {
  const text=n=>String(input[n]??'').trim();
- const member={full_name:text('full_name'),email:text('email').toLowerCase(),username:text('username').toLowerCase()||null,department:text('department')||null,occupation_type:text('occupation_type')||null,instrument:text('instrument')||null,classification:text('classification')||null,rank:text('rank')||null,member_status:text('member_status')||'active'};
+ const member={full_name:text('full_name'),email:text('email').toLowerCase()||null,username:text('username').toLowerCase()||null,department:text('department')||null,occupation_type:text('occupation_type')||null,instrument:text('instrument')||null,classification:text('classification')||null,rank:text('rank')||null,member_status:text('member_status')||'active'};
  if(!member.full_name||member.full_name.length>120)throw Error('Enter a name of at most 120 characters.');
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)||member.email.length>254)throw Error('Enter a valid email address.');
+ if(member.email&&(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(member.email)||member.email.length>254||member.email.endsWith('@accounts.pkuco.invalid')))throw Error('Enter a valid email address.');
+ if(!member.email&&!member.username)throw Error('A username is required when email is blank.');
  if((creating&&!member.username)||(member.username&&!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(member.username)))throw Error('Username must have 3–40 letters, numbers, dots, underscores or hyphens, and start with a letter or number.');
  if(creating&&!member.department)throw Error('Choose a department.');
  if(member.department&&!DEPARTMENTS.includes(member.department))throw Error('Choose a listed department.');
@@ -58,7 +59,9 @@ export function createInternalUserHandler(makeClient=createClient,env=Deno.env) 
    if(typeof body.password!=='string'||body.password.length<8||body.password.length>128)return respond({error:'Use a temporary password of 8–128 characters.'},400);
    const duplicate=await db.from('profiles').select('user_id').eq('username',member.username).maybeSingle();
    if(duplicate.error)throw duplicate.error;if(duplicate.data)return respond({error:'This username is already in use.'},409);
-   const created=await db.auth.admin.createUser({email:member.email,password:body.password,email_confirm:true,user_metadata:{full_name:member.full_name}});
+   // Login-only identifiers stay in Auth; profiles keep the contact email empty.
+   const loginEmail=member.email||'portal-'+crypto.randomUUID()+'@accounts.pkuco.invalid';
+   const created=await db.auth.admin.createUser({email:loginEmail,password:body.password,email_confirm:true,user_metadata:{full_name:member.full_name}});
    if(created.error)throw created.error;
    createdId=created.data?.user?.id;if(!createdId)throw Error('Account creation failed.');
    const profile=await db.from('profiles').insert({...member,user_id:createdId,role:'internal',activation_required:true});

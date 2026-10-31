@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Bounded, dependency-free note-mapping adapter for webmscore 4.6.5-build.1.
 // No DOM, network calls, eval, or engine binary are included.
+import {staffLayoutFromLines} from './viewport.mjs?v=1.48';
 const utf8=new TextEncoder(),decode=new TextDecoder('utf-8',{fatal:true});
 const fail=message=>{throw new Error(message);};
 const num=(value,fallback=0)=>value==null||value===''?fallback:Number(value);
@@ -314,7 +315,7 @@ export function measureGeometryFromLayout(elements,staffLines,page,viewBox){
  }
  return out;
 }
-export function noteGeometryFromSvg(source,colors,page=0,measurePositions=[]){
+export function noteGeometryFromSvg(source,colors,page=0,measurePositions=[],staffOrder=[]){
  const tree=parseXml(source),root=tree.children.find(x=>x.name==='svg');if(!root)fail('SVG_ROOT');const viewBox=(root.attrs.viewBox||'').trim().split(/[\s,]+/).map(Number);if(viewBox.length!==4||viewBox.some(x=>!finite(x))||viewBox[2]<=0||viewBox[3]<=0)fail('SVG_VIEWBOX');
  const identities=new Map(colors.map(x=>[lower(x.color),x])),found=new Map(),warnings=[],staffLines=[];
  const visit=(node,parentTransform,parentFill)=>{
@@ -327,9 +328,10 @@ export function noteGeometryFromSvg(source,colors,page=0,measurePositions=[]){
    }
   }
   if(node.name==='path'&&String(node.attrs.class||'').split(/\s+/).includes('Note')){
-   const identity=identities.get(lower(fill));if(identity){try{const bounds=pathBounds(node.attrs.d,transform),row=found.get(identity.id)||{id:identity.id,color:identity.color,page,paths:[],bounds:null};row.paths.push({d:node.attrs.d,matrix:transform});const b=row.bounds;if(!b)row.bounds=bounds;else{const right=Math.max(b.x+b.width,bounds.x+bounds.width),bottom=Math.max(b.y+b.height,bounds.y+bounds.height);b.x=Math.min(b.x,bounds.x);b.y=Math.min(b.y,bounds.y);b.width=right-b.x;b.height=bottom-b.y;}found.set(identity.id,row);}catch(e){warnings.push({id:identity.id,reason:e.message});}}
+   const identity=identities.get(lower(fill));if(identity){try{const bounds=pathBounds(node.attrs.d,transform),row=found.get(identity.id)||{id:identity.id,color:identity.color,page,staffKey:identity.part&&identity.staff?identity.part+':'+identity.staff:null,paths:[],bounds:null};row.paths.push({d:node.attrs.d,matrix:transform});const b=row.bounds;if(!b)row.bounds=bounds;else{const right=Math.max(b.x+b.width,bounds.x+bounds.width),bottom=Math.max(b.y+b.height,bounds.y+bounds.height);b.x=Math.min(b.x,bounds.x);b.y=Math.min(b.y,bounds.y);b.width=right-b.x;b.height=bottom-b.y;}found.set(identity.id,row);}catch(e){warnings.push({id:identity.id,reason:e.message});}}
   }
   for(const c of node.children)visit(c,transform,fill);
  };
- visit(root,[1,0,0,1,0,0],root.attrs.fill||'#000000');return {page,viewBox,notes:[...found.values()].sort((a,b)=>a.id-b.id),measures:measureGeometryFromLayout(measurePositions,staffLines,page,viewBox),warnings};
+ visit(root,[1,0,0,1,0,0],root.attrs.fill||'#000000');const notes=[...found.values()].sort((a,b)=>a.id-b.id),measures=measureGeometryFromLayout(measurePositions,staffLines,page,viewBox);
+ return {page,viewBox,notes,measures,staves:staffLayoutFromLines(staffLines,measures,staffOrder,notes),warnings};
 }

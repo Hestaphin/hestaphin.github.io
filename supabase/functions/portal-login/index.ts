@@ -17,7 +17,7 @@ export function createPortalLoginHandler(makeClient=createClient,env=Deno.env,{t
    const identifier=String(body?.identifier||'').trim().toLowerCase(),password=body?.password;
    if(!identifier||identifier.length>254||typeof password!=='string'||!password||password.length>128)return denied();
    stage='configuration';
-   const db=makeClient(get('SUPABASE_URL'),get('SUPABASE_SERVICE_ROLE_KEY')||fromKeys('SUPABASE_SECRET_KEYS'),{auth:{persistSession:false,autoRefreshToken:false}});
+   const db=makeClient(get('SUPABASE_URL'),get('SUPABASE_SERVICE_ROLE_KEY')||fromKeys('SUPABASE_SECRET_KEYS'),{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:(input,init)=>fetch(input,{...init,signal:controller.signal})}});
    const ip=req.headers.get('x-forwarded-for')?.split(',')[0]||req.headers.get('cf-connecting-ip')||'unavailable';
    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ip+'|'+identifier));
    controller.signal.throwIfAborted();stage='rate_limit';
@@ -29,9 +29,15 @@ export function createPortalLoginHandler(makeClient=createClient,env=Deno.env,{t
    const profile=await db.from('profiles').select('user_id,email').eq(identifier.includes('@')?'email':'username',identifier).in('role',['admin','internal']).abortSignal(controller.signal).maybeSingle();
    controller.signal.throwIfAborted();
    if(profile.error)return unavailable('LOGIN_PROFILE_UNAVAILABLE');
+   let loginEmail=profile.data?.email;
+   if(profile.data&&!loginEmail){
+    stage='identity';const identity=await db.auth.admin.getUserById(profile.data.user_id);
+    controller.signal.throwIfAborted();if(identity.error||identity.data?.user?.id!==profile.data.user_id||!identity.data?.user?.email)return unavailable('LOGIN_IDENTITY_UNAVAILABLE');
+    loginEmail=identity.data.user.email;
+   }
    stage='password';
    const client=makeClient(get('SUPABASE_URL'),get('SUPABASE_ANON_KEY')||fromKeys('SUPABASE_PUBLISHABLE_KEYS'),{auth:{persistSession:false,autoRefreshToken:false},global:{fetch:(input,init)=>fetch(input,{...init,signal:controller.signal})}});
-   const signed=await client.auth.signInWithPassword({email:profile.data?.email||'unknown@invalid.example',password});
+   const signed=await client.auth.signInWithPassword({email:loginEmail||'unknown@invalid.example',password});
    controller.signal.throwIfAborted();
    if(signed.error?.status===429)return respond({error:'Too many attempts. Please try again shortly.'},429);
    if(signed.error&&(signed.error.status>=500||signed.error.name==='AuthRetryableFetchError'))return unavailable('LOGIN_AUTH_UNAVAILABLE');

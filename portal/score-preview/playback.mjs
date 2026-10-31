@@ -3,8 +3,12 @@
 // Measured against WAV with the pinned 4.6.5 encoder (2,257 samples at 44.1 kHz).
 // This is a fixed encoder delay, not a scale derived from MP3 tail/duration.
 export const MP3_OFFSET_MS = 2257 / 44100 * 1000;
-export function createPlaybackIndex(input,{anchors=[],maxReferences=2000000}={}) {
- if(!Array.isArray(input)||!Array.isArray(anchors)||!(input.length+anchors.length)||input.length+anchors.length>200000)throw Error('NOTE_MAP_UNAVAILABLE');
+export function createPlaybackIndex(input,{anchors=[],measures=[],maxReferences=2000000}={}) {
+ if(!Array.isArray(input)||!Array.isArray(anchors)||!Array.isArray(measures)||!(input.length+anchors.length+measures.length)||input.length+anchors.length+measures.length>200000)throw Error('NOTE_MAP_UNAVAILABLE');
+ const bars=measures.map((m,i)=>{
+  if(![m.measure,m.layoutId,m.page].every(v=>Number.isSafeInteger(v)&&v>=0)||![m.startMs,m.endMs].every(Number.isFinite)||m.startMs<0||m.endMs<=m.startMs||m.endMs>86400000)throw Error('NOTE_MAP_UNAVAILABLE');
+  return {...m,eventId:i};
+ }).sort((a,b)=>a.startMs-b.startMs||a.eventId-b.eventId);
  const rows=input.map((n,i)=>{
   if(!Number.isSafeInteger(n.id)||n.id<0||!Number.isSafeInteger(n.page)||n.page<0||![n.startMs,n.endMs].every(Number.isFinite)||n.startMs<0||n.endMs<=n.startMs||n.endMs>86400000)throw Error('NOTE_MAP_UNAVAILABLE');
   return {...n,eventId:i};
@@ -24,11 +28,19 @@ export function createPlaybackIndex(input,{anchors=[],maxReferences=2000000}={})
   frames.push({at,notes:playing,ids:[...new Set(playing.map(n=>n.id))],page:focus?.page??null,key:playing.map(n=>n.eventId).join(',')});
  }
  return {
-  durationMs:rows.reduce((end,n)=>Math.max(end,n.endMs),0),
-  at(time){let lo=0,hi=frames.length;while(lo<hi){const mid=(lo+hi)>>1;if(frames[mid].at<=time)lo=mid+1;else hi=mid;}return frames[lo-1]||{at:0,notes:[],ids:[],page:null,key:''};},
+  durationMs:bars.reduce((end,m)=>Math.max(end,m.endMs),rows.reduce((end,n)=>Math.max(end,n.endMs),0)),
+  at(time){let lo=0,hi=frames.length;while(lo<hi){const mid=(lo+hi)>>1;if(frames[mid].at<=time)lo=mid+1;else hi=mid;}const frame=frames[lo-1]||{at:0,notes:[],ids:[],page:null,key:''};
+   lo=0;hi=bars.length;while(lo<hi){const mid=(lo+hi)>>1;if(bars[mid].startMs<=time)lo=mid+1;else hi=mid;}const candidate=bars[lo-1],measure=candidate&&time<candidate.endMs?candidate:null;
+   return {...frame,measure,page:measure?.page??frame.page,key:frame.key+'|'+(measure?.eventId??'')};},
   noteStart(id,currentMs=0){const list=occurrences.get(id)||[];return list.find(n=>n.startMs<=currentMs&&n.endMs>currentMs)?.startMs??list.find(n=>n.startMs>=currentMs)?.startMs??list[0]?.startMs??null;},
   occurrences(id){return occurrences.get(id)||[];}
  };
+}
+export function barHighlightSvg(geometry,id) {
+ if(!Array.isArray(geometry?.viewBox)||geometry.viewBox.length!==4||geometry.viewBox.some(v=>!Number.isFinite(v))||geometry.viewBox[2]<=0||geometry.viewBox[3]<=0)throw Error('NOTE_MAP_UNAVAILABLE');
+ const b=geometry.measures?.find(m=>m.id===id)?.bounds;
+ if(!b||![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.width<=0||b.height<=0)throw Error('NOTE_MAP_UNAVAILABLE');
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${geometry.viewBox.join(' ')}"><rect x="${b.x}" y="${b.y}" width="${b.width}" height="${b.height}" fill="#ff8080" opacity=".4"/></svg>`;
 }
 export function hitNote(geometry,x,y) {
  let found=null,distance=Infinity;

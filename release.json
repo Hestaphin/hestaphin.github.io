@@ -1,22 +1,19 @@
 {
-  "version": "1.46",
-  "release_number": 46,
-  "previous_saved_site_revision": 26,
+  "version": "1.47",
+  "release_number": 47,
+  "previous_saved_site_revision": 27,
   "release_date": "2026-10-31",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.46.zip",
-  "zip_root": "COPKU_Website_v1.46",
+  "zip_filename": "COPKU_Website_v1.47.zip",
+  "zip_root": "COPKU_Website_v1.47",
   "changes": [
-    "Keep uniform size choices compact and jump classification/type links to the item position in the full uniform data page.",
-    "Make reasons optional, use exchange reason presets and allow text only for Other, with matching control heights.",
-    "Use Name in one shared booking resource table and match sidebar hover feedback to Email.",
-    "Calculate public page colours from the same device clock so navigation, focus and back/forward restore agree without refresh."
+    "Highlight the current playing bar across all staves in translucent pink, including rests and compressed multi-measure rests.",
+    "Keep note highlighting, click-to-play, speed, zoom and page following working with the bar overlay."
   ],
   "distribution": "patch",
-  "base_version": "1.44",
-  "patch_filename": "COPKU_v1.46_Update_Only.zip",
+  "base_version": "1.46",
+  "patch_filename": "COPKU_v1.47_Update_Only.zip",
   "supported_base_versions": [
-    "1.44",
-    "1.45"
+    "1.46"
   ]
 }

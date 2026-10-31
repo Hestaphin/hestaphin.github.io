@@ -27,8 +27,9 @@ html.score-preview-open{overflow:hidden}
 .score-preview-stage{overflow:auto;flex:1;min-height:0;padding:20px;background:#dfded9;overscroll-behavior:contain;text-align:center}
 .score-preview-stage[aria-busy=true]{cursor:progress}
 .score-paper{width:100%;min-width:0;box-shadow:0 2px 12px #0003;background:#fff;display:inline-block;vertical-align:top;text-align:left}
-.score-paper{position:relative}
-.score-note-highlight,.score-note-targets{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.score-paper{position:relative;isolation:isolate}
+.score-bar-highlight,.score-note-highlight,.score-note-targets{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.score-bar-highlight{display:block;max-width:none;mix-blend-mode:multiply}
 .score-note-highlight{display:block;max-width:none}
 .score-note-targets .score-note-target{position:absolute;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:2px;background:transparent;cursor:pointer;pointer-events:auto}
 .score-note-targets .score-note-target:hover{background:#1282ce22}

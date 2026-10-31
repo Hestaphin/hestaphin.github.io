@@ -205,7 +205,7 @@ export function buildPlaybackMap(music,positions,midi,{alignmentToleranceMs=12,o
   const id=Number(event.elid),geo=geometry.get(id),group=groups[id];if(!geo||!group||!Number.isSafeInteger(geo.page)||geo.page<0)fail('MEASURE_EVENT_INVALID');
   if(expandRepeats&&(!finite(event.position)||Math.abs(event.position-midi.toMs(tick))>alignmentToleranceMs))fail('MIDI_MEASURE_ALIGNMENT');
   for(const measure of group){
-   const length=music.measureLengths[measure];if(!finite(length)||length<=0)fail('MEASURE_EVENT_INVALID');const pass=measures.length;measures.push({pass,measure,page:geo.page,tick,startMs:midi.toMs(tick),nativeMs:event.position});
+   const length=music.measureLengths[measure];if(!finite(length)||length<=0)fail('MEASURE_EVENT_INVALID');const pass=measures.length;measures.push({pass,measure,layoutId:id,page:geo.page,tick,startMs:midi.toMs(tick),endMs:midi.toMs(tick+length*midi.ppq),nativeMs:event.position});
    for(const note of perMeasure.get(measure)||[]){
     if(rows.length>=maxPlaybackNotes)fail('PLAYBACK_MAP_LIMIT');if(!finite(note.startQ)||note.startQ<0||!finite(note.durationQ)||note.durationQ<0)fail('MUSICXML_DURATION');
     const onset=tick+note.startQ*midi.ppq,end=onset+note.durationQ*midi.ppq;
@@ -296,15 +296,40 @@ export function pathBounds(d,transform=[1,0,0,1,0,0]){
  for(const [px,py]of points){if(!finite(px)||!finite(py)||Math.abs(px)>1e9||Math.abs(py)>1e9)fail('SVG_COORDINATE');minX=Math.min(minX,px);minY=Math.min(minY,py);maxX=Math.max(maxX,px);maxY=Math.max(maxY,py);}
  return{x:minX,y:minY,width:maxX-minX,height:maxY-minY};
 }
-export function noteGeometryFromSvg(source,colors,page=0){
+export function measureGeometryFromLayout(elements,staffLines,page,viewBox){
+ if(!Array.isArray(elements)||elements.length>200000||!Array.isArray(staffLines))return [];
+ const rows=elements.filter(g=>Number.isSafeInteger(Number(g.id))&&Number(g.id)>=0&&g.page===page&&[g.x,g.y,g.sx,g.sy].every(finite)&&g.sx>=0&&g.sy>=0),out=[];
+ for(const g of rows){
+  let right=g.x+g.sx;
+  if(!g.sx){
+   // This pinned engine reports zero measure widths. Its staff lines and next
+   // measure positions supply the exact engraved boundaries, including the
+   // final bar of a system. Do not stretch a bar to the page edge.
+   right=-Infinity;for(const line of staffLines)if(line.y>=g.y-.5&&line.y<=g.y+g.sy+.5&&line.left<=g.x+.5&&line.right>g.x+.5)right=Math.max(right,line.right);
+   if(!finite(right))continue;
+   for(const next of rows)if(next.x>g.x+.5&&Math.abs(next.y-g.y)<.5&&Math.abs(next.sy-g.sy)<.5)right=Math.min(right,next.x);
+  }
+  const x=Math.max(g.x,viewBox[0]),y=Math.max(g.sy?g.y:g.y-8,viewBox[1]),endX=Math.min(right,viewBox[0]+viewBox[2]),endY=Math.min(g.sy?g.y+g.sy:g.y+8,viewBox[1]+viewBox[3]);
+  if(endX>x&&endY>y)out.push({id:Number(g.id),page,bounds:{x,y,width:endX-x,height:endY-y}});
+ }
+ return out;
+}
+export function noteGeometryFromSvg(source,colors,page=0,measurePositions=[]){
  const tree=parseXml(source),root=tree.children.find(x=>x.name==='svg');if(!root)fail('SVG_ROOT');const viewBox=(root.attrs.viewBox||'').trim().split(/[\s,]+/).map(Number);if(viewBox.length!==4||viewBox.some(x=>!finite(x))||viewBox[2]<=0||viewBox[3]<=0)fail('SVG_VIEWBOX');
- const identities=new Map(colors.map(x=>[lower(x.color),x])),found=new Map(),warnings=[];
+ const identities=new Map(colors.map(x=>[lower(x.color),x])),found=new Map(),warnings=[],staffLines=[];
  const visit=(node,parentTransform,parentFill)=>{
   const transform=multiply(parentTransform,matrix(node.attrs.transform)),fill=node.attrs.fill||parentFill;
+  if(node.name==='polyline'&&String(node.attrs.class||'').split(/\s+/).includes('StaffLines')){
+   const points=String(node.attrs.points||'').trim().split(/[\s,]+/).map(Number);
+   if(points.length>=4&&points.length<=128&&points.length%2===0&&points.every(finite)){
+    const xs=[],ys=[];for(let i=0;i<points.length;i+=2){xs.push(transform[0]*points[i]+transform[2]*points[i+1]+transform[4]);ys.push(transform[1]*points[i]+transform[3]*points[i+1]+transform[5]);}
+    if(Math.max(...ys)-Math.min(...ys)<.5)staffLines.push({left:Math.min(...xs),right:Math.max(...xs),y:ys[0]});
+   }
+  }
   if(node.name==='path'&&String(node.attrs.class||'').split(/\s+/).includes('Note')){
    const identity=identities.get(lower(fill));if(identity){try{const bounds=pathBounds(node.attrs.d,transform),row=found.get(identity.id)||{id:identity.id,color:identity.color,page,paths:[],bounds:null};row.paths.push({d:node.attrs.d,matrix:transform});const b=row.bounds;if(!b)row.bounds=bounds;else{const right=Math.max(b.x+b.width,bounds.x+bounds.width),bottom=Math.max(b.y+b.height,bounds.y+bounds.height);b.x=Math.min(b.x,bounds.x);b.y=Math.min(b.y,bounds.y);b.width=right-b.x;b.height=bottom-b.y;}found.set(identity.id,row);}catch(e){warnings.push({id:identity.id,reason:e.message});}}
   }
   for(const c of node.children)visit(c,transform,fill);
  };
- visit(root,[1,0,0,1,0,0],root.attrs.fill||'#000000');return {page,viewBox,notes:[...found.values()].sort((a,b)=>a.id-b.id),warnings};
+ visit(root,[1,0,0,1,0,0],root.attrs.fill||'#000000');return {page,viewBox,notes:[...found.values()].sort((a,b)=>a.id-b.id),measures:measureGeometryFromLayout(measurePositions,staffLines,page,viewBox),warnings};
 }

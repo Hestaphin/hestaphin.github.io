@@ -133,7 +133,7 @@ body.orchestra-portal {
 .portal-rich { white-space: pre-wrap; overflow-wrap: anywhere; padding: 15px 0; line-height: 1.4; }
 .portal-detail { padding: 30px; }
 .portal-detail-meta { font-size: 17px; margin-bottom: 12px !important; }
-.portal-attachment { display: block; margin: 12px 0; text-decoration: underline !important; }
+.portal-attachment { display: block; width: fit-content; max-width: 100%; overflow-wrap: anywhere; margin: 12px 0; text-decoration: underline !important; }
 .portal-content img { max-width: 100%; max-height: 500px; }
 .portal-detail textarea { width: 100%; min-height: 140px; }
 .portal-detail button { margin: 6px; }
@@ -476,3 +476,15 @@ body.orchestra-portal {
 .portal-sidebar nav>button:not(:disabled):focus-visible{outline:2px solid #ccc;outline-offset:-4px;}
 
 .activation-panel h3{font-size:20px;font-weight:normal;margin:18px 0 8px}.activation-panel>p{font-size:16px;line-height:1.5}.activation-panel .portal-password-form{margin:0 0 14px}.activation-done{font-size:16px}.activation-panel input[name="code"]{max-width:190px;letter-spacing:.12em}
+
+/* v1.53: compact author editing and attachment hit areas limited to their labels. */
+.discussion-author-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.portal-discussion-editor{width:min(760px,94vw);padding:24px;font-size:17px}
+.portal-discussion-editor h2{font-size:28px}
+#discussion-edit-form{display:grid;gap:16px}
+#discussion-edit-form label{display:grid;gap:6px;font-size:17px}
+#discussion-edit-form input:not([type=file]),#discussion-edit-form textarea{width:100%;box-sizing:border-box;font:inherit;padding:8px}
+#discussion-edit-form textarea{min-height:180px;max-height:40dvh;resize:vertical}
+#discussion-edit-form input[type=file]{max-width:100%;font:inherit}
+#discussion-edit-form p{margin:0 0 6px;font-size:17px}
+.portal-discussion-editor .dialog-actions button{font-size:20px}

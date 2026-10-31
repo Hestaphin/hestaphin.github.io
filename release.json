@@ -1,24 +1,23 @@
 {
-  "version": "1.52",
-  "release_number": 52,
-  "previous_saved_site_revision": 32,
+  "version": "1.53",
+  "release_number": 53,
+  "previous_saved_site_revision": 33,
   "release_date": "2026-11-01",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_v1.52_Update_Only.zip",
-  "zip_root": "COPKU_v1.52_Update_Only",
-  "changes": [
-    "Add private attachments to notification replies with existing 10 MB limits, removable selection, previews and file-only replies.",
-    "Track uniform holdings and pending applications per item/type, allowing Type-1 and Type-2 in the same classification.",
-    "Keep approvals, exchanges and collection independent for each uniform type, preserving other holdings and history."
-  ],
+  "zip_filename": "COPKU_v1.53_Update_Only.zip",
+  "zip_root": "COPKU_v1.53_Update_Only",
   "distribution": "patch",
-  "base_version": "1.51",
-  "patch_filename": "COPKU_v1.52_Update_Only.zip",
+  "base_version": "1.52",
+  "patch_filename": "COPKU_v1.53_Update_Only.zip",
   "supported_base_versions": [
-    "1.51"
+    "1.52"
+  ],
+  "changes": [
+    "Limit attachment download links to their filename area.",
+    "Let authors edit their own notifications and replies, including text and attachments, with server-enforced ownership.",
+    "Preserve reply drafts, timestamps, reply targets and existing moderation controls; reject stale edits."
   ],
   "backend_dependencies": [
-    "reply_attachments_and_uniform_items_v152 migration",
-    "portal-material with item-specific uniform collection"
+    "discussion_author_edits_v153 migration"
   ]
 }

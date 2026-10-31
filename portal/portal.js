@@ -1,3 +1,4 @@
+import {openDiscussionEditor} from './discussion-edit.mjs?v=1.53';
 import {signDiscussionFiles,discussionFilesHtml,submitDiscussionReply} from './discussion-files.mjs?v=1.52';
 import {createActivationController} from './activation-ui.mjs?v=1.49';
 import {createUniformController} from './uniform-ui.mjs?v=1.52';
@@ -190,14 +191,14 @@ function materialPage() {
  if(materialTab==='Supplies'){$('#material-content').innerHTML='<h1>Supplies</h1><p class="uniform-empty">No supplies listed.</p>';return;}
  uniformController=createUniformController({container:$('#material-content'),member:()=>me,members:()=>members,invoke:body=>callService('portal-material',body),status,modal,uploadImage:file=>upload(file,'portal-resource-files'),onChanged:async()=>{await load();updateIndicators();}});
 }
-function bindFiles(input, output, multiple = false) {
- let selected = [];
+function bindFiles(input, output, multiple = false, options = {}) {
+ let selected = [...(options.initialFiles||[])];
  function draw() {
   output.innerHTML=selected.map((file,i)=>`<span class="selected-file"><span>${e(file.name)} · ${(file.size/1048576).toFixed(2)} MB</span><button type="button" data-remove-file="${i}" aria-label="Remove ${e(file.name)}">Remove</button></span>`).join('');
   output.querySelectorAll('[data-remove-file]').forEach(b=>b.onclick=()=>{selected.splice(Number(b.dataset.removeFile),1);draw();});
  }
- input.onchange=()=>{try{const picked=Array.from(input.files||[]);selected=validateNotificationFiles(multiple?[...selected,...picked]:picked.slice(0,1));draw();}catch(err){status(err.message,true);}finally{input.value='';}};
- return {get files(){return selected;},clear(){selected=[];draw();}};
+ input.onchange=()=>{try{const picked=Array.from(input.files||[]);selected=(options.validate||validateNotificationFiles)(multiple?[...selected,...picked]:picked.slice(0,1));draw();}catch(err){if(options.onError)options.onError(err);else status(err.message,true);}finally{input.value='';}};
+ draw();return {get files(){return selected;},clear(){selected=[];draw();}};
 }
 function badge(value, id = '') { return `<span class="portal-badge" ${id?`id="${id}"`:''} ${value?'':'hidden'} aria-label="${value} unread">${value>99?'99+':value||''}</span>`; }
 function probationaryTag(member) {
@@ -483,6 +484,16 @@ async function upload(file, bucket) {
   return path;
 }
 const canDeleteDiscussionContent=record=>Boolean(me&&(me.role==='admin'||record.author===me.user_id));
+const canEditDiscussionContent=record=>Boolean(me&&record.author===me.user_id);
+const discussionEdited=record=>record.edited_at?' · <span>Edited</span> '+fmt(record.edited_at):'';
+function editDiscussion(record,kind='notification',onSaved) {
+ return openDiscussionEditor({record,kind,author:me.user_id,modal,bindFiles,upload:file=>upload(file,'portal-notification-files'),
+  update:patch=>{let request=db.from(kind==='notification'?'portal_notifications':'portal_replies').update(patch).eq('id',record.id).eq('author',me.user_id);request=record.edited_at?request.eq('edited_at',record.edited_at):request.is('edited_at',null);return result(request.select('id').maybeSingle());},
+  remove:paths=>db.storage.from('portal-notification-files').remove?.(paths),
+  onSaved:async()=>{await load();if(onSaved)await onSaved();else if(view==='Notification')render();status('Changes saved.');}
+ });
+}
+
 function confirmDeleteNotification(id) {
  modal('Delete notification','<p>Delete this post and all its replies?</p>',[['Delete',async()=>{await result(db.from('portal_notifications').delete().eq('id',id));await load();currentNotification=null;tab='New notifications';render();status('Post deleted.');}]]);
 }
@@ -493,12 +504,13 @@ function notificationList() {
  $('#portal-panel').dataset.listType='notifications';
  currentNotification=null;
  const list=notifications.filter(n=>matches(n.subject,n.body)),pager=portalPager('notifications'),shown=pager.slice(list);
- $('#portal-panel').innerHTML=`<h1 class="portal-vh">New notifications</h1><div class="portal-table-wrap"><table class="portal-table notification-table"><thead><tr><th class="subject-cell">Subject</th><th>Author</th><th>Time</th><th class="portal-vh">Actions</th></tr></thead><tbody>${shown.map(n=>`<tr data-notification-row="${n.id}" class="notification-row ${reads.some(r=>r.notification_id===n.id)?'read':n.pinned?'pinned':''}"><td><button class="notification-title" data-user-content data-notification="${n.id}">${e(n.subject)}</button></td><td>${members.find(m=>m.user_id===n.author)?.role==='admin'?'<span class="admin-label">admin</span>':memberLabel(n.author)}</td><td>${fmt(n.created_at)}</td><td class="notification-row-actions">${me.role==='admin'?`<button type="button" class="row-button" data-pin="${n.id}">${n.pinned?'Unpin':'Stick on top'}</button>`:''}${canDeleteDiscussionContent(n)?`<button type="button" class="row-button" data-delete="${n.id}">Delete</button>`:''}</td></tr>`).join('')||'<tr><td class="portal-empty" colspan="4">No notifications.</td></tr>'}</tbody></table></div>${pager.html(list.length)}`;
+ $('#portal-panel').innerHTML=`<h1 class="portal-vh">New notifications</h1><div class="portal-table-wrap"><table class="portal-table notification-table"><thead><tr><th class="subject-cell">Subject</th><th>Author</th><th>Time</th><th class="portal-vh">Actions</th></tr></thead><tbody>${shown.map(n=>`<tr data-notification-row="${n.id}" class="notification-row ${reads.some(r=>r.notification_id===n.id)?'read':n.pinned?'pinned':''}"><td><button class="notification-title" data-user-content data-notification="${n.id}">${e(n.subject)}</button></td><td>${members.find(m=>m.user_id===n.author)?.role==='admin'?'<span class="admin-label">admin</span>':memberLabel(n.author)}</td><td>${fmt(n.created_at)}</td><td class="notification-row-actions">${me.role==='admin'?`<button type="button" class="row-button" data-pin="${n.id}">${n.pinned?'Unpin':'Stick on top'}</button>`:''}${canEditDiscussionContent(n)?`<button type="button" class="row-button" data-edit-notification="${n.id}">Edit</button>`:''}${canDeleteDiscussionContent(n)?`<button type="button" class="row-button" data-delete="${n.id}">Delete</button>`:''}</td></tr>`).join('')||'<tr><td class="portal-empty" colspan="4">No notifications.</td></tr>'}</tbody></table></div>${pager.html(list.length)}`;
  pager.bind($('#portal-panel'),notificationList);
  $$('[data-notification]').forEach(b=>b.onclick=()=>run(()=>notificationDetail(b.dataset.notification)));
  $$('[data-notification-row]').forEach(row=>row.onclick=ev=>{if(!ev.target.closest('button'))run(()=>notificationDetail(row.dataset.notificationRow));});
  $$('[data-pin]').forEach(b=>b.onclick=()=>run(async()=>{await result(db.from('portal_notifications').update({pinned:!notifications.find(n=>n.id===b.dataset.pin).pinned}).eq('id',b.dataset.pin));await load();render();}));
  $$('[data-delete]').forEach(b=>b.onclick=()=>confirmDeleteNotification(b.dataset.delete));
+ $$('[data-edit-notification]').forEach(b=>b.onclick=()=>editDiscussion(notifications.find(n=>n.id===b.dataset.editNotification)));
 }
 function notificationForm() {
  currentNotification=null;
@@ -512,7 +524,7 @@ function notificationForm() {
  });};
 }
 
-async function notificationDetail(id, {replyId, lastPage=false}={}) {
+async function notificationDetail(id, {replyId, lastPage=false,draft}={}) {
  delete $('#portal-panel').dataset.listType;
  const n=await result(db.from('portal_notifications').select('*').eq('id',id).single());
  const replies=await readAllRows(()=>db.from('portal_replies').select('*').eq('notification_id',id).order('created_at').order('id'));
@@ -529,16 +541,23 @@ async function notificationDetail(id, {replyId, lastPage=false}={}) {
  const replyExcerpt=reply=>reply?.body?.trim().slice(0,200)||(reply?.attachments||[]).map(file=>file.name).join(', ').slice(0,200)||'Earlier reply';
  if(view!=='Notification'||currentNotification!==id)return;
  $('#portal-panel').className='portal-panel portal-detail';
- $('#portal-panel').innerHTML=`<div class="discussion-detail-actions"><button id="back" type="button" class="plain-button">Back</button>${canDeleteDiscussionContent(n)?`<button type="button" class="plain-button" id="delete-discussion-post">Delete post</button>`:''}</div><h1 data-user-content>${e(n.subject)}</h1><p class="portal-detail-meta">${memberLabel(n.author)} · ${fmt(n.created_at)}</p><div class="portal-rich" data-user-content>${e(n.body)}</div>${image}<div class="notification-attachments">${files}</div><h2>Replies</h2><div class="notification-replies">${shown.map(r=>`<article class="notification-reply" id="reply-${r.id}"><p class="portal-detail-meta">${memberLabel(r.author)}${r.parent_reply_id?` → ${name(replies.find(p=>p.id===r.parent_reply_id)?.author)}`:''} · ${fmt(r.created_at)}</p>${r.parent_reply_id?`<blockquote data-user-content>${e(replyExcerpt(replies.find(p=>p.id===r.parent_reply_id)))}</blockquote>`:''}<div class="portal-rich" data-user-content>${e(r.body)}</div><div class="notification-attachments reply-attachments">${discussionFilesHtml(r.attachments||[],fileUrls,scorePreviewButton)}</div><div class="discussion-reply-actions"><button type="button" class="plain-button reply-target" data-reply-to="${r.id}">Reply to ${memberLabel(r.author)}</button>${canDeleteDiscussionContent(r)?`<button type="button" class="plain-button delete-reply" data-delete-reply="${r.id}">Delete reply</button>`:''}</div></article>`).join('')||'<p>No replies yet.</p>'}</div>${pager.html(replies.length)}<form id="reply-form"><p id="reply-target-label">Reply to the notification</p><button id="cancel-reply-target" type="button" class="plain-button" hidden>Cancel reply target</button><label>Reply<textarea name="body" maxlength="10000"></textarea></label><label>Attachments — up to 10 MB each, up to eight files<input id="reply-attachment-input" type="file" multiple></label><output id="reply-selected-files" class="attachment-caption selected-files"></output><button id="reply-submit" class="plain-button">Reply</button></form>`;
+ $('#portal-panel').innerHTML=`<div class="discussion-detail-actions"><button id="back" type="button" class="plain-button">Back</button><span class="discussion-author-actions">${canEditDiscussionContent(n)?'<button type="button" class="plain-button" id="edit-discussion-post">Edit</button>':''}${canDeleteDiscussionContent(n)?`<button type="button" class="plain-button" id="delete-discussion-post">Delete post</button>`:''}</span></div><h1 data-user-content>${e(n.subject)}</h1><p class="portal-detail-meta">${memberLabel(n.author)} · ${fmt(n.created_at)}${discussionEdited(n)}</p><div class="portal-rich" data-user-content>${e(n.body)}</div>${image}<div class="notification-attachments">${files}</div><h2>Replies</h2><div class="notification-replies">${shown.map(r=>`<article class="notification-reply" id="reply-${r.id}"><p class="portal-detail-meta">${memberLabel(r.author)}${r.parent_reply_id?` → ${name(replies.find(p=>p.id===r.parent_reply_id)?.author)}`:''} · ${fmt(r.created_at)}${discussionEdited(r)}</p>${r.parent_reply_id?`<blockquote data-user-content>${e(replyExcerpt(replies.find(p=>p.id===r.parent_reply_id)))}</blockquote>`:''}<div class="portal-rich" data-user-content>${e(r.body)}</div><div class="notification-attachments reply-attachments">${discussionFilesHtml(r.attachments||[],fileUrls,scorePreviewButton)}</div><div class="discussion-reply-actions"><button type="button" class="plain-button reply-target" data-reply-to="${r.id}">Reply to ${memberLabel(r.author)}</button><span class="discussion-author-actions">${canEditDiscussionContent(r)?`<button type="button" class="plain-button edit-reply" data-edit-reply="${r.id}">Edit</button>`:''}${canDeleteDiscussionContent(r)?`<button type="button" class="plain-button delete-reply" data-delete-reply="${r.id}">Delete reply</button>`:''}</span></div></article>`).join('')||'<p>No replies yet.</p>'}</div>${pager.html(replies.length)}<form id="reply-form"><p id="reply-target-label">Reply to the notification</p><button id="cancel-reply-target" type="button" class="plain-button" hidden>Cancel reply target</button><label>Reply<textarea name="body" maxlength="10000"></textarea></label><label>Attachments — up to 10 MB each, up to eight files<input id="reply-attachment-input" type="file" multiple></label><output id="reply-selected-files" class="attachment-caption selected-files"></output><button id="reply-submit" class="plain-button">Reply</button></form>`;
  bindScorePreviews();
  pager.bind($('#portal-panel'),()=>run(()=>notificationDetail(id)));
  if($('#delete-discussion-post'))$('#delete-discussion-post').onclick=()=>confirmDeleteNotification(id);
  $$('[data-delete-reply]').forEach(b=>b.onclick=()=>confirmDeleteReply(b.dataset.deleteReply,id));
- const replyForm=$('#reply-form'),replyFiles=bindFiles($('#reply-attachment-input'),$('#reply-selected-files'),true);
+ const replyForm=$('#reply-form'),replyFiles=bindFiles($('#reply-attachment-input'),$('#reply-selected-files'),true,{initialFiles:draft?.files});
  let parentReply=null,replySending=false;
  const selectTarget=reply=>{if(replySending)return;parentReply=reply;$('#reply-target-label').textContent=reply?'Replying to '+(members.find(m=>m.user_id===reply.author)?.full_name||'member'):'Reply to the notification';$('#cancel-reply-target').hidden=!reply;$('#reply-form textarea').focus({preventScroll:true});};
  $$('[data-reply-to]').forEach(b=>b.onclick=()=>selectTarget(replies.find(r=>r.id===b.dataset.replyTo)));
  $('#cancel-reply-target').onclick=()=>selectTarget(null);
+ if(draft){replyForm.querySelector('[name="body"]').value=draft.body;selectTarget(replies.find(r=>r.id===draft.parentReplyId)||null);}
+ const openEditor=(record,kind)=>editDiscussion(record,kind,async()=>{
+  if(view==='Notification'&&currentNotification===id)await notificationDetail(id,{replyId:kind==='reply'?record.id:undefined,draft:{body:replyForm.querySelector('[name="body"]').value||'',files:[...replyFiles.files],parentReplyId:parentReply?.id||null}});
+ });
+ if(canEditDiscussionContent(n))$('#edit-discussion-post').onclick=()=>openEditor(n,'notification');
+ $$('[data-edit-reply]').forEach(button=>button.onclick=()=>openEditor(replies.find(r=>r.id===button.dataset.editReply),'reply'));
+
  $('#back').onclick=()=>run(async()=>{currentNotification=null;await load();render();});
  replyForm.onsubmit=ev=>{ev.preventDefault();if(replySending)return;replySending=true;
   const text=new FormData(replyForm).get('body'),selected=[...replyFiles.files],parent=parentReply?.id||null,controls=[...replyForm.querySelectorAll('input,textarea,button')];controls.forEach(control=>control.disabled=true);

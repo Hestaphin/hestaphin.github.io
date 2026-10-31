@@ -1,7 +1,7 @@
 :root { --events-sidebar-width: clamp(240px, 19.35vw, 340px); --events-bars-height: calc(var(--title-bar-height) + var(--section-nav-height)); --events-feature-height: clamp(420px, 52.5vw, 960px); }
 :where(.events-page, .events-page *) { box-sizing: border-box; }
 :where(.events-page) h1, :where(.events-page) h2, :where(.events-page) h3, :where(.events-page) p { margin: 0; }
-body.events-page { margin: 0; padding-top: var(--events-bars-height); background: var(--hour-background); color: #080808; font: 400 19px/1.45 var(--reference-serif); transition: background-color 120s linear; }
+body.events-page { margin: 0; padding-top: var(--events-bars-height); background: var(--hour-background); color: #080808; font: 400 19px/1.45 var(--reference-serif); transition: none; }
 .events-page a { color: inherit; text-decoration: none; }
 .events-page button, .events-page input, .events-page select { font: inherit; }
 .events-page button { cursor: pointer; }
@@ -10,9 +10,9 @@ body.events-page { margin: 0; padding-top: var(--events-bars-height); background
 .events-page .section-navigation { transform: none; background: #fff; color: #000; }
 .events-page .section-navigation a[aria-current="page"] span { border-bottom-color: var(--day-accent); }
 .events-page a:focus-visible, .events-page button:focus-visible, .events-page input:focus-visible, .events-page select:focus-visible { outline: 2px solid var(--day-accent); outline-offset: 3px; }
-.events-canvas { position: relative; min-height: calc(100svh - var(--events-bars-height)); background: var(--hour-background); transition: margin-left .32s ease, background-color 120s linear; }
+.events-canvas { position: relative; min-height: calc(100svh - var(--events-bars-height)); background: var(--hour-background); transition: margin-left .32s ease; }
 .events-page.is-search-mode .events-canvas { margin-left: var(--events-sidebar-width); }
-.events-page.is-restoring-event-position .events-canvas { transition: background-color 120s linear; overflow-anchor: none; }
+.events-page.is-restoring-event-position .events-canvas { transition: none; overflow-anchor: none; }
 .events-page .score-overlay { top: var(--archive-panel-offset, 0px); right: 3.8%; bottom: 0; width: 15.2%; z-index: 1; }
 .events-page:not(.about-page):not(.learn-page):not(.opportunities-page):not(.shop-page):not(.contact-page):not(.is-search-mode) .score-overlay { top: calc(var(--events-feature-height) + var(--archive-panel-offset, 0px)); }
 .events-page .home-footer, .events-page .footer-red-bar { position: relative; z-index: 2; }
@@ -95,7 +95,7 @@ body.events-page { margin: 0; padding-top: var(--events-bars-height); background
   :root { --events-sidebar-width: 100%; --events-mobile-panel-height: min(52dvh, 370px); --events-feature-height: clamp(410px, 75vw, 620px); }
   .event-filter-panel { height: var(--events-mobile-panel-height); }
   .event-filter-form { max-width: 440px; margin-inline: auto; padding-right: 30px; }
-  .events-canvas { transition: padding-top .25s ease, background-color 120s linear; }
+  .events-canvas { transition: padding-top .25s ease; }
   .events-page.is-search-mode .events-canvas { margin-left: 0; }
   .events-page.is-filter-open .events-canvas { --archive-panel-offset: var(--events-mobile-panel-height); padding-top: var(--events-mobile-panel-height); }
   .events-feature { height: var(--events-feature-height); }

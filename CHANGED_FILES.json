@@ -1,129 +1,268 @@
 {
-  "version": "1.44",
+  "version": "1.46",
   "supported_base_versions": [
-    "1.40",
-    "1.41",
-    "1.42",
-    "1.43"
+    "1.44",
+    "1.45"
   ],
-  "base_commit": "83a9719a94320b26f7edd24f1a86b18a968b2976",
+  "base_commit": "fb7a6b414ed1ca9ef1a466c20a3be3017223a624",
   "distribution": "update-only",
-  "supabase_already_updated": true,
+  "supabase_changes_required": false,
+  "supabase_already_applied": {
+    "project_id": "mqthckhoxtqtyuhtdunl",
+    "migration": "20261031073441_uniform_optional_reasons_v146",
+    "edge_function": "portal-material",
+    "edge_function_version": 2
+  },
   "files": [
     {
-      "path": "UPDATE_FROM_v1.43.md",
-      "bytes": 6374,
-      "sha256": "7b804ff31d4af73c4935268111339852b0b1a5da46aa10d6df263f932e0feb49"
+      "path": "UPDATE_FROM_v1.45.md",
+      "bytes": 4093,
+      "sha256": "602fb1dcd7909df614767b1cf9d0247f5521f2ffc7d743bc204a0f56085d2e8b"
+    },
+    {
+      "path": "about/about.css",
+      "bytes": 4085,
+      "sha256": "a15a47f78331b70ec7c9cb1669c523df6a292d5a2e968f1b909646a4a764a570"
+    },
+    {
+      "path": "about/engaging-the-society/index.html",
+      "bytes": 15827,
+      "sha256": "bc9c21174b7e5ee02e166df8238086c1e932766a96f4b6145c6a8905245307ab"
+    },
+    {
+      "path": "about/index.html",
+      "bytes": 16541,
+      "sha256": "a711e50fda1d2db454cb2029d6a8f0919467db81835420176543e8617607c689"
+    },
+    {
+      "path": "about/our-work/index.html",
+      "bytes": 16541,
+      "sha256": "a711e50fda1d2db454cb2029d6a8f0919467db81835420176543e8617607c689"
+    },
+    {
+      "path": "about/piano-museum/epic-piano/index.html",
+      "bytes": 15859,
+      "sha256": "f76f1fd8c579bfc04e4858a256dc8b7f3dd8f7f1a3b97e7bd9f08cf64dd72d24"
+    },
+    {
+      "path": "about/piano-museum/index.html",
+      "bytes": 16417,
+      "sha256": "ec9bf1c5ddbf7cdefce2a39467655da501180f6888483ca18dee8ee739e3773b"
+    },
+    {
+      "path": "about/teaching-in-schools/index.html",
+      "bytes": 15823,
+      "sha256": "3507cc765d093e9086e3a3f204a787c14b3d4295886ba5c6fe94f4a660b1a601"
+    },
+    {
+      "path": "contact/index.html",
+      "bytes": 11642,
+      "sha256": "49163ff45839edf51737a56d422479df50a3328eff0685d64836835664673b7a"
+    },
+    {
+      "path": "events/chamber-concert/index.html",
+      "bytes": 5572,
+      "sha256": "3049c4acb6075dc8b69c19e0323ff75794e0fdeba348db790df27ce30364164b"
+    },
+    {
+      "path": "events/events.css",
+      "bytes": 11872,
+      "sha256": "6468c5b8a8583d74ddc9d62bd112a25028ce81410c5f2dfeecfbfd031c1b5a70"
+    },
+    {
+      "path": "events/harpsichord/index.html",
+      "bytes": 5549,
+      "sha256": "f94e3429e5853dc903ec7a0bf83c5eba624169586137eb87ad95abccee6057a2"
+    },
+    {
+      "path": "events/index.html",
+      "bytes": 18760,
+      "sha256": "58449aefffa44b869f0500751eff5b63be74892cb97067a2260a6792e8e9fddd"
+    },
+    {
+      "path": "events/schumann/index.html",
+      "bytes": 5592,
+      "sha256": "d311075ff58a7b5914fcef830aced71f85178f895fcaf9679a07d6a0579aeb05"
+    },
+    {
+      "path": "homepage.css",
+      "bytes": 19070,
+      "sha256": "146859c9f548e3957c1d9458e9cf0687759d305670fe807821979bd834b817f7"
+    },
+    {
+      "path": "homepage.js",
+      "bytes": 13090,
+      "sha256": "11ad166df09462b7ac158997763350ad46b2ae3ba3039d7d60a63e92bc792516"
+    },
+    {
+      "path": "index.html",
+      "bytes": 16941,
+      "sha256": "fead7a62522e7f56b436b946676a1e7231e9788eb4198f045cb69122c1156690"
     },
     {
       "path": "language.js",
-      "bytes": 51034,
-      "sha256": "0fda014acc7a82da0e8316c46ed12ed17cec2eb718f58d563a5c8d4e4b752926"
+      "bytes": 51514,
+      "sha256": "5b8da09293ba9180715756789daa95add70ca063da0dfe0cad68c29662b3b84a"
     },
     {
-      "path": "portal/booking-model.mjs",
-      "bytes": 6094,
-      "sha256": "2d5594b774e9b66e01fe636c2748528616b0ada645e3785f4b0d97b072261922"
+      "path": "learn/fun-facts/index.html",
+      "bytes": 16561,
+      "sha256": "1d44dbbef9a79b9f0cac375d785c533345c8bd1c303a70fd7f2fa436e68e7638"
+    },
+    {
+      "path": "learn/fun-facts/schumanns-wife/index.html",
+      "bytes": 16113,
+      "sha256": "d1ebe2068d243bb565758b360370f26839e9b5cc0e917e350754dd5c1aa29926"
+    },
+    {
+      "path": "learn/index.html",
+      "bytes": 17081,
+      "sha256": "29a6ddb69229ec9d53857dba9647033dd0c9912b6519dc43dd8ce454f49f6d9a"
+    },
+    {
+      "path": "learn/magazine/index.html",
+      "bytes": 15860,
+      "sha256": "22dedd07719b733ab7c3288ae66726725d388efe4f7bd69207dba5bdbdcd1c15"
+    },
+    {
+      "path": "learn/music-theory/index.html",
+      "bytes": 16590,
+      "sha256": "9836156e8290255b03784a3176485b6e6b3f067b5dfa39c0e7115bc977b3aa1b"
+    },
+    {
+      "path": "learn/music-theory/major-keys/index.html",
+      "bytes": 16099,
+      "sha256": "84af26bb2d8f651f5e8b57498a3d409c0c5d198ecb43fc20d998d3fa82d78c06"
+    },
+    {
+      "path": "learn/research-centre/index.html",
+      "bytes": 15867,
+      "sha256": "48d0bd9deaf891d36441329400a75d4d9c19999b865f35c5a0ac1fe9ea883b63"
+    },
+    {
+      "path": "login/index.html",
+      "bytes": 9860,
+      "sha256": "be4252e730073708e782451411c50b2fd51bf3787729aad15ee577dcb90a3655"
+    },
+    {
+      "path": "opportunities/choir/index.html",
+      "bytes": 21069,
+      "sha256": "52f64c9f16847651f2717ed75dc50f8fc73bc324f592802072b0b9e73bebfb94"
+    },
+    {
+      "path": "opportunities/club/index.html",
+      "bytes": 21828,
+      "sha256": "d4341c3a2575f12198a633266f550f9dceed1ae7dd5df95f632c59fb5c076867"
+    },
+    {
+      "path": "opportunities/club/ticket-discounts/index.html",
+      "bytes": 15685,
+      "sha256": "9f5801df8bbb34871d4c22040e786861ac16bf1c205e82974b2e631c94d9b769"
+    },
+    {
+      "path": "opportunities/index.html",
+      "bytes": 22490,
+      "sha256": "cfe6f10dbd04d7cf4b1d3eab6b3b45368fb4d79040867d320af928010b823c90"
+    },
+    {
+      "path": "opportunities/keyboard/index.html",
+      "bytes": 21098,
+      "sha256": "a5f2fe1ab0bf56c21424c96c422da6c925a04f7ab531e01a322b3d80ab7219ad"
+    },
+    {
+      "path": "opportunities/orchestra/apply/index.html",
+      "bytes": 15947,
+      "sha256": "386ff7232a04c09423881cb92194debb52f62d4147555adf712d287af10f5a92"
+    },
+    {
+      "path": "opportunities/orchestra/index.html",
+      "bytes": 21929,
+      "sha256": "585f6615e299aa7729a6fe420930e252044ebc32f32e9c35b41125ddff32df3a"
+    },
+    {
+      "path": "opportunities/orchestra/violin-masterclass/index.html",
+      "bytes": 15636,
+      "sha256": "e6fd9aec4ed51e4c5c6d03bb541971d721c3a1ff023755e24a2e4c67e0deb41b"
+    },
+    {
+      "path": "opportunities/wind-band/index.html",
+      "bytes": 20955,
+      "sha256": "39b590ff8ae5aafcbf21f725116829e49d91b94653df04e0d43fc4cc910db3cf"
     },
     {
       "path": "portal/booking-ui.mjs",
-      "bytes": 31603,
-      "sha256": "ed7fe329afc94294d961e35aa4133013894577877a4a946ed2b674c078411a32"
-    },
-    {
-      "path": "portal/booking.css",
-      "bytes": 13366,
-      "sha256": "caed61e9f195b5416e318d3e1e12dcd058917e4595f48a142d054678c02b0eb6"
+      "bytes": 31573,
+      "sha256": "07581a3513d4889b0fc1c63ad02d016887f5106a02b73ab49a857d730f473a28"
     },
     {
       "path": "portal/internal/index.html",
-      "bytes": 14366,
-      "sha256": "a306edf2f952403203d59870433b5973a57b10fada3e1ed9e8a551b414f9d30a"
+      "bytes": 14380,
+      "sha256": "bbe9c9f08d5836f6d005760cd0bc4764050f870b39d37bee434ebd6dd5e2d68f"
     },
     {
-      "path": "portal/member-fields.mjs",
-      "bytes": 4472,
-      "sha256": "00f0dc239b4448757ea884584f7909cd7956a36dd5625ca6be6e3fdbe59ade1f"
+      "path": "portal/membership/index.html",
+      "bytes": 7148,
+      "sha256": "7bc55b7f72556254de925d8d9a818c806a7761b690f22dc33dcf7f9db8b14096"
+    },
+    {
+      "path": "portal/portal.css",
+      "bytes": 48529,
+      "sha256": "3efb53166022cc4e02b673a1be91910fdc0fc1d3d2aa58597eccaf0989098652"
     },
     {
       "path": "portal/portal.js",
       "bytes": 107265,
-      "sha256": "45de1854ba79af47dee6ecea47576e5998840d85ef68407c68b1cc49c1432990"
+      "sha256": "a392d1b9539687e0b4a194212af1bfebc6edda99cfdae6e1defe75d9c8943714"
     },
     {
       "path": "portal/uniform-model.mjs",
-      "bytes": 3023,
-      "sha256": "da9fa0316205925882d6f619cd3061379b814fa34eff15ebbb458fdd82705433"
+      "bytes": 3762,
+      "sha256": "f9a01ce87a56909100d621c34b044aba2a733d015fb74b06694ac513157b2fda"
     },
     {
       "path": "portal/uniform-ui.mjs",
-      "bytes": 27729,
-      "sha256": "bafae532c6ae06c948627967534486f3eec57a9257fa9f7ec81c862c195618a3"
+      "bytes": 29961,
+      "sha256": "761496ba967f9f670f15937beaddae325615b0a2384624af464be5e9160cbcf4"
     },
     {
       "path": "portal/uniform.css",
-      "bytes": 5003,
-      "sha256": "2ee2d0e413a3ec7c27650e23b99f94bfbdc8d19810240888420178dcf9eeb6ff"
+      "bytes": 5613,
+      "sha256": "581c9b797cc51b8c38b2e73f27253320809bc564f9344461030ee6d865ad593b"
     },
     {
       "path": "release.json",
-      "bytes": 1019,
-      "sha256": "b0ecb51a7a18c7e6d0c13e297dec01641d4f75127f6af9732af55e3c8ec3c46f"
+      "bytes": 890,
+      "sha256": "76761bc99603b039899e61eea318bffe08b6564f1c25aa6c68f9828456a89b42"
     },
     {
-      "path": "supabase/functions/portal-booking/booking-model.mjs",
-      "bytes": 6094,
-      "sha256": "2d5594b774e9b66e01fe636c2748528616b0ada645e3785f4b0d97b072261922"
+      "path": "shop/chopin-theme-textbook/index.html",
+      "bytes": 19387,
+      "sha256": "c079ec9477f160ba36b939908c645a3c123a2420281fb67bd5a32e61c98069f2"
     },
     {
-      "path": "supabase/functions/portal-booking/index.ts",
-      "bytes": 10321,
-      "sha256": "8dc02da8c2c5e5b724230c11fb71a489059271834cc73234bf5df5d065c8caf6"
+      "path": "shop/index.html",
+      "bytes": 19401,
+      "sha256": "dc1f977827389015064c716a3701412b45126f1a1acdf9fd6e58e34ab79c3847"
     },
     {
       "path": "supabase/functions/portal-material/index.ts",
-      "bytes": 9030,
-      "sha256": "2ffbd00b98d53af4f503800e5974fa88342902ff2a3f4114922d6732ceec5d94"
+      "bytes": 9194,
+      "sha256": "024d0970757aac9c6589206215fe67f504c65e9311a6bc0ff7dde3e207dd6ccc"
     },
     {
       "path": "supabase/functions/portal-material/uniform-model.mjs",
-      "bytes": 3023,
-      "sha256": "da9fa0316205925882d6f619cd3061379b814fa34eff15ebbb458fdd82705433"
+      "bytes": 3762,
+      "sha256": "f9a01ce87a56909100d621c34b044aba2a733d015fb74b06694ac513157b2fda"
     },
     {
-      "path": "supabase/migrations/20261030081502_booking_resource_uuid_writer_v141.sql",
-      "bytes": 2185,
-      "sha256": "48656270b186925e4b9a96b79ed104c92ac04106613eb1b8d81f054502b484ff"
+      "path": "supabase/migrations/20261031073441_uniform_optional_reasons_v146.sql",
+      "bytes": 5285,
+      "sha256": "bd2302c7830912bbc603c85e4595379c579200930ade06bf6faf441a5931daaa"
     },
     {
-      "path": "supabase/migrations/20261030081641_allow_duplicate_resource_names_v141.sql",
-      "bytes": 222,
-      "sha256": "dc362784531814733fc1e85e790a92afb95345582e3b3f202f390d968f9d2e1a"
-    },
-    {
-      "path": "supabase/migrations/20261030150720_recurring_warnings_v142.sql",
-      "bytes": 12652,
-      "sha256": "66bf9462419699e4ee2e7f71043e2a0553e060868104ba4a8e30b26ce2e22d83"
-    },
-    {
-      "path": "supabase/migrations/20261030165648_resource_classification_status_v143.sql",
-      "bytes": 7736,
-      "sha256": "f5bb65b96798874eb7fd20dad90b74a8f8c6a4eea88210940f5795f641051dcb"
-    },
-    {
-      "path": "supabase/migrations/20261030194414_uniform_material_v144.sql",
-      "bytes": 24588,
-      "sha256": "5d06f1371a3717d8e5baf5fa3e38ceaaa77f6b731b7208a2e1a563e10b4be6dc"
-    },
-    {
-      "path": "supabase/portal/09_portal_bookings_v130.sql",
-      "bytes": 17167,
-      "sha256": "547fe9bfd72858b155809ec3990c0d2a7df302ec8430bdff0429d1bfd10f423c"
-    },
-    {
-      "path": "supabase/portal/13_resources_and_recurring_tasks_v135.sql",
-      "bytes": 14191,
-      "sha256": "6451781d57feb4eb696366186a60e9d982d6782dbf08940b36854ba320429f62"
+      "path": "support/index.html",
+      "bytes": 5680,
+      "sha256": "0736e86c00587c839c05629b4afdad6990ecd652a36c89463506d58bf2b53968"
     }
   ]
 }

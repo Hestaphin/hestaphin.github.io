@@ -20,7 +20,7 @@ body.about-page.has-reference-header { background: #000; }
 .project-link[aria-current="page"] { background: #fff; color: #000; }
 .project-overview { display: inline-block; margin: 24px 24px 0; color: #fff; font-size: 17px; }
 .project-overview:hover, .project-overview:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
-.about-feed { min-width: 0; background-color: var(--hour-background); transition: background-color 120s linear; }
+.about-feed { min-width: 0; background-color: var(--hour-background); transition: none; }
 .project-intro, .project-empty { position: relative; z-index: 2; padding: clamp(24px, 3vw, 44px); }
 .project-intro { max-width: 100%; padding-right: 21%; }
 .project-intro h1 { font-size: clamp(28px, 3vw, 40px); margin-bottom: .65em; line-height: 1.15; }

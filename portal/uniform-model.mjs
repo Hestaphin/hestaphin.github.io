@@ -27,3 +27,14 @@ export function eligibleUniformItems(items,templates,member,category) {
  const best=matches.filter(t=>(t.priority||0)===(matches[0].priority||0)&&specificity(t)===specificity(matches[0])),allowed=new Set(best.flatMap(t=>t.item_ids));
  return active.filter(i=>allowed.has(i.id));
 }
+
+export const UNIFORM_REASON_CODES=['unfit_size','worn','other'];
+export function uniformApplicationReason(line) {
+ if(!['new','exchange'].includes(line.mode))throw Error('Choose a valid application type.');
+ if(line.mode==='new')return {reason_code:null,reason:''};
+ const code=line.reason_code||null;
+ if(code!==null&&!UNIFORM_REASON_CODES.includes(code))throw Error('Choose a listed exchange reason.');
+ if(line.reason!=null&&typeof line.reason!=='string')throw Error('Check the exchange reason.');
+ const text=String(line.reason||'').trim();if(text.length>2000)throw Error('Use at most 2000 characters for the reason.');
+ return {reason_code:code,reason:code==='other'?text:code==='unfit_size'?'Unfit size':code==='worn'?'Worn':''};
+}

@@ -1,25 +1,22 @@
 {
-  "version": "1.44",
-  "release_number": 44,
-  "previous_saved_site_revision": 24,
+  "version": "1.46",
+  "release_number": 46,
+  "previous_saved_site_revision": 26,
   "release_date": "2026-10-31",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_Website_v1.44.zip",
-  "zip_root": "COPKU_Website_v1.44",
+  "zip_filename": "COPKU_Website_v1.46.zip",
+  "zip_root": "COPKU_Website_v1.46",
   "changes": [
-    "Rename member Instrument labels to Specific / \u4e13\u804c while preserving existing personnel data.",
-    "Add Material / \u7269\u8d44 with Uniform / \u5236\u670d and Supplies / \u8865\u7ed9 navigation.",
-    "Add uniform classifications, item images, complete measurement-size tables and group assignment templates.",
-    "Add multi-line new/exchange applications, urgent mandatory decision tasks, approval/rejection history and collection-to-issue workflow.",
-    "Preserve previous uniform records during pending/rejected exchanges and enforce eligibility on the server."
+    "Keep uniform size choices compact and jump classification/type links to the item position in the full uniform data page.",
+    "Make reasons optional, use exchange reason presets and allow text only for Other, with matching control heights.",
+    "Use Name in one shared booking resource table and match sidebar hover feedback to Email.",
+    "Calculate public page colours from the same device clock so navigation, focus and back/forward restore agree without refresh."
   ],
   "distribution": "patch",
-  "base_version": "1.40",
-  "patch_filename": "COPKU_v1.44_Update_Only.zip",
+  "base_version": "1.44",
+  "patch_filename": "COPKU_v1.46_Update_Only.zip",
   "supported_base_versions": [
-    "1.40",
-    "1.41",
-    "1.42",
-    "1.43"
+    "1.44",
+    "1.45"
   ]
 }

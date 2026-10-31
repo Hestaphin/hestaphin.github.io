@@ -20,9 +20,9 @@ body.has-reference-header:not(.homepage) {
   --surface: var(--hour-background);
   --surface-soft: var(--hour-background);
   background-color: var(--hour-background);
-  transition: background-color 120s linear;
+  transition: none;
 }
-.has-reference-header:not(.homepage) :is(.hero, .page-hero, .hero-card-inner, .panel, .detail-panel, .feature-box, .hub-card, .cause-card, .detail-card, .contact-list div, .contact-form, .stack-form, .quote-block, .timeline-item, .auth-card, .message-card, .recipient-box, .account-row, .hub) { transition: background-color 120s linear; }
+.has-reference-header:not(.homepage) :is(.hero, .page-hero, .hero-card-inner, .panel, .detail-panel, .feature-box, .hub-card, .cause-card, .detail-card, .contact-list div, .contact-form, .stack-form, .quote-block, .timeline-item, .auth-card, .message-card, .recipient-box, .account-row, .hub) { transition: none; }
 .has-reference-header:not(.homepage) .hub { background: var(--hour-background); }
 .reference-topbar {
   position: fixed; z-index: 1100; inset: 0 0 auto;
@@ -74,7 +74,7 @@ body.has-reference-header.weekend .main-nav a.active::after { background: #000; 
 body.has-reference-header.weekend .main-nav a:is(:hover, :focus-visible) { background: var(--weekend-colour, #7c4ca8); color: #fff; }
 body.has-reference-header.weekend .main-nav a:is(:hover, :focus-visible)::after { background: #fff; width: 100%; }
 .homepage a:focus-visible, .homepage button:focus-visible { outline: 1.5px solid var(--day-accent); outline-offset: -2px; }
-.home-content { position: relative; z-index: 1; background: var(--hour-background); opacity: var(--content-visibility, 0); transition: background-color 120s linear; }
+.home-content { position: relative; z-index: 1; background: var(--hour-background); opacity: var(--content-visibility, 0); transition: none; }
 .home-content > section { position: relative; }
 .event-reel { width: 100%; position: relative; z-index: 2; background: #000; }
 .event-viewport { overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; touch-action: pan-x pan-y; cursor: grab; }

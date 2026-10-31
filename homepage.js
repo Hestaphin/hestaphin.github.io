@@ -60,12 +60,19 @@
     }
   }
 
+  // Derive the two-minute hour blend from the clock, so a newly opened page
+  // has exactly the same colour as a page that has been open throughout it.
+  function clockBackground(now) {
+    const hour=now.getHours(),previous=palette[(hour+23)%24].rgb,current=palette[hour].rgb;
+    const progress=Math.min(1,(now.getMinutes()*60+now.getSeconds()+now.getMilliseconds()/1000)/120);
+    return current.map((value,n)=>Math.round(previous[n]+(value-previous[n])*progress));
+  }
   let lastHour = -1;
   function updateClock() {
     const now = new Date();
     const hour = now.getHours();
     const current = palette[hour];
-    root.style.setProperty('--hour-background', `rgb(${current.rgb.join(',')})`);
+    root.style.setProperty('--hour-background', `rgb(${clockBackground(now).join(',')})`);
     root.style.setProperty('--day-accent', accents[now.getDay()]);
     document.body.classList.toggle('weekend', [0, 6].includes(now.getDay()));
     if (hour !== lastHour) {
@@ -76,7 +83,8 @@
   }
   updateClock();
   if (timedPage) {
-    window.setInterval(updateClock, 15000);
+    window.setInterval(updateClock, 1000);
+    window.addEventListener('pageshow', updateClock);
     window.addEventListener('focus', updateClock);
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) updateClock();

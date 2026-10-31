@@ -1,16 +1,20 @@
-COPKU v1.51 — UPDATE FILES ONLY (for complete v1.50)
+COPKU v1.52 — UPDATE FILES ONLY (for complete v1.51)
 
-Merge these files into your complete v1.50 orchestra website folder, replacing
-matching files and keeping everything else. Deploy the entire merged folder to
-Netlify. Do not deploy this update ZIP by itself. Hard-refresh after deployment.
+BACKEND FIRST: do not deploy this patch until Codex confirms that the v1.52
+Supabase migration and updated portal-material function have been installed.
+The connected Supabase tool requires confirmation for that installation.
+SQL/function source is included for review. Do not apply it manually while an
+automatic installation is pending, or repeat it after installation succeeds.
 
-Debussy theme textbook: US$4.00, using your unmodified cover image.
-Chopin theme textbook: US$4.00.
-Both books work in product pages, search, mixed carts and admin order labels.
+After backend installation, merge these files into your complete v1.51 orchestra
+website folder, replacing matching files and keeping everything else. Deploy
+the entire merged folder to Netlify and hard-refresh. Do not deploy this ZIP by
+itself. No new bucket, email, Stripe or secret configuration is needed.
 
-Stripe and Supabase are already updated. The old US$5 Chopin price is archived
-for new purchases. Existing paid order amounts are preserved. No manual SQL,
-price setup, secrets or Edge Function deployment is needed. Backend files are
-source records of the installed checkout function v7.
+Replies now accept up to eight attachments, up to 10 MB each, with Remove controls,
+image/MSCZ previews, private member access and optional text.
 
-Read UPDATE_FROM_v1.50.md for installation details and verification limits.
+Uniform holdings and pending applications are keyed by the individual item/type.
+A member can hold Service uniform Type-1 and Type-2 together when the group template
+permits both, but cannot newly apply for a second copy of the same type. Each type
+has its own size/status, review and collection action. Read UPDATE_FROM_v1.51.md.

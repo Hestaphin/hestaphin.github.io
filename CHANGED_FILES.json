@@ -1,109 +1,75 @@
 {
-  "version": "1.51",
-  "base_commit": "a15ba13ac9be8f85f55429c62898d70ccca6e6cb",
+  "version": "1.52",
+  "base_commit": "c5a6369975c0384b3ace9d0d736fa47c190b4447",
   "supported_base_versions": [
-    "1.50"
+    "1.51"
   ],
   "distribution": "update-only",
-  "manual_supabase_changes_required": false,
-  "backend_already_applied": {
-    "project_id": "mqthckhoxtqtyuhtdunl",
-    "functions": {
-      "create-shop-checkout": 7
-    }
-  },
-  "stripe_live_catalogue": {
-    "chopin-theme-textbook": {
-      "usd_cents": 400,
-      "product_id": "prod_VUZ2swrv0MfrI5",
-      "price_id": "price_1UWfavGdgIKGS7dTRgwd1ZF8"
-    },
-    "debussy-theme-textbook": {
-      "usd_cents": 400,
-      "product_id": "prod_VXl74FL38XhagA",
-      "price_id": "price_1UWfapGdgIKGS7dTn7Ub3G8Y"
-    }
-  },
+  "backend_dependencies": [
+    "reply_attachments_and_uniform_items_v152 migration",
+    "portal-material with item-specific uniform collection"
+  ],
+  "backend_must_be_installed_before_website_deployment": true,
   "files": [
     {
-      "path": "UPDATE_FROM_v1.50.md",
-      "bytes": 3528,
-      "sha256": "9f55307facfcb3bbfbe323715137a55da152bcf7df3b7b9cb2e586f5eff3e7f1"
-    },
-    {
-      "path": "assets/shop-debussy-cover.png",
-      "bytes": 2632066,
-      "sha256": "68db9f7cda60a2bd478544c1a96171b08302b3ffb4d029e30dcd2f3c2a82694f"
-    },
-    {
-      "path": "events/events.js",
-      "bytes": 20010,
-      "sha256": "2f421c1185f25f876782d3fd85d0903b30432d7653ba0ffb8adbe4213875e55b"
+      "path": "UPDATE_FROM_v1.51.md",
+      "bytes": 4403,
+      "sha256": "2f59ae0148749b99535a518e3ba11b6c2cbef0c34c9bdc1370a1aac4eb1d7530"
     },
     {
       "path": "language.js",
-      "bytes": 54350,
-      "sha256": "40b5a65f0d4c0a3c97520c9d3f5adf3ecb5d94af47ebadce7608b52cc0f93661"
+      "bytes": 55661,
+      "sha256": "242630a8acee6ff86f434cbbd0dfe06a4ecc164c9b2ebc47d4fb394d8facadd0"
+    },
+    {
+      "path": "portal/discussion-files.mjs",
+      "bytes": 2539,
+      "sha256": "2ccd642fe3723caa8fde28ceff5fc766a81ee5a6cce40f9b8b442c23c7b6e550"
     },
     {
       "path": "portal/internal/index.html",
       "bytes": 14380,
-      "sha256": "94e1eb1a4518087e64646f2d2a28baad5c8813c0b24a08ac2cce73a57979080b"
+      "sha256": "8c71346bb7358dde2e3a93480e1e7aa6365877148c1bfe982a14efa7b42f6889"
+    },
+    {
+      "path": "portal/portal.css",
+      "bytes": 49046,
+      "sha256": "e71cf80460fc3014f1d9a2b9fb09037d90aa2f51e5f54588b25ea690897e5185"
     },
     {
       "path": "portal/portal.js",
-      "bytes": 108249,
-      "sha256": "42888821a072cf4bc1cc82940f4fb683bc33a08426564b589dde23cc6922616d"
+      "bytes": 109098,
+      "sha256": "0e5f420bd8efce6e5cf5af48890c53f0bdce2954b43a8a2edb6db05c332124ad"
+    },
+    {
+      "path": "portal/uniform-model.mjs",
+      "bytes": 4778,
+      "sha256": "125778425341048a129089215b2446f4a29bc282442e972a8b6267217a728723"
+    },
+    {
+      "path": "portal/uniform-ui.mjs",
+      "bytes": 30249,
+      "sha256": "ba059b68919d4e9bd6f80f38c6b5807687c4eeb0b0f1d4924690506da4cd3108"
     },
     {
       "path": "release.json",
-      "bytes": 823,
-      "sha256": "c70cf421ca351ad305ad3b7200d723dfefe24f41ec0676ae60d8c29d74d001ef"
+      "bytes": 943,
+      "sha256": "978cc0c27c94fb3c37aa065943c95d7dbdb10e5fd8571f23194585f1672cbaf1"
     },
     {
-      "path": "shop/backend/create-shop-checkout/index.ts",
-      "bytes": 10295,
-      "sha256": "845af612e44966870a199001cb9db86a2bb649dcee5d8533f045c8480bae3d97"
+      "path": "supabase/functions/portal-material/index.ts",
+      "bytes": 9315,
+      "sha256": "f70dfe926b0acbafbb72eabd4459c0b99f761963cc3aa75a7f08ea923db13188"
     },
     {
-      "path": "shop/chopin-theme-textbook/index.html",
-      "bytes": 19387,
-      "sha256": "aaf943356cd6d679f6d8cf08f9e5ab80cb963b1163814200c9bdf7e1f107dec6"
+      "path": "supabase/functions/portal-material/uniform-model.mjs",
+      "bytes": 4778,
+      "sha256": "125778425341048a129089215b2446f4a29bc282442e972a8b6267217a728723"
     },
     {
-      "path": "shop/debussy-theme-textbook/index.html",
-      "bytes": 19404,
-      "sha256": "d6995813e80c5f5e761f509bd51662139898f97ee9ca2832c37c9a15ee8699ae"
-    },
-    {
-      "path": "shop/index.html",
-      "bytes": 20615,
-      "sha256": "46b89725fcb61546507684254a49af47773b571619e118266c5d5d3edc11a7bb"
-    },
-    {
-      "path": "shop/shop-data.mjs",
-      "bytes": 1118,
-      "sha256": "12bb5636a1b3518ae9bc6701c113f55c8c3821fea569e2105b3607bb1c35183a"
-    },
-    {
-      "path": "shop/shop-model.mjs",
-      "bytes": 3048,
-      "sha256": "82788103d2533cd2fc5f29653dcdd0b209ca63f52f705fee6d63aa7f3c1bacc0"
-    },
-    {
-      "path": "shop/shop-render.mjs",
-      "bytes": 2693,
-      "sha256": "a3506ff33ec1b7b498aa57bac95b525e1b213b9cbd01b38798cc8b73c9a190f1"
-    },
-    {
-      "path": "shop/shop.js",
-      "bytes": 14202,
-      "sha256": "e4efd8a65eb56d2949e1c92a5261aa4815640b9c88cdc1c302bebb95426108d5"
-    },
-    {
-      "path": "supabase/functions/create-shop-checkout/index.ts",
-      "bytes": 10295,
-      "sha256": "845af612e44966870a199001cb9db86a2bb649dcee5d8533f045c8480bae3d97"
+      "path": "supabase/portal/reply_attachments_uniform_items_v152.sql",
+      "bytes": 13883,
+      "sha256": "bb4072f0a79735e51da4c4b3beef489b4218bc56cf9cc7a17130a22e4161ee09"
     }
   ]
 }

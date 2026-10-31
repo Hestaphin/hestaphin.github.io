@@ -1,6 +1,18 @@
 export const UNIFORM_FILTER_FIELDS=['department','occupation_type','instrument','classification','rank','member_status'];
 export const UNIFORM_DEFAULT_CATEGORIES=['Service uniform','Service trousers','Service shirt','Service shoes','Coat','Socks','Belt','Service cap'];
 export const uniformStatusLabel=value=>({issued:'Issued',ready:'Ready to collect',pending:'Pending',none:'Not issued'}[value]||'Not issued');
+export function uniformApplicationModes(itemId,holdings=[],pending=[]){
+ if(pending.some(line=>line.item_id===itemId||(line.mode==='exchange'&&line.previous_record?.item_id===itemId)))return [];
+ const record=holdings.find(h=>h.item_id===itemId);
+ return !record?['new']:record.status==='issued'?['exchange']:[];
+}
+export function uniformMemberRows(categories,items,holdings,pending){
+ return categories.flatMap(category=>{
+  const ids=[...new Set([...holdings,...pending].filter(row=>row.category_id===category.id).map(row=>row.item_id))];
+  if(!ids.length)return [{category,holding:null,pending:null,shown:null}];
+  return ids.map(id=>{const h=holdings.find(row=>row.item_id===id),p=pending.find(row=>row.item_id===id);return {category,holding:h||null,pending:p||null,shown:p||h};}).sort((a,b)=>String(a.shown.item_snapshot?.name||items.find(i=>i.id===a.shown.item_id)?.name||'').localeCompare(String(b.shown.item_snapshot?.name||items.find(i=>i.id===b.shown.item_id)?.name||''),undefined,{numeric:true}));
+ });
+}
 export function validateUniformItem(input) {
  const name=String(input.name||'').trim(),measurements=input.measurements,sizes=input.sizes;
  if(!name||name.length>80)throw Error('Enter a uniform type of at most 80 characters.');

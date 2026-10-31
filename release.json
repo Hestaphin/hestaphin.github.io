@@ -1,21 +1,24 @@
 {
-  "version": "1.51",
-  "release_number": 51,
-  "previous_saved_site_revision": 31,
+  "version": "1.52",
+  "release_number": 52,
+  "previous_saved_site_revision": 32,
   "release_date": "2026-11-01",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_v1.51_Update_Only.zip",
-  "zip_root": "COPKU_v1.51_Update_Only",
+  "zip_filename": "COPKU_v1.52_Update_Only.zip",
+  "zip_root": "COPKU_v1.52_Update_Only",
   "changes": [
-    "Add the Debussy theme textbook using the supplied unmodified cover, at US$4.00.",
-    "Change the Chopin theme textbook to US$4.00 in listings, cart and live Stripe checkout.",
-    "Support both books in search and administrator order labels, with English and Chinese names.",
-    "Deploy server-owned USD 4 catalogue validation and reject stale priced checkout requests while preserving historical orders."
+    "Add private attachments to notification replies with existing 10 MB limits, removable selection, previews and file-only replies.",
+    "Track uniform holdings and pending applications per item/type, allowing Type-1 and Type-2 in the same classification.",
+    "Keep approvals, exchanges and collection independent for each uniform type, preserving other holdings and history."
   ],
   "distribution": "patch",
-  "base_version": "1.50",
-  "patch_filename": "COPKU_v1.51_Update_Only.zip",
+  "base_version": "1.51",
+  "patch_filename": "COPKU_v1.52_Update_Only.zip",
   "supported_base_versions": [
-    "1.50"
+    "1.51"
+  ],
+  "backend_dependencies": [
+    "reply_attachments_and_uniform_items_v152 migration",
+    "portal-material with item-specific uniform collection"
   ]
 }

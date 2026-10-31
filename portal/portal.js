@@ -356,7 +356,7 @@ function bindScorePreviews() {
   $$('[data-score-preview]').forEach(button => button.onclick = async () => {
     button.disabled = true;
     try {
-      const { openScorePreview } = await import('./score-preview/preview.mjs?v=1.49');
+      const { openScorePreview } = await import('./score-preview/preview.mjs?v=1.50');
       const { scoreBucket: bucket, scorePath: path, scoreName: name } = button.dataset;
       if (!['portal-files', 'portal-notification-files'].includes(bucket)) throw Error('Attachment unavailable.');
       openScorePreview({ name, opener: button, fetchScore: async signal => {

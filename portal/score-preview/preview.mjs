@@ -3,6 +3,7 @@ import { readScoreResponse, ScorePreviewError, scoreTime } from './model.mjs';
 import { createPlaybackIndex, hitNote, highlightSvg, barHighlightBox, MP3_OFFSET_MS } from './playback.mjs?v=1.49';
 import {createRepeatPlayback} from './repeat-playback.mjs?v=1.49';
 import {captureScoreViewport,restoreScoreViewport} from './viewport.mjs?v=1.48';
+import {createPageBuffer,createPageLookahead} from './page-buffer.mjs?v=1.50';
 let activePreview;
 const words = {
   en: { title: 'Score preview', close: 'Close score preview', loading: 'Loading score…', preparing: 'Preparing playback…', ready: 'Score ready', audioReady: 'Audio ready. Press Play in the player.', play: 'Play score', previous: 'Previous page', next: 'Next page', page: 'Page', zoom: 'Zoom', fit: 'Fit width', speed: 'Playback speed', download: 'Download original', notice: 'Player source & licences', note: 'Standard instrument sounds. Audio is prepared when you press Play.', failed: 'This score could not be previewed. You can still download the original attachment.', unavailable: 'The attachment is unavailable. Close this window and refresh the task or notification.', large: 'The score exceeds the 10 MB attachment limit.', complex: 'This compressed score is too large to preview safely.', unsupported: 'This score is damaged, empty, or uses a newer unsupported MuseScore format.', audioFailed: 'Playback could not be prepared. The score preview is still available.', timeout: 'Preparing this score took too long. Close the window and try again.', controls: 'Score pages and playback', follow: 'Follow playback', mapping: 'Preparing playback highlights…', mapped: 'The pink bar follows playback. Click a note to play from there.', mapFailed: 'Note highlighting is unavailable for this score. Preview and playback still work.', startNote: 'Play from note', mappedPartial: 'Click a note to play from there. Some notes use their written beat for timing.', mapTiming: 'The note timeline could not be matched. Score pages and audio remain available.', mapTimeout: 'Note tracking took too long. Close this score and reopen it to retry.', mapPage: 'Note tracking is unavailable on this page. Other pages and audio remain available.',barOnly:'The pink bar follows playback. Note highlighting is unavailable for this score.' },
@@ -40,16 +41,19 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
   const dialog = doc.createElement('dialog'); dialog.className = 'score-preview-dialog'; dialog.dataset.userContent = '';
   dialog.innerHTML = '<header class="score-preview-header"><div><p class="score-preview-eyebrow"></p><h2 id="score-preview-name"></h2><p class="score-preview-composer" hidden></p></div><button type="button" class="score-preview-close">×</button></header><section class="score-preview-controls"><button type="button" class="score-play" disabled></button><audio controls preload="metadata" hidden></audio><label class="score-speed-label" hidden><span></span><select class="score-speed"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label><label class="score-follow-label" hidden><input type="checkbox" class="score-follow" checked><span></span></label><div class="score-page-tools"><button type="button" class="score-previous" disabled>‹</button><span class="score-page-count"></span><button type="button" class="score-next" disabled>›</button><label class="score-zoom-label"><span></span><select class="score-zoom"><option value="fit"></option><option value="100">100%</option><option value="125">125%</option><option value="150">150%</option><option value="200">200%</option></select></label></div></section><p class="score-preview-status" role="status" aria-live="polite"></p><p class="score-preview-error" role="alert" hidden></p><p class="score-map-status" role="status" hidden></p><div class="score-preview-stage" aria-busy="true" tabindex="0"><div class="score-paper" hidden><img class="score-page-image" alt=""><div class="score-bar-highlight" aria-hidden="true" hidden></div><img class="score-note-highlight" alt="" hidden><div class="score-note-targets"></div></div></div><footer class="score-preview-footer"><span class="score-preview-note"></span><a class="score-download" hidden></a><a class="score-source" target="_blank" rel="noopener"></a></footer>';
   const q = s => dialog.querySelector(s), audio = q('audio'), paper = q('.score-paper'), stage = q('.score-preview-stage');
+  stage.style.overflowAnchor='none';
   const barLayer = q('.score-bar-highlight');
   Object.assign(barLayer.style,{position:'absolute',inset:'auto',pointerEvents:'none',background:'rgba(255,128,128,.4)',mixBlendMode:'multiply',zIndex:'1',visibility:'hidden'});
   paper.style.position='relative';paper.style.isolation='isolate';q('.score-page-image').style.position='relative';q('.score-page-image').style.zIndex='0';q('.score-note-highlight').style.zIndex='2';q('.score-note-targets').style.zIndex='3';
   if(doc.head?.append&&!doc.querySelector?.('link[data-copku-score-style="1.49"]')){const link=doc.createElement('link');link.rel='stylesheet';link.href=new URL('./preview.css?v=1.49',import.meta.url).href;link.dataset.copkuScoreStyle='1.49';doc.head.append(link);}
 
-  const abort = new AbortController(), urls = new Set(), pageCache = new Map();
+  const abort = new AbortController(), urls = new Set();
   let closed = false, mappingClient, playback, geometry, overlayUrl, frameHandle, audioPromise, pendingSeek = null, mapStatus = '', mappingReadyStatus = 'mapped', highlightKey = '', followingPage = null, client, fileUrl, audioUrl, pages = 0, page = 0, duration = 0, pageSequence = 0, currentStatus = 'loading', audioPreparing = false;
   const geometryCache = new Map(), geometryRequests = new Map();
   let barHighlightKey = '',barPlayback,barGeometry,repeatPlayer;
-  const pageTracking=new Map();
+  let pageLookahead=()=>[],prefetchTargets=[],prefetchBusy=false,warmKey='';
+  const prefetchFailed=new Set();
+  const pageBuffer=createPageBuffer({load:index=>client.request('page',{index}),prepare:preparePage,release:releasePage});
   let viewedPage = false, pendingViewport;
   const text = () => words[window.COPKU_I18N?.language === 'cn' ? 'cn' : 'en'];
   function refreshLabels() {
@@ -72,16 +76,32 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
     currentStatus = ''; refreshLabels(); stage.setAttribute('aria-busy', 'false');
   }
   function objectUrl(blob) { const url = URL.createObjectURL(blob); urls.add(url); return url; }
-  function cachePage(index, content, tracking=null) {
-    const svg=typeof content==='string'?content:content.svg;tracking=typeof content==='object'?content.tracking:tracking;if(tracking)pageTracking.set(index,tracking);
-    const url = objectUrl(new Blob([svg], { type: 'image/svg+xml' })); pageCache.set(index, url);
-    while (pageCache.size > 6) { const key = pageCache.keys().next().value, old = pageCache.get(key); pageCache.delete(key);pageTracking.delete(key); URL.revokeObjectURL(old); urls.delete(old); }
-    return url;
+  async function preparePage(content,index){
+    const svg=typeof content==='string'?content:content.svg,url=objectUrl(new Blob([svg],{type:'image/svg+xml'}));
+    const image=doc.createElement('img');image.className='score-page-image';image.decoding='async';image.style.position='relative';image.style.zIndex='0';image.src=url;
+    image.addEventListener('load',()=>restorePendingViewport());
+    try{if(image.decode)await image.decode();}catch(error){URL.revokeObjectURL(url);urls.delete(url);throw error;}
+    return {url,image,tracking:typeof content==='object'?content.tracking:null,index};
   }
-  function displayPage(index, url) {
+  function releasePage(entry){URL.revokeObjectURL(entry.url);urls.delete(entry.url);if(closed||entry.image!==q('.score-page-image'))entry.image.removeAttribute('src');}
+  function warmPages(){
+    if(closed||!client||!pages)return;
+    const time=Math.max(0,(Number(audio.currentTime)||0)*1000-MP3_OFFSET_MS),run=repeatPlayer?.index()||0,follow=q('.score-follow').checked;
+    const key=page+':'+run+':'+follow;if(key===warmKey)return;warmKey=key;
+    const ahead=follow?pageLookahead(time,run,page,2):[page+1];
+    prefetchTargets=[...new Set([...ahead,page+1,page-1])].filter(i=>i>=0&&i<pages&&i!==page).slice(0,3);
+    pageBuffer.protect([page,...prefetchTargets]);prefetchFailed.clear();pumpPages();
+    if(playback&&mappingClient)for(const index of prefetchTargets.slice(0,2))void requestGeometry(index).catch(()=>{});
+  }
+  function pumpPages(){
+    if(closed||prefetchBusy)return;
+    const index=prefetchTargets.find(i=>!pageBuffer.get(i)&&!prefetchFailed.has(i));if(index==null)return;
+    prefetchBusy=true;void pageBuffer.request(index).catch(()=>prefetchFailed.add(index)).finally(()=>{prefetchBusy=false;pumpPages();});
+  }
+  function displayPage(index, entry) {
     const memory = viewedPage ? captureScoreViewport(geometry||barGeometry, viewportMetrics()) : null; viewedPage = true;
-    page = index;barGeometry=pageTracking.get(index)||null; pendingViewport = memory ? {memory,index,url,sequence:pageSequence} : null;
-    q('.score-page-image').src = url; paper.hidden = false;
+    page = index;barGeometry=entry.tracking||null;pendingViewport=memory?{memory,index,url:entry.url,sequence:pageSequence}:null;
+    const previous=q('.score-page-image');if(previous!==entry.image&&previous.replaceWith)previous.replaceWith(entry.image);else previous.src=entry.url;paper.hidden=false;
     if (!memory) { stage.scrollTop = 0; stage.scrollLeft = 0; }
     stage.setAttribute('aria-busy', 'false'); q('.score-previous').disabled = page === 0; q('.score-next').disabled = page >= pages - 1;
     currentStatus = audioPreparing ? 'preparing' : 'ready'; refreshLabels();
@@ -89,6 +109,7 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
     if (playback&&mappingClient) void loadGeometry(index);
     updateHighlight();
     restorePendingViewport();
+    warmPages();
   }
   function viewportMetrics() {
     const p=paper.getBoundingClientRect(),s=stage.getBoundingClientRect();
@@ -108,14 +129,16 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
   stage.addEventListener('keydown',event=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','PageUp','PageDown','Home','End',' '].includes(event.key))pendingViewport=null;});
   async function changePage(index) {
     if (closed || index < 0 || index >= pages) return;
-    const sequence = ++pageSequence; stage.setAttribute('aria-busy', 'true'); q('.score-previous').disabled = true; q('.score-next').disabled = true;
-    try { const url = pageCache.get(index) || cachePage(index, await client.request('page', { index })); if (!closed && sequence === pageSequence) displayPage(index, url); }
-    catch (error) { showError(error); }
+    const sequence=++pageSequence,cached=pageBuffer.get(index);
+    if(cached){displayPage(index,cached);return;}
+    stage.setAttribute('aria-busy','true');q('.score-previous').disabled=true;q('.score-next').disabled=true;
+    try{const entry=await pageBuffer.request(index);if(!closed&&sequence===pageSequence)displayPage(index,entry);}
+    catch(error){if(!closed&&sequence===pageSequence)showError(error);}
   }
   function close() { if (!closed) dialog.close(); }
   dialog.addEventListener('close', () => {
     if (closed) return; closed = true; abort.abort(); client?.close(); mappingClient?.close();repeatPlayer?.close(); cancelFrame(); audio.pause(); audio.removeAttribute('src'); audio.load();
-    for (const url of urls) URL.revokeObjectURL(url); urls.clear(); pageCache.clear();pageTracking.clear(); geometryCache.clear(); geometryRequests.clear();
+    pageBuffer.close();prefetchTargets=[];for (const url of urls) URL.revokeObjectURL(url); urls.clear();geometryCache.clear(); geometryRequests.clear();
     window.removeEventListener('copku-language-change', refreshLabels); window.removeEventListener('pagehide', close);
     doc.documentElement.classList.remove('score-preview-open'); dialog.remove();
     if (activePreview?.dialog === dialog) activePreview = null;
@@ -133,7 +156,12 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
     if (audioPromise) return audioPromise;
     audioPreparing = true; q('.score-play').disabled = true; q('.score-preview-error').hidden = true; currentStatus = 'preparing'; refreshLabels();
     audioPromise = (async () => {
+      // Give the first turn a decoded page before playback starts. During play,
+      // warming runs in the background and never pauses the music.
+      const next=pageLookahead(Math.max(0,(Number(audio.currentTime)||0)*1000-MP3_OFFSET_MS),repeatPlayer?.index()||0,page,1)[0];
+      const nextReady=next==null?Promise.resolve():pageBuffer.request(next).catch(()=>{});
       const bytes = await client.request('audio'); if (closed) return;
+      await nextReady;if(closed)return;
       audioUrl = objectUrl(new Blob([bytes], { type: 'audio/mpeg' })); audio.src = audioUrl; audio.hidden = false; audio.setAttribute('aria-label', `${text().title}: ${String(name || '')}`);
       q('.score-play').hidden = true; q('.score-speed-label').hidden = false; currentStatus = 'audioReady'; refreshLabels();
     })();
@@ -164,6 +192,7 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
   function installBarTimeline(info){
     if(!info?.measures?.length)return;
     barPlayback=createPlaybackIndex([],{measures:info.measures});
+    pageLookahead=createPageLookahead(info.measures,info.repeatPlan||[]);warmKey='';
     repeatPlayer?.close();repeatPlayer=createRepeatPlayback(audio,info.repeatPlan||[],{offsetMs:MP3_OFFSET_MS,onJump:updateHighlight});
     q('.score-follow').checked=true;q('.score-follow-label').hidden=false;
   }
@@ -171,6 +200,7 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
     if(closed||(!playback&&!barPlayback))return;
     const time=Math.max(0,(Number(audio.currentTime)||0)*1000-MP3_OFFSET_MS);
     const frame=playback?.at(time)||{ids:[],key:'',page:null},barFrame=(barPlayback||playback).at(time),followPage=barFrame.page??frame.page;
+    warmPages();
     if(q('.score-follow').checked&&!audio.paused&&followPage!=null&&followPage!==page&&followingPage!==followPage){const target=followPage;followingPage=target;void changePage(target).finally(()=>{if(followingPage===target)followingPage=null;});}
     const bars=barGeometry?.measures?.length?barGeometry:geometry;
     const barId=barFrame.measure?.page===page?barFrame.measure.layoutId:null,bar=bars?.measures?.find(m=>m.id===barId),key=page+':'+(bar?.id??'');
@@ -190,15 +220,16 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
   }
   function installGeometry(value) {
     geometry = value; mapStatus = value.warnings?.length ? 'mappedPartial' : mappingReadyStatus; refreshLabels(); highlightKey = ''; const layer = q('.score-note-targets'); layer.replaceChildren();
-    const [vx, vy, width, height] = value.viewBox;
+    const [vx, vy, width, height] = value.viewBox,fragment=doc.createDocumentFragment?.();
     for (const n of value.notes) {
       if (!playback.occurrences(n.id).length) continue;
       const button = doc.createElement('button'), b = n.bounds; button.type = 'button'; button.className = 'score-note-target';
       button.setAttribute('aria-label', `${text().startNote} ${n.id + 1}`); button.title = text().mapped;
       button.style.left = `${(b.x - vx - 2) / width * 100}%`; button.style.top = `${(b.y - vy - 2) / height * 100}%`;
       button.style.width = `${(b.width + 4) / width * 100}%`; button.style.height = `${(b.height + 4) / height * 100}%`;
-      button.onclick = event => { event.stopPropagation(); seekNote(n.id); }; layer.append(button);
+      button.onclick = event => { event.stopPropagation(); seekNote(n.id); }; (fragment||layer).append(button);
     }
+    if(fragment)layer.replaceChildren(fragment);
     restorePendingViewport();updateHighlight();
   }
   function pageUnavailable(error) {
@@ -206,16 +237,20 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
     if (['CLOSED','TIMEOUT','WORKER_FAILED'].includes(error?.code)) { disableMapping(error); return; }
     geometry = null; if(!barPlayback)clearBarHighlight(); q('.score-note-highlight').hidden = true; q('.score-note-targets').replaceChildren?.(); mapStatus = 'mapPage'; refreshLabels();restorePendingViewport(true);updateHighlight();
   }
-  async function loadGeometry(index) {
-    try {
+  async function requestGeometry(index){
       let value = geometryCache.get(index);
       if (!value) {
         if (!geometryRequests.has(index)) geometryRequests.set(index, mappingClient.request('page', { index }));
-        value = await geometryRequests.get(index); geometryRequests.delete(index);
+        try{value=await geometryRequests.get(index);}finally{geometryRequests.delete(index);}
         if (closed || !playback) return; geometryCache.set(index, value);
-        while (geometryCache.size > 6) geometryCache.delete(geometryCache.keys().next().value);
+        while(geometryCache.size>6){const key=[...geometryCache.keys()].find(i=>i!==page&&!prefetchTargets.includes(i));if(key==null)break;geometryCache.delete(key);}
       }
-      if (!closed && playback && page === index) installGeometry(value);
+      return value;
+  }
+  async function loadGeometry(index) {
+    try {
+      const value=await requestGeometry(index);
+      if(value&&!closed&&playback&&page===index)installGeometry(value);
     } catch (error) { geometryRequests.delete(index); if (index === page || ['CLOSED','TIMEOUT','WORKER_FAILED'].includes(error?.code)) pageUnavailable(error); }
   }
   paper.onclick = event => {
@@ -230,7 +265,7 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
       mapStatus = 'mapping'; refreshLabels(); mappingClient = createScoreWorkerClient(makeMappingWorker());
       const info = await mappingClient.request('load', { buffer }, [buffer]); if (closed) return;
       if (info.pages !== pages) throw Error('NOTE_MAP_UNAVAILABLE');if(!barPlayback)installBarTimeline(info); playback = createPlaybackIndex(info.notes, { anchors: info.anchors || [], measures: info.measures || [] }); duration = info.durationMs / 1000;
-      q('.score-follow-label').hidden = false; mappingReadyStatus = info.warnings?.length ? 'mappedPartial' : 'mapped'; mapStatus = mappingReadyStatus; refreshLabels(); validateAudioTimeline(); if (playback) await loadGeometry(page);
+      q('.score-follow-label').hidden = false; mappingReadyStatus = info.warnings?.length ? 'mappedPartial' : 'mapped'; mapStatus = mappingReadyStatus; refreshLabels(); validateAudioTimeline(); if (playback) await loadGeometry(page);warmKey='';warmPages();
     } catch (error) { disableMapping(error); }
   }
   audio.onerror = () => { if (!closed) showError(new ScorePreviewError('AUDIO_UNAVAILABLE'), true); };
@@ -248,7 +283,7 @@ export function openScorePreview({ name, fetchScore, opener, document: doc = doc
       const info = await client.request('load', { buffer: bytes.buffer }, [bytes.buffer]); if (closed) return;
       pages = info.pages; duration = info.tracking?.durationMs/1000||info.duration;
       if (info.composer) { q('.score-preview-composer').textContent = info.composer; q('.score-preview-composer').hidden = false; }
-      installBarTimeline(info.tracking);displayPage(0, cachePage(0, info.svg,info.tracking?.geometry)); q('.score-play').disabled = false; void startMapping(mappingBuffer);
+      installBarTimeline(info.tracking);const first=await pageBuffer.request(0,{svg:info.svg,tracking:info.tracking?.geometry});if(closed)return;displayPage(0,first); q('.score-play').disabled = false; void startMapping(mappingBuffer);
     } catch (error) { if (!closed) { client?.close(); showError(error); } }
   })();
   return activePreview;

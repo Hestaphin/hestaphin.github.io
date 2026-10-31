@@ -1,23 +1,20 @@
 {
-  "version": "1.49",
-  "release_number": 49,
-  "previous_saved_site_revision": 29,
+  "version": "1.50",
+  "release_number": 50,
+  "previous_saved_site_revision": 30,
   "release_date": "2026-10-31",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_v1.49_Update_Only.zip",
-  "zip_root": "COPKU_v1.49_Update_Only",
+  "zip_filename": "COPKU_v1.50_Update_Only.zip",
+  "zip_root": "COPKU_v1.50_Update_Only",
   "changes": [
-    "Draw the current bar in pink using original-score geometry independently of optional note mapping.",
-    "Follow native repeat counts and first/second endings by seeking the written-score audio at itinerary boundaries.",
-    "Require password setup and a verified email in the same first-login activation task, using the existing Brevo sender.",
-    "Preserve the viewed instrument across forward and backward score page turns."
+    "Render and decode upcoming score pages before playback reaches their boundaries, with a six-page reusable buffer.",
+    "Prepare future pages from the native repeat and ending itinerary, including distant backward returns.",
+    "Keep the viewed instrument and position during synchronous prepared-page swaps; retain pink bars and note tracking."
   ],
   "distribution": "patch",
-  "base_version": "1.46",
-  "patch_filename": "COPKU_v1.49_Update_Only.zip",
+  "base_version": "1.49",
+  "patch_filename": "COPKU_v1.50_Update_Only.zip",
   "supported_base_versions": [
-    "1.46",
-    "1.47",
-    "1.48"
+    "1.49"
   ]
 }

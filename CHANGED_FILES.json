@@ -1,165 +1,46 @@
 {
-  "version": "1.49",
-  "base_commit": "0b697d884bd0bf6d5a4d9f41f9f66e64a210a126",
+  "version": "1.50",
+  "base_commit": "a0b6dfed0d95fb3a95da596efd2b4f9be909ad28",
   "supported_base_versions": [
-    "1.46",
-    "1.47",
-    "1.48"
+    "1.49"
   ],
   "distribution": "update-only",
   "supabase_changes_required": false,
-  "supabase_already_applied": {
-    "project_id": "mqthckhoxtqtyuhtdunl",
-    "migration": "20261031144854_verified_activation_v149",
-    "functions": {
-      "portal-onboarding": 1
-    }
-  },
   "files": [
     {
-      "path": "UPDATE_FROM_v1.48.md",
-      "bytes": 4631,
-      "sha256": "d76076998e8c8ec38c50b83386fdb5588ea518dddcb05b0ad8be99ba40a25f25"
-    },
-    {
-      "path": "language.js",
-      "bytes": 54157,
-      "sha256": "4309d6f173d91f44e699ecc119c3e5ffb0aa3a31b0f7d20fee3627979ffafb10"
-    },
-    {
-      "path": "portal/activation-ui.mjs",
-      "bytes": 4499,
-      "sha256": "0568196719e987dde1cb28b76845f120e1d1dba745fbdc099876b17fb2531088"
+      "path": "UPDATE_FROM_v1.49.md",
+      "bytes": 3535,
+      "sha256": "a2dbe390158152b55bad91c72ba7aae652835e713eb184987d2024991f59b2d1"
     },
     {
       "path": "portal/internal/index.html",
       "bytes": 14380,
-      "sha256": "8936f2621bf0e1de1ac18d97fda9ddb35875a2dff705095f810c438fe926e6c1"
-    },
-    {
-      "path": "portal/member-fields.mjs",
-      "bytes": 4640,
-      "sha256": "10df639b575d5e6a8279a7b1ae0215b3d18a04cd83916ba8c2f18c6a34b87e7e"
-    },
-    {
-      "path": "portal/portal.css",
-      "bytes": 48817,
-      "sha256": "c71755e8e53bc0d62c7f46846e4311f13115fb90d1d00ecb433ee9093f705785"
+      "sha256": "1c6352a10de19f5e49168fefda2b350f77b3d3e0226af9a20f3f55cfcf6ecb68"
     },
     {
       "path": "portal/portal.js",
       "bytes": 108180,
-      "sha256": "1ac3acbe599dcf9d909c7010dac9ee8ff359a29f30f725959f62441ac9ac58ab"
-    },
-    {
-      "path": "portal/reset-password/index.html",
-      "bytes": 1000,
-      "sha256": "61d9fabdc3823b01c930b58b16d9677ec6d107772dd3c3e58dffcdde5fa25d0d"
-    },
-    {
-      "path": "portal/reset-password/reset.js",
-      "bytes": 1504,
-      "sha256": "07d69eccc92b8845593a41f9e70a1f0ff7f0c63e2bc77da06524e1f09ec690d3"
-    },
-    {
-      "path": "portal/score-preview/engine.mjs",
-      "bytes": 3945,
-      "sha256": "32e6c5e493429206b4642ef4850c735e0f713f668f04cfbb70a46a5d069e8b7d"
+      "sha256": "2806ec75c117c504cb5c84035e74f482efc1b86199a6748235a479d2061e2564"
     },
     {
       "path": "portal/score-preview/licences.html",
-      "bytes": 3949,
-      "sha256": "0ed61237d2d4060a07c372404fbb194cab03ecd375842c102d1a91f4c7cdc0fd"
+      "bytes": 4284,
+      "sha256": "faa07db33b0c5a844ac5b6ab6435184d8b74eb34e6ce5fb84502834aaf3a555e"
     },
     {
-      "path": "portal/score-preview/mapping-engine.mjs",
-      "bytes": 2502,
-      "sha256": "a0753c7790623d69d7929ede1db536326ef683e50859e5c30b66a428e1feb2e1"
-    },
-    {
-      "path": "portal/score-preview/mapping-worker.mjs",
-      "bytes": 724,
-      "sha256": "7db30ea25a82c90a08cf11f69b045c1df0b1f609415fd97dd5121068c5836e7d"
-    },
-    {
-      "path": "portal/score-preview/note-map.mjs",
-      "bytes": 33527,
-      "sha256": "0a1346cdb7abe0a5d1ba40885c3593d607dc99cd77474f3b85b2fa8d4d4dbb28"
-    },
-    {
-      "path": "portal/score-preview/playback.mjs",
-      "bytes": 5736,
-      "sha256": "ee293edc38ce430cd7f67c36f5aec3b4f7ae3f31c4b82232c0a83789b09b779d"
-    },
-    {
-      "path": "portal/score-preview/preview.css",
-      "bytes": 5235,
-      "sha256": "35aa863dfe511f73e353041531b93ce75dcdf0ddd2d89d981ce4239e5a129630"
+      "path": "portal/score-preview/page-buffer.mjs",
+      "bytes": 2311,
+      "sha256": "d94524e5182ce83f6abd6854925fb7ad2eb98be95115d7bba259ebbbc52ac429"
     },
     {
       "path": "portal/score-preview/preview.mjs",
-      "bytes": 26316,
-      "sha256": "92f021fa2607435c14afea3f5b6a47870d8c8b43eb7625ae5b6947d8071446b0"
-    },
-    {
-      "path": "portal/score-preview/repeat-playback.mjs",
-      "bytes": 3357,
-      "sha256": "6e87b2cc5390e1762fba6fb88d7206db19036e02326fba35a749dceddbaa59cd"
-    },
-    {
-      "path": "portal/score-preview/viewport.mjs",
-      "bytes": 3935,
-      "sha256": "aead5263a1881191415fdd4386995e3289b93303cbc8714f2e7757d8433b6cb8"
-    },
-    {
-      "path": "portal/score-preview/worker.mjs",
-      "bytes": 1112,
-      "sha256": "2b42fb738c10e8cc612d2d9200491fefc676d2f1c45cf6a10fb3b48fb6b20ff9"
+      "bytes": 28875,
+      "sha256": "c598bc6a9b09c70325c4a2dc66a57302e930bcf35857fd358efebb4871235372"
     },
     {
       "path": "release.json",
-      "bytes": 868,
-      "sha256": "5bf1be02929fe07e639c5e6e3f0b49b20e3aa093a9e50138cd93fd3d522abcf8"
-    },
-    {
-      "path": "supabase/config.toml",
-      "bytes": 1029,
-      "sha256": "7bc18f4ed0bf0469ec09159afb542e11e65f9b67c72f40689dfa8f20103b1a0d"
-    },
-    {
-      "path": "supabase/functions/create-internal-user/index.ts",
-      "bytes": 7167,
-      "sha256": "63d4c6cd5d3916aef36e45d4abf2a30f74adbac4da3c28070d909064441fb734"
-    },
-    {
-      "path": "supabase/functions/portal-account/index.ts",
-      "bytes": 7536,
-      "sha256": "ac19d40445b167f0f144c7e7cf69ec82370c0c19cf913703046243db16251796"
-    },
-    {
-      "path": "supabase/functions/portal-login/index.ts",
-      "bytes": 4590,
-      "sha256": "94d6ce19d6c23c816b54d3887af52e1d1d77baf1ba7c727ef7accbd8d9eae7b1"
-    },
-    {
-      "path": "supabase/functions/portal-onboarding/index.ts",
-      "bytes": 6627,
-      "sha256": "0609080016bced5cfa29456354bad1003401ac8c96086a14aed5119f60a9a583"
-    },
-    {
-      "path": "supabase/functions/portal-password-help/index.ts",
-      "bytes": 2862,
-      "sha256": "961b455ce3f6e4298dfa756ad3b7fae43d3567c721eade83064a389c36047693"
-    },
-    {
-      "path": "supabase/migrations/20261031135732_optional_member_email_v148.sql",
-      "bytes": 479,
-      "sha256": "d1b9f5dc198210db2e12a881cacc23334cd2a001fc8722a447dc8e63c3a3e3ff"
-    },
-    {
-      "path": "supabase/migrations/20261031144854_verified_activation_v149.sql",
-      "bytes": 8971,
-      "sha256": "af8d276770faff3ec0ab06284f267d24934bebe95ed5f44d2af92378c7649d58"
+      "bytes": 762,
+      "sha256": "f3da66b9d0c51313f2b840c71dbdb9c76b7ce89fe9e6aea523440b43ecc7b4b2"
     }
   ]
 }

@@ -122,7 +122,7 @@ export async function tagMsczNotes(input,options={}){
  target??=entries.find(x=>/\.mscx$/i.test(x.name)&&!/^Excerpts\//i.test(x.name));if(!target)fail('MSCX_MISSING');
  const source=decode.decode(await inflateEntry(target,options.inflateRaw));const tagged=tagNativeMscx(source,options);return {bytes:repack(entries,target.name,utf8.encode(tagged.xml)),notes:tagged.notes,scorePath:target.name};
 }
-export function readMusicXml(source,colors){
+export function readMusicXml(source,colors,{allowNoNotes=false}={}){
  const tree=parseXml(source),root=tree.children.find(x=>x.name==='score-partwise');if(!root)fail('MUSICXML_FORMAT');
  const byColor=new Map(colors.map(x=>[lower(x.color),x])),parts=[],notes=[],measureLengths=[],layoutSpans=[];
  const partDefs=new Map(kids(kid(root,'part-list')||{children:[]},'score-part').map(p=>[p.attrs.id,p]));let staffCount=0;
@@ -156,7 +156,7 @@ export function readMusicXml(source,colors){
   for(const m of measures)for(const n of m.notes)n.track=staffCount+num(n.staff,1)-1;
   parts.push({id:part.attrs.id,measures,staffOffset:staffCount,staves});staffCount+=staves;
  }
- if(!notes.length)fail('MUSICXML_COLOR_JOIN');return {notes,parts,measureLengths,layoutSpans,staffCount,warnings:[]};
+ if(!notes.length&&!allowNoNotes)fail('MUSICXML_COLOR_JOIN');return {notes,parts,measureLengths,layoutSpans,staffCount,warnings:[]};
 }
 export function parseMidi(input){
  const b=input instanceof Uint8Array?input:new Uint8Array(input),v=new DataView(b.buffer,b.byteOffset,b.byteLength),str=(p,n)=>String.fromCharCode(...b.subarray(p,p+n));

@@ -34,3 +34,7 @@ verify_jwt = false
 # Private scheduled worker authenticates with its Vault-held worker token.
 [functions.application-mail-worker]
 verify_jwt = false
+
+# Validates the current member JWT and owns first-login email verification.
+[functions.portal-onboarding]
+verify_jwt = false

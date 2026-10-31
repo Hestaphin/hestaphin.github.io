@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import {validateScoreArchive} from './model.mjs';
-import {tagMsczNotes,readMusicXml,parseMidi,buildPlaybackMap,noteGeometryFromSvg} from './note-map.mjs?v=1.48';
+import {tagMsczNotes,readMusicXml,parseMidi,buildPlaybackMap,noteGeometryFromSvg} from './note-map.mjs?v=1.49';
+import {buildRepeatPlan} from './repeat-playback.mjs?v=1.49';
 const vendor=new URL('./vendor/webmscore-4.6.5-build.1/',import.meta.url);
 async function browserMappingLibrary(){
  if(typeof globalThis.window==='undefined')globalThis.window={addEventListener(){},location:globalThis.location,encodeURIComponent:globalThis.encodeURIComponent};
@@ -24,7 +25,7 @@ export function createMappingEngine({loadLibrary=browserMappingLibrary,inflateRa
    staffOrder=music.parts.flatMap(p=>Array.from({length:p.staves},(_,i)=>({key:p.id+':'+(i+1)})));
    const map=buildPlaybackMap(music,positions,midi,{expandRepeats:false,strictOnsets:false});
    if(!map.notes.length&&!map.anchors.length)throw Error('NOTE_MAP_UNAVAILABLE');
-   return {pages:pageCount,notes:map.notes,anchors:map.anchors,measures:map.measures,durationMs:map.durationMs,warnings:map.warnings,diagnostics:map.diagnostics,playbackOrder:map.playbackOrder};
+   return {pages:pageCount,notes:map.notes,anchors:map.anchors,measures:map.measures,repeatPlan:buildRepeatPlan(map.measures,positions.events),durationMs:map.durationMs,warnings:map.warnings,diagnostics:map.diagnostics,playbackOrder:map.playbackOrder};
   },
   async page(index){if(!score||!Number.isSafeInteger(index)||index<0||index>=pageCount)throw Error('NOTE_MAP_UNAVAILABLE');return noteGeometryFromSvg(await score.saveSvg(index,true),identities,index,positions.elements,staffOrder);}
  };

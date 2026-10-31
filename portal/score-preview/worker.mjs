@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import { createScoreEngine } from './engine.mjs';
+import { createScoreEngine } from './engine.mjs?v=1.49';
 const engine = createScoreEngine();
 let ready = false, queue = Promise.resolve();
 const knownErrors = new Set(['SCORE_TOO_LARGE', 'SCORE_TOO_COMPLEX', 'INVALID_SCORE', 'UNSUPPORTED_SCORE', 'INVALID_PAGE', 'AUDIO_UNAVAILABLE']);

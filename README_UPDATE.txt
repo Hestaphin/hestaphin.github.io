@@ -1,20 +1,21 @@
-COPKU v1.48 — UPDATE FILES ONLY (for complete v1.46 or v1.47)
+COPKU v1.49 — UPDATE FILES ONLY (for complete v1.46, v1.47 or v1.48)
 
-Merge these files into your complete orchestra website folder, replacing
-matching files and keeping everything else. Deploy the entire merged folder to
-Netlify. Do not deploy this patch by itself. Hard-refresh with Ctrl+Shift+R or
-Command+Shift+R after deployment.
+Merge these files into your complete orchestra website folder, replacing matching
+files and keeping everything else. Deploy the entire merged folder to Netlify.
+Do not deploy this patch by itself. Hard-refresh with Ctrl+Shift+R or
+Command+Shift+R after deployment; close and reopen existing score previews.
 
-Administrators may leave Email empty when creating a new member. Give the member
-their username and temporary password. First-login activation remains mandatory.
-An administrator can add the first email later. Email recovery requires an email;
-existing email accounts keep the normal verified self-service change process.
+The current bar has a translucent pink background, independent of optional note
+highlighting. Playback follows MuseScore repeat counts and first/second endings.
+The seekbar uses written-score position and jumps backwards at repeats. Viewed
+instrument and scroll position remain preserved across page turns.
 
-Score page turns retain the viewed instrument and its screen position, with a
-relative-position fallback when that staff is hidden. Manual scrolling takes
-priority over late image or mapping responses. Existing bar/note highlighting,
-click-to-play and zoom remain available. The v1.47 bar highlight is included.
+New members must set their password AND verify an email with a six-digit code in
+the same mandatory activation task. Password setup alone leaves the task open.
+An administrator can still leave email empty at account creation. Existing pending
+tasks were updated; already activated members are not required to activate again.
 
-Supabase is already updated. No manual SQL or Edge Function deployment is needed.
-Included backend files record the installed changes; do not rerun the migration.
-Read UPDATE_FROM_v1.47.md for details and verification limits.
+Supabase is already updated. No manual SQL, Edge Function deployment or new sender
+configuration is needed. Existing Brevo settings send the verification codes.
+Included backend files record the installed changes; do not rerun migrations.
+Read UPDATE_FROM_v1.48.md for instructions, behavior and verification limits.

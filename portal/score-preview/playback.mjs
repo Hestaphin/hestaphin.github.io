@@ -36,10 +36,14 @@ export function createPlaybackIndex(input,{anchors=[],measures=[],maxReferences=
   occurrences(id){return occurrences.get(id)||[];}
  };
 }
-export function barHighlightSvg(geometry,id) {
+export function barHighlightBox(geometry,id) {
  if(!Array.isArray(geometry?.viewBox)||geometry.viewBox.length!==4||geometry.viewBox.some(v=>!Number.isFinite(v))||geometry.viewBox[2]<=0||geometry.viewBox[3]<=0)throw Error('NOTE_MAP_UNAVAILABLE');
  const b=geometry.measures?.find(m=>m.id===id)?.bounds;
  if(!b||![b.x,b.y,b.width,b.height].every(Number.isFinite)||b.width<=0||b.height<=0)throw Error('NOTE_MAP_UNAVAILABLE');
+ const [x,y,w,h]=geometry.viewBox;return {left:(b.x-x)/w*100,top:(b.y-y)/h*100,width:b.width/w*100,height:b.height/h*100,bounds:b};
+}
+export function barHighlightSvg(geometry,id) {
+ const b=barHighlightBox(geometry,id).bounds;
  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${geometry.viewBox.join(' ')}"><rect x="${b.x}" y="${b.y}" width="${b.width}" height="${b.height}" fill="#ff8080" opacity=".4"/></svg>`;
 }
 export function hitNote(geometry,x,y) {

@@ -1,3 +1,4 @@
+import {createActivationController} from './activation-ui.mjs?v=1.49';
 import {createUniformController} from './uniform-ui.mjs?v=1.46';
 import {createBookingController} from './booking-ui.mjs?v=1.46';
 import {portalPager, readAllRows} from './pagination.mjs?v=1.35';
@@ -25,6 +26,7 @@ let taskSeries = [];
 let view = 'Personal page', tab = 'New tasks', query = '', person = null, timer, busy = false;
 let completedFilter = 'all', replyNotices = [], unreadChats = [], noticeOpen = false, currentNotification = null, chatLimit = 500, contactQuery = '';
 let liveChannel, liveTimer, liveRefreshing=false, liveAgain=false;
+let activationController=null;
 let bookingController=null,bookingTab='Room',uniformController=null,materialTab='Uniform';
 let applicationTab='Orchestra applications',clubFilter='all',clubOffset=0,orchestraFilter='all',orchestraOffset=0,applicationRequest=0;
 const alertedRequests=new Set(),accountFilters=Object.fromEntries(MEMBER_FILTER_FIELDS.map(key=>[key,[]]));
@@ -148,6 +150,7 @@ function tabs(items, current = tab) {
 }
 function settingsTabs() { return tabs(me.role === 'admin' ? ['Settings', 'Accounts', 'Application', 'Shop orders'] : ['Settings'], view); }
 function render() {
+ activationController?.close();activationController=null;
   bookingController?.destroy();bookingController=null;uniformController?.destroy();uniformController=null;
   frame();
   const v = $('#portal-view');
@@ -277,19 +280,20 @@ function renderNoticeDock() {
 }
 function personalPage() {
  const fields=[['Name',me.full_name],['Username',me.username],['Email',me.email],['Department',me.department],['Occupation type',me.occupation_type],['Specific',me.instrument||'None'],['Classification',titleCase(me.classification)],['Rank',me.rank],['Status',titleCase(me.member_status)]];
- $('#portal-view').innerHTML=tabs(['Personal page'],'Personal page')+`<div class="personal-page"><h1>Personal page</h1><p class="portal-detail-meta">Your personnel information is maintained by the administrator.</p><dl class="personal-fields">${fields.map(([label,value])=>`<div><dt>${label}</dt><dd ${['Username','Email'].includes(label)?'data-user-content':''}>${label==='Name'?memberLabel(me.user_id):e(value||'Not assigned')}</dd></div>`).join('')}</dl>${me.activation_required?`<section class="activation-panel"><h2><span class="urgent">!</span>Activate your account</h2><p>Choose your own password to finish activation. No administrator approval is required.</p>${passwordForm('activation-form','Activate account')}</section>`:''}</div>`;
- if(me.activation_required)bindPasswordForm($('#activation-form'));
+ $('#portal-view').innerHTML=tabs(['Personal page'],'Personal page')+`<div class="personal-page"><h1>Personal page</h1><p class="portal-detail-meta">Your personnel information is maintained by the administrator.</p><dl class="personal-fields">${fields.map(([label,value])=>`<div><dt>${label}</dt><dd ${['Username','Email'].includes(label)?'data-user-content':''}>${label==='Name'?memberLabel(me.user_id):e(value||'Not assigned')}</dd></div>`).join('')}</dl>${me.activation_required?`<section class="activation-panel" id="activation-panel"></section>`:''}</div>`;
+ if(me.activation_required)mountActivationPanel();
 }
+function mountActivationPanel(){return activationController=createActivationController({container:$('#activation-panel'),member:()=>me,invoke:body=>callService('portal-onboarding',body),savePassword:password=>result(db.auth.updateUser({password})),onChanged:async()=>{await db.auth.refreshSession?.();await load();render();},status,demo});}
 function passwordForm(id,label) {return `<form id="${id}" class="portal-password-form"><label>New password<input name="password" type="password" minlength="8" maxlength="128" autocomplete="new-password" required></label><label>Confirm password<input name="confirm" type="password" minlength="8" maxlength="128" autocomplete="new-password" required></label><button>${label}</button></form>`;}
 function bindPasswordForm(form) {
- form.onsubmit=ev=>{ev.preventDefault();run(async()=>{const fd=new FormData(form);if(fd.get('password')!==fd.get('confirm'))throw Error('Passwords do not match.');const activating=me.activation_required;await result(db.auth.updateUser({password:fd.get('password')}));await load();render();status(demo ? (activating?'Sample account activated. No real password was changed.':'Demo: no real password was changed.') : (activating?'Account activated. Your activation task is complete.':'Password changed.'));});};
+ form.onsubmit=ev=>{ev.preventDefault();run(async()=>{const fd=new FormData(form);if(fd.get('password')!==fd.get('confirm'))throw Error('Passwords do not match.');const activating=me.activation_required;await result(db.auth.updateUser({password:fd.get('password')}));await load();render();status(demo ? (activating?'Sample account activated. No real password was changed.':'Demo: no real password was changed.') : (activating?(me.activation_required?'Password saved. Verify your email to finish activation.':'Account activated. Your activation task is complete.'):'Password changed.'));});};
 }
 const systemTaskButtonLabel=action=>({club_approval:'Review registration',orchestra_application:'Review application',uniform_application:'Review uniform application',password_activation:'Activate account'}[action]||'Review task');
 function openSystemTask(t) {
  if(t.system_action==='club_approval'){view='Application';applicationTab='Club approvals';clubFilter='pending';clubOffset=0;render();}
  else if(t.system_action==='orchestra_application'){view='Application';applicationTab='Orchestra applications';render();orchestraApplicationDetail(t.system_target);}
  else if(t.system_action==='uniform_application'){view='Material';materialTab='Uniform';render();uniformController.openRequest(t.system_target).catch(err=>status(err.message,true));}
- else if(t.system_action==='password_activation'){view='Personal page';render();$('#activation-form input')?.focus();}
+ else if(t.system_action==='password_activation'){view='Personal page';render();$('#activation-panel input')?.focus();}
 }
 
 function matches(...values) { return values.join(' ').toLowerCase().includes(query); }
@@ -352,7 +356,7 @@ function bindScorePreviews() {
   $$('[data-score-preview]').forEach(button => button.onclick = async () => {
     button.disabled = true;
     try {
-      const { openScorePreview } = await import('./score-preview/preview.mjs?v=1.48');
+      const { openScorePreview } = await import('./score-preview/preview.mjs?v=1.49');
       const { scoreBucket: bucket, scorePath: path, scoreName: name } = button.dataset;
       if (!['portal-files', 'portal-notification-files'].includes(bucket)) throw Error('Attachment unavailable.');
       openScorePreview({ name, opener: button, fetchScore: async signal => {
@@ -592,6 +596,7 @@ async function openChat(id, {preserveComposer=false}={}) {
 }
 
 function settings() {
+ if(me.activation_required){$('#portal-view').innerHTML=settingsTabs()+'<div class="portal-settings-content"><h1>Settings</h1><section class="activation-panel" id="activation-panel"></section></div>';mountActivationPanel();return;}
  $('#portal-view').innerHTML=settingsTabs()+`<div class="portal-settings-content"><h1>Settings</h1><h2>${me.activation_required?'Activate your account':'Change password'}</h2>${me.activation_required?'<p>Your first password setting activates your account without administrator approval.</p>':''}${passwordForm('password-form',me.activation_required?'Activate account':'Save password')}<h2>Change your email</h2><p>Current email: ${e(me.email||'Not assigned')}</p>${me.email?`<form id="email-form" class="portal-password-form"><label>New email<input name="email" type="email" maxlength="254" autocomplete="email" required></label><button>Send verification</button></form><p class="portal-detail-meta">Your email changes after you confirm the verification link. Personnel details are maintained by the administrator.</p>`:'<p>No email is set. An administrator can add one in Accounts. Sign in with your username.</p>'}</div>`;
  bindPasswordForm($('#password-form'));
  if(me.email)$('#email-form').onsubmit=ev=>{ev.preventDefault();run(async()=>{const email=String(new FormData(ev.target).get('email')).trim().toLowerCase();if(email===me.email.toLowerCase())throw Error('Enter a different email address.');await result(db.auth.updateUser({email},{emailRedirectTo:location.origin+'/portal/internal/'}));ev.target.reset();status(demo?'Demo: no verification email was sent. Your sample email is unchanged.':'Verification requested. Check your new email and, if requested, your current email. Your current email remains in use until confirmation.');});};
@@ -642,7 +647,7 @@ function drawMemberRows() {
  $$('[data-remove]').forEach(b=>b.onclick=()=>modal('Delete account',`<p>Delete <span data-user-content>${name(b.dataset.remove)}</span> and their portal records?</p>`,[['Delete',async()=>{await callService('delete-internal-user',{user_id:b.dataset.remove});await load();render();}]]));
 }
 function accounts() {
- $('#portal-view').innerHTML=settingsTabs()+`<div class="portal-settings-content accounts-content"><h1>Orchestra accounts</h1><form id="account-form">${memberFormHtml({},true)}<p class="portal-detail-meta">The member signs in with the temporary password and chooses their own password to activate. No approval is required for first-time activation.</p><button>Create member</button></form><h2>Members</h2>${accountFilterBar()}<p class="table-help">Click a value to edit.</p><div class="portal-table-wrap"><table class="portal-table admin-table member-directory"><caption class="portal-vh">Orchestra members</caption><colgroup><col style="width:10%"><col style="width:8%"><col style="width:16%"><col style="width:10%"><col style="width:11%"><col style="width:8%"><col style="width:8%"><col style="width:11%"><col style="width:6%"><col style="width:12%"></colgroup><thead><tr>${memberColumns.map(([,label])=>`<th scope="col">${label}</th>`).join('')}<th scope="col">Actions</th></tr></thead><tbody id="member-directory-body"></tbody></table></div></div>`;
+ $('#portal-view').innerHTML=settingsTabs()+`<div class="portal-settings-content accounts-content"><h1>Orchestra accounts</h1><form id="account-form">${memberFormHtml({},true)}<p class="portal-detail-meta">The member signs in with the temporary password, sets their own password and verifies their email in the activation task. No administrator approval is required.</p><button>Create member</button></form><h2>Members</h2>${accountFilterBar()}<p class="table-help">Click a value to edit.</p><div class="portal-table-wrap"><table class="portal-table admin-table member-directory"><caption class="portal-vh">Orchestra members</caption><colgroup><col style="width:10%"><col style="width:8%"><col style="width:16%"><col style="width:10%"><col style="width:11%"><col style="width:8%"><col style="width:8%"><col style="width:11%"><col style="width:6%"><col style="width:12%"></colgroup><thead><tr>${memberColumns.map(([,label])=>`<th scope="col">${label}</th>`).join('')}<th scope="col">Actions</th></tr></thead><tbody id="member-directory-body"></tbody></table></div></div>`;
  drawMemberRows();bindMemberForm($('#account-form'));
  bindMemberFilterControls(accountFilters,'member',drawMemberRows);
  $('#account-form').onsubmit=ev=>{ev.preventDefault();run(async()=>{const body=Object.fromEntries(new FormData(ev.target));validateMember(body,{creating:true});await callService('create-internal-user',body);await load();render();status('Member created with an urgent mandatory activation task. Give them their username and temporary password.');});};

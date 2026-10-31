@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import {createMappingEngine} from './mapping-engine.mjs?v=1.48';
+import {createMappingEngine} from './mapping-engine.mjs?v=1.49';
 const engine=createMappingEngine();let loaded=false,queue=Promise.resolve();
 self.onmessage=({data})=>{
  if(!data||!Number.isSafeInteger(data.id))return;

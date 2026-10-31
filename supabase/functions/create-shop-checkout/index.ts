@@ -1,7 +1,10 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 
 export function createShopHandler(makeClient = createClient, env = Deno.env, requestFetch = fetch) {
-  const catalogue = new Map([['chopin-theme-textbook', { priceCents: 500, currency: 'usd', priceSecret: 'SHOP_CHOPIN_STRIPE_PRICE_ID' }]]);
+  const catalogue = new Map([
+    ['chopin-theme-textbook', { priceCents: 400, currency: 'usd', priceSecret: 'SHOP_CHOPIN_USD_400_STRIPE_PRICE_ID', priceId: 'price_1UWfavGdgIKGS7dTRgwd1ZF8', productId: 'prod_VUZ2swrv0MfrI5' }],
+    ['debussy-theme-textbook', { priceCents: 400, currency: 'usd', priceSecret: 'SHOP_DEBUSSY_USD_400_STRIPE_PRICE_ID', priceId: 'price_1UWfapGdgIKGS7dTn7Ub3G8Y', productId: 'prod_VXl74FL38XhagA' }]
+  ]);
   const requestPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
   const sessionPattern = /^cs_(?:test_|live_)?[A-Za-z0-9]+$/;
   const get = name => String(env.get(name) || '').trim();
@@ -46,21 +49,21 @@ export function createShopHandler(makeClient = createClient, env = Deno.env, req
         if(applied.error)throw applied.error;
         return respond(applied.data);
       }
-      const items=body.action==='health'?[{id:'chopin-theme-textbook',quantity:1}]:itemsFrom(body.items);
+      const items=body.action==='health'?[...catalogue.keys()].map(id=>({id,quantity:1})):itemsFrom(body.items);
       if(!['create','health'].includes(body.action)||!items||(body.action!=='health'&&!['cart','buy'].includes(body.source)))return respond({error:'Invalid cart.'},400);
       const currency=(get('SHOP_CURRENCY')||'usd').toLowerCase();
       if(items.some(line=>catalogue.get(line.id).currency!==currency))return respond({error:'The shop currency is not configured correctly.',code:'SHOP_CURRENCY'},503);
       const amount=items.reduce((sum,line)=>sum+catalogue.get(line.id).priceCents*line.quantity,0);
       const priceIds=[];
       for(const line of items) {
-        const item=catalogue.get(line.id),id=get(item.priceSecret)||'price_1UTZupGdgIKGS7dTpEQZ5kaE';
+        const item=catalogue.get(line.id),id=get(item.priceSecret)||item.priceId;
         if(!/^price_[A-Za-z0-9]+$/.test(id))return respond({error:'This item is not ready for checkout. Please contact the orchestra.',code:'SHOP_PRICE_MISSING'},503);
         const price=await stripe('/prices/'+encodeURIComponent(id));
-        if(!price.active||price.type!=='one_time'||price.currency!==currency||price.unit_amount!==item.priceCents)return respond({error:'This item’s Stripe price does not match the shop.',code:'SHOP_PRICE_MISMATCH'},503);
+        if(!price.active||price.type!=='one_time'||price.currency!==currency||price.unit_amount!==item.priceCents||price.product!==item.productId)return respond({error:'This item’s Stripe price does not match the shop.',code:'SHOP_PRICE_MISMATCH'},503);
         priceIds.push(id);
       }
-      if(body.action==='health'){const check=await db.from('shop_orders').select('id').limit(1);if(check.error)throw Error('Shop database unavailable');return respond({ready:true,currency,unit_amount:500,shipping_required:true,shipping_country_count:shippingCountries().length});}
-      const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify({origin,items,currency,source:body.source,shipping_required:true})));
+      if(body.action==='health'){const check=await db.from('shop_orders').select('id').limit(1);if(check.error)throw Error('Shop database unavailable');return respond({ready:true,currency,unit_amount:400,products:items.map(line=>({id:line.id,unit_amount:catalogue.get(line.id).priceCents,currency})),shipping_required:true,shipping_country_count:shippingCountries().length});}
+      const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify({origin,items,currency,source:body.source,shipping_required:true,price_ids:priceIds,amount_subtotal:amount})));
       const fingerprint=Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');
       let {data:order,error}=await db.from('shop_orders').insert({id:crypto.randomUUID(),request_id:body.request_id,fingerprint,site_origin:origin,items,amount_subtotal:amount,currency}).select('*').single();
       if(error?.code==='23505')({data:order,error}=await db.from('shop_orders').select('*').eq('request_id',body.request_id).single());

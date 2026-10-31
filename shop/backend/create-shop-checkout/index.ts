@@ -1,10 +1,15 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 
 export function createShopHandler(makeClient = createClient, env = Deno.env, requestFetch = fetch) {
-  const catalogue = new Map([['chopin-theme-textbook', { priceCents: 500, currency: 'usd', priceSecret: 'SHOP_CHOPIN_STRIPE_PRICE_ID' }]]);
+  const catalogue = new Map([
+    ['chopin-theme-textbook', { priceCents: 400, currency: 'usd', priceSecret: 'SHOP_CHOPIN_USD_400_STRIPE_PRICE_ID', priceId: 'price_1UWfavGdgIKGS7dTRgwd1ZF8', productId: 'prod_VUZ2swrv0MfrI5' }],
+    ['debussy-theme-textbook', { priceCents: 400, currency: 'usd', priceSecret: 'SHOP_DEBUSSY_USD_400_STRIPE_PRICE_ID', priceId: 'price_1UWfapGdgIKGS7dTn7Ub3G8Y', productId: 'prod_VXl74FL38XhagA' }]
+  ]);
   const requestPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
   const sessionPattern = /^cs_(?:test_|live_)?[A-Za-z0-9]+$/;
   const get = name => String(env.get(name) || '').trim();
+  const supportedShippingCountries = new Set('AC,AD,AE,AF,AG,AI,AL,AM,AO,AQ,AR,AT,AU,AW,AX,AZ,BA,BB,BD,BE,BF,BG,BH,BI,BJ,BL,BM,BN,BO,BQ,BR,BS,BT,BV,BW,BY,BZ,CA,CD,CF,CG,CH,CI,CK,CL,CM,CN,CO,CR,CV,CW,CY,CZ,DE,DJ,DK,DM,DO,DZ,EC,EE,EG,EH,ER,ES,ET,FI,FJ,FK,FO,FR,GA,GB,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GR,GS,GT,GU,GW,GY,HK,HN,HR,HT,HU,ID,IE,IL,IM,IN,IO,IQ,IS,IT,JE,JM,JO,JP,KE,KG,KH,KI,KM,KN,KR,KW,KY,KZ,LA,LB,LC,LI,LK,LR,LS,LT,LU,LV,LY,MA,MC,MD,ME,MF,MG,MK,ML,MM,MN,MO,MQ,MR,MS,MT,MU,MV,MW,MX,MY,MZ,NA,NC,NE,NG,NI,NL,NO,NP,NR,NU,NZ,OM,PA,PE,PF,PG,PH,PK,PL,PM,PN,PR,PS,PT,PY,QA,RE,RO,RS,RU,RW,SA,SB,SC,SD,SE,SG,SH,SI,SJ,SK,SL,SM,SN,SO,SR,SS,ST,SV,SX,SZ,TA,TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TR,TT,TV,TW,TZ,UA,UG,US,UY,UZ,VA,VC,VE,VG,VN,VU,WF,WS,XK,YE,YT,ZA,ZM,ZW'.split(','));
+  const shippingCountries = () => { const configured=get('SHOP_SHIPPING_COUNTRIES'); const values=configured?configured.split(',').map(v=>v.trim().toUpperCase()).filter(Boolean):[...supportedShippingCountries]; if(!values.length||values.some(v=>!supportedShippingCountries.has(v)))throw Error('Invalid shipping countries'); return [...new Set(values)]; };
   function serverKey() { if (get('SUPABASE_SERVICE_ROLE_KEY')) return get('SUPABASE_SERVICE_ROLE_KEY'); try { const k = JSON.parse(get('SUPABASE_SECRET_KEYS') || '{}'); return k.default || Object.values(k)[0]; } catch { return ''; } }
   function itemsFrom(value) {
     if (!Array.isArray(value) || !value.length || value.length > 10) return null;
@@ -44,21 +49,21 @@ export function createShopHandler(makeClient = createClient, env = Deno.env, req
         if(applied.error)throw applied.error;
         return respond(applied.data);
       }
-      const items=body.action==='health'?[{id:'chopin-theme-textbook',quantity:1}]:itemsFrom(body.items);
+      const items=body.action==='health'?[...catalogue.keys()].map(id=>({id,quantity:1})):itemsFrom(body.items);
       if(!['create','health'].includes(body.action)||!items||(body.action!=='health'&&!['cart','buy'].includes(body.source)))return respond({error:'Invalid cart.'},400);
       const currency=(get('SHOP_CURRENCY')||'usd').toLowerCase();
       if(items.some(line=>catalogue.get(line.id).currency!==currency))return respond({error:'The shop currency is not configured correctly.',code:'SHOP_CURRENCY'},503);
       const amount=items.reduce((sum,line)=>sum+catalogue.get(line.id).priceCents*line.quantity,0);
       const priceIds=[];
       for(const line of items) {
-        const item=catalogue.get(line.id),id=get(item.priceSecret)||'price_1UTZupGdgIKGS7dTpEQZ5kaE';
+        const item=catalogue.get(line.id),id=get(item.priceSecret)||item.priceId;
         if(!/^price_[A-Za-z0-9]+$/.test(id))return respond({error:'This item is not ready for checkout. Please contact the orchestra.',code:'SHOP_PRICE_MISSING'},503);
         const price=await stripe('/prices/'+encodeURIComponent(id));
-        if(!price.active||price.type!=='one_time'||price.currency!==currency||price.unit_amount!==item.priceCents)return respond({error:'This item’s Stripe price does not match the shop.',code:'SHOP_PRICE_MISMATCH'},503);
+        if(!price.active||price.type!=='one_time'||price.currency!==currency||price.unit_amount!==item.priceCents||price.product!==item.productId)return respond({error:'This item’s Stripe price does not match the shop.',code:'SHOP_PRICE_MISMATCH'},503);
         priceIds.push(id);
       }
-      if(body.action==='health'){const check=await db.from('shop_orders').select('id').limit(1);if(check.error)throw Error('Shop database unavailable');return respond({ready:true,currency,unit_amount:500});}
-      const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify({origin,items,currency,source:body.source})));
+      if(body.action==='health'){const check=await db.from('shop_orders').select('id').limit(1);if(check.error)throw Error('Shop database unavailable');return respond({ready:true,currency,unit_amount:400,products:items.map(line=>({id:line.id,unit_amount:catalogue.get(line.id).priceCents,currency})),shipping_required:true,shipping_country_count:shippingCountries().length});}
+      const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify({origin,items,currency,source:body.source,shipping_required:true,price_ids:priceIds,amount_subtotal:amount})));
       const fingerprint=Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');
       let {data:order,error}=await db.from('shop_orders').insert({id:crypto.randomUUID(),request_id:body.request_id,fingerprint,site_origin:origin,items,amount_subtotal:amount,currency}).select('*').single();
       if(error?.code==='23505')({data:order,error}=await db.from('shop_orders').select('*').eq('request_id',body.request_id).single());
@@ -66,12 +71,12 @@ export function createShopHandler(makeClient = createClient, env = Deno.env, req
       if(order.fingerprint!==fingerprint)return respond({error:'Your checkout changed. Please try again.',code:'CHECKOUT_CHANGED'},409);
       if(order.stripe_checkout_session_id) {
         const existing=await stripe('/checkout/sessions/'+encodeURIComponent(order.stripe_checkout_session_id));
-        if(existing.status==='open'&&existing.url)return respond({url:existing.url,session_id:existing.id,order_id:order.id});
+        if(existing.status==='open'&&existing.url&&existing.shipping_address_collection?.allowed_countries?.length)return respond({url:existing.url,session_id:existing.id,order_id:order.id});
         return respond({error:'This checkout has ended. Please start a new checkout.',code:'CHECKOUT_ENDED'},409);
       }
-      const params=new URLSearchParams({mode:'payment',integration_identifier:'copku_shop_'+order.id.replace(/[^a-z]/gi,'').padEnd(8,'a').slice(0,8),customer_creation:'always',success_url:`${origin}/shop/?checkout=return&session_id={CHECKOUT_SESSION_ID}`,cancel_url:`${origin}/shop/?checkout=cancel`,'custom_text[submit][message]':'The orchestra will contact you to arrange delivery.','metadata[puco_shop]':'v2','metadata[order_id]':order.id,'metadata[request_id]':body.request_id,'metadata[site_origin]':origin,'metadata[source]':body.source,'metadata[items]':JSON.stringify(items)});
+      const params=new URLSearchParams({mode:'payment',integration_identifier:'copku_shop_'+order.id.replace(/[^a-z]/gi,'').padEnd(8,'a').slice(0,8),customer_creation:'always',success_url:`${origin}/shop/?checkout=return&session_id={CHECKOUT_SESSION_ID}`,cancel_url:`${origin}/shop/?checkout=cancel`,'custom_text[submit][message]':'Enter your complete delivery address, including building or apartment details when needed. The orchestra will contact you to arrange delivery.','metadata[puco_shop]':'v2','metadata[order_id]':order.id,'metadata[request_id]':body.request_id,'metadata[site_origin]':origin,'metadata[source]':body.source,'metadata[items]':JSON.stringify(items)});
       items.forEach((line,index)=>{params.set(`line_items[${index}][price]`,priceIds[index]);params.set(`line_items[${index}][quantity]`,String(line.quantity));});
-      get('SHOP_SHIPPING_COUNTRIES').split(',').map(x=>x.trim().toUpperCase()).filter(x=>/^[A-Z]{2}$/.test(x)).forEach((country,index)=>params.set(`shipping_address_collection[allowed_countries][${index}]`,country));
+      shippingCountries().forEach((country,index)=>params.set(`shipping_address_collection[allowed_countries][${index}]`,country));
       const session=await stripe('/checkout/sessions',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':'copku-shop-'+body.request_id},body:params});
       if(!sessionPattern.test(session.id||'')||!session.url)throw Error('Invalid Stripe checkout response');
       const updated=await db.from('shop_orders').update({stripe_checkout_session_id:session.id}).eq('id',order.id);

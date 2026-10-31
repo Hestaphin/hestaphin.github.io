@@ -1,4 +1,4 @@
-import { productById } from './shop-data.mjs';
+import { productById } from './shop-data.mjs?v=1.51';
 
 export const CART_KEY = 'puco-shop-cart-v1';
 export const SELECTION_KEY = 'puco-shop-selection-v1';

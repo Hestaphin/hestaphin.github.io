@@ -8,8 +8,19 @@ export const products = [{
   imageAlt: 'Chopin theme textbook cover with a portrait of Frédéric Chopin',
   imageWidth: 1552,
   imageHeight: 2048,
-  priceCents: 500,
+  priceCents: 400,
   paragraphs: ['Chopin theme textbook, with a portrait of Frédéric Chopin on the cover.'],
+  date: null
+}, {
+  id: 'debussy-theme-textbook',
+  title: 'Debussy theme textbook',
+  url: '/shop/debussy-theme-textbook/',
+  image: '/assets/shop-debussy-cover.png',
+  imageAlt: 'Debussy theme textbook cover with Claude Debussy lettering and a musical manuscript',
+  imageWidth: 1552,
+  imageHeight: 2048,
+  priceCents: 400,
+  paragraphs: ['Debussy theme textbook, with a Claude Debussy cover design.'],
   date: null
 }];
 

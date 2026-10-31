@@ -1,15 +1,16 @@
-COPKU v1.50 — UPDATE FILES ONLY (for complete v1.49)
+COPKU v1.51 — UPDATE FILES ONLY (for complete v1.50)
 
-Merge these files into your complete v1.49 orchestra website folder, replacing
+Merge these files into your complete v1.50 orchestra website folder, replacing
 matching files and keeping everything else. Deploy the entire merged folder to
-Netlify. Do not deploy this small patch by itself. Hard-refresh with Ctrl+Shift+R
-or Command+Shift+R after deployment; close and reopen existing score previews.
+Netlify. Do not deploy this update ZIP by itself. Hard-refresh after deployment.
 
-Upcoming score pages are rendered and decoded before the music reaches them.
-The next pages follow the native repeat/ending itinerary, including backwards
-returns. A ready page swaps in at the playback boundary while keeping your viewed
-instrument and scroll position. The first upcoming page is prepared before audio
-starts. A six-page reusable buffer bounds memory use and cleans up old images.
+Debussy theme textbook: US$4.00, using your unmodified cover image.
+Chopin theme textbook: US$4.00.
+Both books work in product pages, search, mixed carts and admin order labels.
 
-No Supabase, Brevo or Stripe changes are needed. The separate email site is
-unchanged. Read UPDATE_FROM_v1.49.md for behavior, checks and timing limitations.
+Stripe and Supabase are already updated. The old US$5 Chopin price is archived
+for new purchases. Existing paid order amounts are preserved. No manual SQL,
+price setup, secrets or Edge Function deployment is needed. Backend files are
+source records of the installed checkout function v7.
+
+Read UPDATE_FROM_v1.50.md for installation details and verification limits.

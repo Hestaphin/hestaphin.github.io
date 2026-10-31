@@ -1,4 +1,4 @@
-import { formatPrice } from './shop-data.mjs';
+import { formatPrice } from './shop-data.mjs?v=1.51';
 
 export function cartIcon() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

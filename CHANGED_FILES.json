@@ -1,46 +1,109 @@
 {
-  "version": "1.50",
-  "base_commit": "a0b6dfed0d95fb3a95da596efd2b4f9be909ad28",
+  "version": "1.51",
+  "base_commit": "a15ba13ac9be8f85f55429c62898d70ccca6e6cb",
   "supported_base_versions": [
-    "1.49"
+    "1.50"
   ],
   "distribution": "update-only",
-  "supabase_changes_required": false,
+  "manual_supabase_changes_required": false,
+  "backend_already_applied": {
+    "project_id": "mqthckhoxtqtyuhtdunl",
+    "functions": {
+      "create-shop-checkout": 7
+    }
+  },
+  "stripe_live_catalogue": {
+    "chopin-theme-textbook": {
+      "usd_cents": 400,
+      "product_id": "prod_VUZ2swrv0MfrI5",
+      "price_id": "price_1UWfavGdgIKGS7dTRgwd1ZF8"
+    },
+    "debussy-theme-textbook": {
+      "usd_cents": 400,
+      "product_id": "prod_VXl74FL38XhagA",
+      "price_id": "price_1UWfapGdgIKGS7dTn7Ub3G8Y"
+    }
+  },
   "files": [
     {
-      "path": "UPDATE_FROM_v1.49.md",
-      "bytes": 3535,
-      "sha256": "a2dbe390158152b55bad91c72ba7aae652835e713eb184987d2024991f59b2d1"
+      "path": "UPDATE_FROM_v1.50.md",
+      "bytes": 3528,
+      "sha256": "9f55307facfcb3bbfbe323715137a55da152bcf7df3b7b9cb2e586f5eff3e7f1"
+    },
+    {
+      "path": "assets/shop-debussy-cover.png",
+      "bytes": 2632066,
+      "sha256": "68db9f7cda60a2bd478544c1a96171b08302b3ffb4d029e30dcd2f3c2a82694f"
+    },
+    {
+      "path": "events/events.js",
+      "bytes": 20010,
+      "sha256": "2f421c1185f25f876782d3fd85d0903b30432d7653ba0ffb8adbe4213875e55b"
+    },
+    {
+      "path": "language.js",
+      "bytes": 54350,
+      "sha256": "40b5a65f0d4c0a3c97520c9d3f5adf3ecb5d94af47ebadce7608b52cc0f93661"
     },
     {
       "path": "portal/internal/index.html",
       "bytes": 14380,
-      "sha256": "1c6352a10de19f5e49168fefda2b350f77b3d3e0226af9a20f3f55cfcf6ecb68"
+      "sha256": "94e1eb1a4518087e64646f2d2a28baad5c8813c0b24a08ac2cce73a57979080b"
     },
     {
       "path": "portal/portal.js",
-      "bytes": 108180,
-      "sha256": "2806ec75c117c504cb5c84035e74f482efc1b86199a6748235a479d2061e2564"
-    },
-    {
-      "path": "portal/score-preview/licences.html",
-      "bytes": 4284,
-      "sha256": "faa07db33b0c5a844ac5b6ab6435184d8b74eb34e6ce5fb84502834aaf3a555e"
-    },
-    {
-      "path": "portal/score-preview/page-buffer.mjs",
-      "bytes": 2311,
-      "sha256": "d94524e5182ce83f6abd6854925fb7ad2eb98be95115d7bba259ebbbc52ac429"
-    },
-    {
-      "path": "portal/score-preview/preview.mjs",
-      "bytes": 28875,
-      "sha256": "c598bc6a9b09c70325c4a2dc66a57302e930bcf35857fd358efebb4871235372"
+      "bytes": 108249,
+      "sha256": "42888821a072cf4bc1cc82940f4fb683bc33a08426564b589dde23cc6922616d"
     },
     {
       "path": "release.json",
-      "bytes": 762,
-      "sha256": "f3da66b9d0c51313f2b840c71dbdb9c76b7ce89fe9e6aea523440b43ecc7b4b2"
+      "bytes": 823,
+      "sha256": "c70cf421ca351ad305ad3b7200d723dfefe24f41ec0676ae60d8c29d74d001ef"
+    },
+    {
+      "path": "shop/backend/create-shop-checkout/index.ts",
+      "bytes": 10295,
+      "sha256": "845af612e44966870a199001cb9db86a2bb649dcee5d8533f045c8480bae3d97"
+    },
+    {
+      "path": "shop/chopin-theme-textbook/index.html",
+      "bytes": 19387,
+      "sha256": "aaf943356cd6d679f6d8cf08f9e5ab80cb963b1163814200c9bdf7e1f107dec6"
+    },
+    {
+      "path": "shop/debussy-theme-textbook/index.html",
+      "bytes": 19404,
+      "sha256": "d6995813e80c5f5e761f509bd51662139898f97ee9ca2832c37c9a15ee8699ae"
+    },
+    {
+      "path": "shop/index.html",
+      "bytes": 20615,
+      "sha256": "46b89725fcb61546507684254a49af47773b571619e118266c5d5d3edc11a7bb"
+    },
+    {
+      "path": "shop/shop-data.mjs",
+      "bytes": 1118,
+      "sha256": "12bb5636a1b3518ae9bc6701c113f55c8c3821fea569e2105b3607bb1c35183a"
+    },
+    {
+      "path": "shop/shop-model.mjs",
+      "bytes": 3048,
+      "sha256": "82788103d2533cd2fc5f29653dcdd0b209ca63f52f705fee6d63aa7f3c1bacc0"
+    },
+    {
+      "path": "shop/shop-render.mjs",
+      "bytes": 2693,
+      "sha256": "a3506ff33ec1b7b498aa57bac95b525e1b213b9cbd01b38798cc8b73c9a190f1"
+    },
+    {
+      "path": "shop/shop.js",
+      "bytes": 14202,
+      "sha256": "e4efd8a65eb56d2949e1c92a5261aa4815640b9c88cdc1c302bebb95426108d5"
+    },
+    {
+      "path": "supabase/functions/create-shop-checkout/index.ts",
+      "bytes": 10295,
+      "sha256": "845af612e44966870a199001cb9db86a2bb649dcee5d8533f045c8480bae3d97"
     }
   ]
 }

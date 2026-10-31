@@ -3,8 +3,8 @@ import { activities } from '../about/about-data.mjs';
 import { lessons } from '../learn/learn-data.mjs?v=1.30';
 import { opportunityActivities, pathways } from '../opportunities/opportunities-data.mjs?v=1.30';
 import { opportunityCategories, opportunityCategoryURL, opportunityCategoryFromLocation, legacyOpportunityCategory } from '../opportunities/opportunities-routes.mjs?v=1.30';
-import { products } from '../shop/shop-data.mjs';
-import { productCard } from '../shop/shop-render.mjs';
+import { products } from '../shop/shop-data.mjs?v=1.51';
+import { productCard } from '../shop/shop-render.mjs?v=1.51';
 import { seasons, latestSelectableYear, validateFilters, filterEvents, filterActivityCategory, sortEvents, groupByMonth, formatEventDate, createViewState, reduceView } from './events-model.mjs';
 
 const $ = (selector) => document.querySelector(selector);

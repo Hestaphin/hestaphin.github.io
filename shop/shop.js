@@ -1,5 +1,5 @@
-import { productById, formatPrice } from './shop-data.mjs?v=1.23';
-import { CART_KEY, SELECTION_KEY, PENDING_KEY, MAX_QUANTITY, normalizeCart, readCart, writeCart, readSelection, selectedItems, addProduct, setQuantity, cartSummary, subtractPurchased, trustedCheckoutUrl } from './shop-model.mjs';
+import { productById, formatPrice } from './shop-data.mjs?v=1.51';
+import { CART_KEY, SELECTION_KEY, PENDING_KEY, MAX_QUANTITY, normalizeCart, readCart, writeCart, readSelection, selectedItems, addProduct, setQuantity, cartSummary, subtractPurchased, trustedCheckoutUrl } from './shop-model.mjs?v=1.51';
 import { invokeShopCheckout } from './shop-checkout.mjs?v=1.23';
 
 const $ = (selector) => document.querySelector(selector);

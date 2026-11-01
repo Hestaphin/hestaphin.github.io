@@ -522,3 +522,57 @@ body.orchestra-portal:has(#portal-view[data-section="notifications"]){--portal-t
 .notification-category-tag{font-size:13px;border:1px solid #ccc;padding:2px 6px;margin-right:7px;color:#555}
 .portal-discussion-editor select{font:inherit;max-width:250px;padding:7px 8px;border:1px solid #999;background:#fff}
 @media(max-width:700px){.orchestra-portal #portal-view[data-section="notifications"]>.portal-bar .portal-tabs button{font-size:16px;min-width:105px;padding:5px 8px}.notification-list-panel{padding:8px 10px 18px}.notification-compose-panel{padding:14px 12px}.notification-compose-heading{grid-template-columns:1fr;gap:0}}
+
+/* v1.56: readable discussion controls and a compact notification detail view. */
+.portal-discussion-editor{color-scheme:light;font-size:16px;line-height:1.45}
+.portal-discussion-editor h2{font-size:26px;margin-bottom:22px}
+#discussion-edit-form{gap:14px}
+#discussion-edit-form label,#discussion-edit-form p{font-size:15px}
+.portal-discussion-editor #discussion-edit-form :is(input:not([type=file]),select,textarea){color:#111;background:#fff;border:1px solid #aaa;font:400 16px/1.4 var(--portal-font,"Times New Roman",Times,serif);padding:7px 9px;border-radius:0}
+.portal-discussion-editor #discussion-edit-form :is(input:not([type=file]),select){min-height:36px}
+.portal-discussion-editor #discussion-edit-form textarea{min-height:160px;margin-top:0}
+.portal-discussion-editor select option{color:#111;background:#fff}
+.portal-discussion-editor .selected-files{gap:8px 12px}
+.portal-discussion-editor .selected-file{max-width:100%;font-size:14px}
+.portal-discussion-editor .selected-file>span{max-width:min(360px,58vw)}
+.portal-discussion-editor .selected-file button,.portal-discussion-editor input::file-selector-button{color:#111;background:#fff;border:1px solid #aaa;font:inherit;padding:4px 8px;cursor:pointer}
+.portal-discussion-editor .dialog-actions{justify-content:flex-end;gap:10px;margin-top:22px}
+.portal-discussion-editor .dialog-actions button{color:#fff;background:#000;border:1px solid #aaa;font-size:16px;line-height:1.4;padding:6px 14px;min-height:36px}
+.portal-discussion-editor .selected-file button:hover,.portal-discussion-editor input::file-selector-button:hover{background:#eee}
+.portal-discussion-editor .dialog-actions button:hover{background:#222}
+.portal-discussion-editor :is(input,select,textarea,button):focus-visible{outline:2px solid #9cb4f5;outline-offset:2px}
+.portal-discussion-editor :is(input,select,textarea,button):disabled{opacity:.65;cursor:default}
+.portal-discussion-editor .modal-error{font-size:15px;line-height:1.45}
+
+.notification-detail-panel{padding:22px 28px 30px;font-size:17px;line-height:1.5}
+.notification-detail-panel>h1{font-size:26px;line-height:1.3;margin:0 0 10px;overflow-wrap:anywhere}
+.notification-detail-panel>h2{font-size:20px;line-height:1.3;margin:24px 0 0;padding-bottom:9px;border-bottom:1px solid #d7d7d7}
+.notification-detail-panel .portal-detail-meta{font-size:13px;line-height:1.5;color:#666;margin:0 0 14px!important}
+.notification-detail-panel .notification-category-tag{font-size:12px;line-height:1.3;display:inline-block;padding:1px 5px}
+.notification-detail-panel .portal-rich{font-size:17px;line-height:1.6;padding:0;margin:0 0 16px}
+.notification-detail-panel .portal-rich:empty,.notification-detail-panel .notification-attachments:empty{display:none}
+.notification-detail-panel .notification-attachments{gap:9px;margin:8px 0 18px}
+.notification-detail-panel .notification-attachment{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;min-width:0}
+.notification-detail-panel .notification-attachment:has(>img){display:block}
+.notification-detail-panel .notification-attachment>img{margin-bottom:8px}
+.notification-detail-panel .portal-attachment{display:inline-block;width:fit-content;max-width:100%;font-size:16px;line-height:1.5;margin:0;text-underline-offset:3px}
+.notification-detail-panel :is(.plain-button,.portal-score-preview-button){font:400 14px/1.3 var(--portal-font);min-height:30px;padding:5px 10px;margin:0;border:1px solid #aaa;background:transparent;color:inherit}
+.notification-detail-panel :is(.plain-button,.portal-score-preview-button):hover{color:#fff;background:#222;border-color:#222}
+.notification-detail-panel .discussion-detail-actions{gap:10px;margin:0 0 20px}
+.notification-detail-panel .discussion-author-actions{gap:7px}
+.notification-detail-panel .notification-reply{padding:16px 0}
+.notification-detail-panel .notification-reply+.notification-reply{border-top:1px solid #d7d7d7;margin-top:0;padding-top:16px}
+.notification-detail-panel .notification-reply .portal-detail-meta{margin-bottom:8px!important}
+.notification-detail-panel .notification-reply .portal-rich{margin-bottom:10px}
+.notification-detail-panel .notification-reply blockquote{font-size:14px;line-height:1.5;padding:6px 10px;margin:8px 0 12px;border-left-color:#bbb}
+.notification-detail-panel .discussion-reply-actions{gap:8px;margin-top:10px}
+.notification-detail-panel .reply-attachments{margin:8px 0 12px}
+.notification-detail-panel .portal-pagination{font-size:13px;padding:12px 0;margin-top:4px}
+.notification-detail-panel .portal-pagination button{margin:0}
+.notification-detail-panel #reply-form{max-width:900px;gap:12px;margin-top:20px}
+.notification-detail-panel #reply-target-label{font-size:13px;line-height:1.4;color:#666;margin:0}
+.notification-detail-panel #reply-form>label{font-size:14px;line-height:1.4}
+.notification-detail-panel #reply-form textarea{font:400 16px/1.5 var(--portal-font);min-height:110px;padding:8px 10px;border:1px solid #aaa;background:#fff;color:#111;resize:vertical}
+.notification-detail-panel #reply-form input[type=file]{font-size:14px;max-width:100%}
+.notification-detail-panel #reply-form input::file-selector-button{font:inherit;border:1px solid #aaa;background:#fff;color:#111;padding:5px 9px;margin-right:8px;cursor:pointer}
+@media(max-width:700px){.notification-detail-panel{padding:18px 14px 24px;font-size:16px}.notification-detail-panel>h1{font-size:23px}.notification-detail-panel .portal-rich{font-size:16px}.notification-detail-panel .portal-detail-meta{font-size:12px}.notification-detail-panel .portal-attachment{font-size:15px}.portal-discussion-editor{padding:20px 16px}.portal-discussion-editor h2{font-size:24px}}

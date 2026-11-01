@@ -1,21 +1,21 @@
 {
-  "version": "1.55",
-  "release_number": 55,
-  "previous_saved_site_revision": 35,
+  "version": "1.56",
+  "release_number": 56,
+  "previous_saved_site_revision": 36,
   "release_date": "2026-11-01",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_v1.55_Update_Only.zip",
-  "zip_root": "COPKU_v1.55_Update_Only",
+  "zip_filename": "COPKU_v1.56_Update_Only.zip",
+  "zip_root": "COPKU_v1.56_Update_Only",
   "distribution": "patch",
-  "base_version": "1.54",
-  "patch_filename": "COPKU_v1.55_Update_Only.zip",
+  "base_version": "1.55",
+  "patch_filename": "COPKU_v1.56_Update_Only.zip",
   "supported_base_versions": [
-    "1.54"
+    "1.55"
   ],
   "changes": [
-    "Fix notification table alignment by rendering Category, Subject, Author, Time and Actions cells in every row.",
-    "Keep the hidden Actions label inside a normal table header so the column stays in the layout.",
-    "Point the portal demo\u2019s Email shortcut to the real mail sign-in page."
+    "Fix invisible category, subject and attachment-button text in notification and reply editors.",
+    "Use smaller headings, body text, metadata and controls on notification detail pages.",
+    "Tighten attachment and reply spacing, with a single light divider between replies."
   ],
   "backend_dependencies": []
 }

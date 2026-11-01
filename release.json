@@ -1,23 +1,23 @@
 {
-  "version": "1.53",
-  "release_number": 53,
-  "previous_saved_site_revision": 33,
+  "version": "1.54",
+  "release_number": 54,
+  "previous_saved_site_revision": 34,
   "release_date": "2026-11-01",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_v1.53_Update_Only.zip",
-  "zip_root": "COPKU_v1.53_Update_Only",
+  "zip_filename": "COPKU_v1.54_Update_Only.zip",
+  "zip_root": "COPKU_v1.54_Update_Only",
   "distribution": "patch",
-  "base_version": "1.52",
-  "patch_filename": "COPKU_v1.53_Update_Only.zip",
+  "base_version": "1.53",
+  "patch_filename": "COPKU_v1.54_Update_Only.zip",
   "supported_base_versions": [
-    "1.52"
+    "1.53"
   ],
   "changes": [
-    "Limit attachment download links to their filename area.",
-    "Let authors edit their own notifications and replies, including text and attachments, with server-enforced ownership.",
-    "Preserve reply drafts, timestamps, reply targets and existing moderation controls; reject stale edits."
+    "Reduce notification list padding, row text and separators; match notification tabs to Booking’s 48-pixel bar.",
+    "Add Announcement, Resource, Score, Social and Other notification categories, selectable on posting and author editing.",
+    "Place category filtering beside pagination, with combined search, correct filtered counts and page reset."
   ],
   "backend_dependencies": [
-    "discussion_author_edits_v153 migration"
+    "notification_categories_v154 migration"
   ]
 }

@@ -52,6 +52,7 @@
  Object.assign(dictionary,{"Uniform details":"制服详情"});
  Object.assign(dictionary,{"No reason": "不填写原因", "Exchange reason": "换领原因", "Unfit size": "尺码不合适", "Worn": "磨损", "Other reason (optional)": "其他原因（选填）", "Choose a listed exchange reason.": "请选择列出的换领原因。", "Check the exchange reason.": "请检查换领原因。", "Complete every uniform application line.": "请完整填写每条制服申请。"});
  Object.assign(dictionary,{"Edit":"编辑","Edit notification":"编辑讨论","Edit reply":"编辑回复","Current attachments":"当前附件","No attachments.":"暂无附件。","Edited":"已编辑","Changes saved.":"修改已保存。","Write some text or attach a file.":"请填写文字或添加附件。","Use a subject between 1 and 200 characters.":"主题须为1至200个字符。","This post or reply changed. Close the editor and open it again before saving.":"此讨论或回复已更改，请关闭编辑窗口并重新打开后再保存。","You can edit only your own posts and replies.":"只能编辑自己发布的讨论和回复。"});
+ Object.assign(dictionary,{"Category":"分类","All categories":"全部分类","Announcement":"公告","Resource":"资源","Score":"乐谱","Social":"社交","Filter notifications by category":"按分类筛选讨论","Choose a notification category.":"请选择讨论分类。","Notification posted.":"讨论已发布。"});
  const normal=text=>String(text).replace(/\s+/g,' ').trim();
  const insensitive=new Map(Object.entries(dictionary).map(([a,b])=>[a.toLowerCase(),b]));
  const reverse=new Map(Object.entries(dictionary).map(([a,b])=>[b,a]));

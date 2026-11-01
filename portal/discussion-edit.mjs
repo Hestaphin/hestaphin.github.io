@@ -1,10 +1,12 @@
+import {notificationCategoryOptions,validateNotificationCategory} from './notification-categories.mjs?v=1.54';
 import {escapeHTML as e,validateNotificationFiles} from './model.mjs?v=1.35';
 
-export async function saveDiscussionEdit({kind,subject,body,existingFiles=[],files=[],upload,update,remove}) {
+export async function saveDiscussionEdit({kind,subject,category='other',body,existingFiles=[],files=[],upload,update,remove}) {
  const retained=validateNotificationFiles(existingFiles),chosen=validateNotificationFiles(files);
  validateNotificationFiles([...retained,...chosen]);
  const text=String(body||'').trim(),patch={body:text};
  if(kind==='notification'){
+  patch.category=validateNotificationCategory(category);
   patch.subject=String(subject||'').trim();
   if(!patch.subject||patch.subject.length>200)throw Error('Use a subject between 1 and 200 characters.');
  }else if(kind!=='reply')throw Error('Invalid discussion item.');
@@ -29,18 +31,18 @@ export function openDiscussionEditor({record,kind,author,modal,bindFiles,upload,
  if(!record||record.author!==author)throw Error('You can edit only your own posts and replies.');
  let retained=[...(record.attachments||[])],selected,saving=false;
  const isPost=kind==='notification';
- const dialog=modal(isPost?'Edit notification':'Edit reply',`<form id="discussion-edit-form">${isPost?'<label>Subject<input name="subject" required maxlength="200"></label>':''}<label>Content<textarea name="body" ${isPost?'':'maxlength="10000"'}></textarea></label><div><p>Current attachments</p><div id="discussion-existing-files" class="selected-files"></div></div><label>Attachments — up to 10 MB each, up to eight files<input id="discussion-edit-files" type="file" multiple></label><output id="discussion-edit-selected-files" class="selected-files attachment-caption"></output></form>`,[['Save',async d=>{
+ const dialog=modal(isPost?'Edit notification':'Edit reply',`<form id="discussion-edit-form">${isPost?`<label>Category<select name="category" required>${notificationCategoryOptions(record.category)}</select></label><label>Subject<input name="subject" required maxlength="200"></label>`:''}<label>Content<textarea name="body" ${isPost?'':'maxlength="10000"'}></textarea></label><div><p>Current attachments</p><div id="discussion-existing-files" class="selected-files"></div></div><label>Attachments — up to 10 MB each, up to eight files<input id="discussion-edit-files" type="file" multiple></label><output id="discussion-edit-selected-files" class="selected-files attachment-caption"></output></form>`,[['Save',async d=>{
   if(saving)return;saving=true;
-  const form=d.querySelector('#discussion-edit-form'),body=form.querySelector('[name="body"]').value,subject=isPost?form.querySelector('[name="subject"]').value:undefined;
-  const controls=[...d.querySelectorAll('input,textarea,button')];controls.forEach(control=>control.disabled=true);
+  const form=d.querySelector('#discussion-edit-form'),body=form.querySelector('[name="body"]').value,subject=isPost?form.querySelector('[name="subject"]').value:undefined,category=isPost?form.querySelector('[name="category"]').value:undefined;
+  const controls=[...d.querySelectorAll('input,select,textarea,button')];controls.forEach(control=>control.disabled=true);
   try{
-   await saveDiscussionEdit({kind,subject,body,existingFiles:retained,files:[...selected.files],upload,update,remove});
+   await saveDiscussionEdit({kind,subject,category,body,existingFiles:retained,files:[...selected.files],upload,update,remove});
   }catch(error){saving=false;controls.forEach(control=>control.disabled=false);throw error;}
   // A successful write must close the editor even if refreshing the page fails.
   d.close();await onSaved?.();
  }]],{className:'portal-discussion-editor'});
  const form=dialog.querySelector('#discussion-edit-form');
- if(isPost)form.querySelector('[name="subject"]').value=record.subject||'';
+ if(isPost){form.querySelector('[name="subject"]').value=record.subject||'';form.querySelector('[name="category"]').value=record.category||'other';}
  form.querySelector('[name="body"]').value=record.body||'';
  const output=dialog.querySelector('#discussion-existing-files');
  const draw=()=>{

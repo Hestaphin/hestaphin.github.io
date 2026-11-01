@@ -1,9 +1,10 @@
-import {openDiscussionEditor} from './discussion-edit.mjs?v=1.53';
+import {NOTIFICATION_CATEGORIES,notificationCategory,notificationCategoryLabel,notificationCategoryOptions,validateNotificationCategory} from './notification-categories.mjs?v=1.54';
+import {openDiscussionEditor} from './discussion-edit.mjs?v=1.54';
 import {signDiscussionFiles,discussionFilesHtml,submitDiscussionReply} from './discussion-files.mjs?v=1.52';
 import {createActivationController} from './activation-ui.mjs?v=1.49';
 import {createUniformController} from './uniform-ui.mjs?v=1.52';
 import {createBookingController} from './booking-ui.mjs?v=1.46';
-import {portalPager, readAllRows} from './pagination.mjs?v=1.35';
+import {portalPager, readAllRows} from './pagination.mjs?v=1.54';
 import {taskRecurrence, recurrenceLabel} from './recurrence-model.mjs?v=1.35';
 import { escapeHTML as e, taskDates, validateImage, validateNotificationFiles, isPreviewImage, countdown } from './model.mjs?v=1.35';
 
@@ -26,6 +27,7 @@ const db = window.COPKUOrchestraClient?.() || (
 let me, members = [], tasks = [], receipts = [], notifications = [], reads = [], requests = [];
 let taskSeries = [];
 let view = 'Personal page', tab = 'New tasks', query = '', person = null, timer, busy = false;
+let notificationCategoryFilter = '';
 let completedFilter = 'all', replyNotices = [], unreadChats = [], noticeOpen = false, currentNotification = null, chatLimit = 500, contactQuery = '';
 let liveChannel, liveTimer, liveRefreshing=false, liveAgain=false;
 let activationController=null;
@@ -162,6 +164,7 @@ function render() {
     v.innerHTML = tabs(items) + `<div id="portal-panel" class="portal-panel${tab === 'Initiate new task' ? ' form-panel' : ''}"></div>`;
     if (tab === 'Initiate new task') taskForm(); else taskList();
   } else if (view === 'Notification') {
+    v.dataset.section='notifications';
     v.innerHTML = tabs(['New notifications', 'Post a notification']) + '<div id="portal-panel" class="portal-panel"></div>';
     if (tab === 'Post a notification') notificationForm(); else notificationList();
   } else if (view === 'Contact') chatView();
@@ -501,11 +504,14 @@ function confirmDeleteReply(id,notificationId) {
  modal('Delete reply','<p>Delete this reply? Replies to it will remain.</p>',[['Delete',async()=>{await result(db.from('portal_replies').delete().eq('id',id));await load();await notificationDetail(notificationId);status('Reply deleted.');}]]);
 }
 function notificationList() {
+ $('#portal-panel').className='portal-panel notification-panel notification-list-panel';
  $('#portal-panel').dataset.listType='notifications';
  currentNotification=null;
- const list=notifications.filter(n=>matches(n.subject,n.body)),pager=portalPager('notifications'),shown=pager.slice(list);
- $('#portal-panel').innerHTML=`<h1 class="portal-vh">New notifications</h1><div class="portal-table-wrap"><table class="portal-table notification-table"><thead><tr><th class="subject-cell">Subject</th><th>Author</th><th>Time</th><th class="portal-vh">Actions</th></tr></thead><tbody>${shown.map(n=>`<tr data-notification-row="${n.id}" class="notification-row ${reads.some(r=>r.notification_id===n.id)?'read':n.pinned?'pinned':''}"><td><button class="notification-title" data-user-content data-notification="${n.id}">${e(n.subject)}</button></td><td>${members.find(m=>m.user_id===n.author)?.role==='admin'?'<span class="admin-label">admin</span>':memberLabel(n.author)}</td><td>${fmt(n.created_at)}</td><td class="notification-row-actions">${me.role==='admin'?`<button type="button" class="row-button" data-pin="${n.id}">${n.pinned?'Unpin':'Stick on top'}</button>`:''}${canEditDiscussionContent(n)?`<button type="button" class="row-button" data-edit-notification="${n.id}">Edit</button>`:''}${canDeleteDiscussionContent(n)?`<button type="button" class="row-button" data-delete="${n.id}">Delete</button>`:''}</td></tr>`).join('')||'<tr><td class="portal-empty" colspan="4">No notifications.</td></tr>'}</tbody></table></div>${pager.html(list.length)}`;
+ const list=notifications.filter(n=>(!notificationCategoryFilter||notificationCategory(n.category)===notificationCategoryFilter)&&matches(n.subject,n.body)),pager=portalPager('notifications'),shown=pager.slice(list);
+ const categoryFilter=`<label class="notification-category-filter">Category<select id="notification-category-filter" aria-label="Filter notifications by category">${notificationCategoryOptions(notificationCategoryFilter,true)}</select></label>`;
+ $('#portal-panel').innerHTML=`<h1 class="portal-vh">New notifications</h1><div class="portal-table-wrap"><table class="portal-table notification-table"><colgroup><col class="notification-category-column"><col class="notification-subject-column"><col class="notification-author-column"><col class="notification-time-column"><col class="notification-actions-column"></colgroup><thead><tr><th>Category</th><th class="subject-cell">Subject</th><th>Author</th><th>Time</th><th class="portal-vh">Actions</th></tr></thead><tbody>${shown.map(n=>`<tr data-notification-row="${n.id}" class="notification-row ${reads.some(r=>r.notification_id===n.id)?'read':n.pinned?'pinned':''}"><td><button class="notification-title" data-user-content data-notification="${n.id}">${e(n.subject)}</button></td><td>${members.find(m=>m.user_id===n.author)?.role==='admin'?'<span class="admin-label">admin</span>':memberLabel(n.author)}</td><td>${fmt(n.created_at)}</td><td class="notification-row-actions">${me.role==='admin'?`<button type="button" class="row-button" data-pin="${n.id}">${n.pinned?'Unpin':'Stick on top'}</button>`:''}${canEditDiscussionContent(n)?`<button type="button" class="row-button" data-edit-notification="${n.id}">Edit</button>`:''}${canDeleteDiscussionContent(n)?`<button type="button" class="row-button" data-delete="${n.id}">Delete</button>`:''}</td></tr>`).join('')||'<tr><td class="portal-empty" colspan="5">No notifications.</td></tr>'}</tbody></table></div>${pager.html(list.length,{beforePageSize:categoryFilter})}`;
  pager.bind($('#portal-panel'),notificationList);
+ $('#notification-category-filter').onchange=event=>{notificationCategoryFilter=NOTIFICATION_CATEGORIES.includes(event.target.value)?event.target.value:'';pager.reset();notificationList();};
  $$('[data-notification]').forEach(b=>b.onclick=()=>run(()=>notificationDetail(b.dataset.notification)));
  $$('[data-notification-row]').forEach(row=>row.onclick=ev=>{if(!ev.target.closest('button'))run(()=>notificationDetail(row.dataset.notificationRow));});
  $$('[data-pin]').forEach(b=>b.onclick=()=>run(async()=>{await result(db.from('portal_notifications').update({pinned:!notifications.find(n=>n.id===b.dataset.pin).pinned}).eq('id',b.dataset.pin));await load();render();}));
@@ -514,13 +520,16 @@ function notificationList() {
 }
 function notificationForm() {
  currentNotification=null;
- $('#portal-panel').innerHTML='<h1 class="portal-vh">Post a notification</h1><form id="notification-form" class="notification-form"><label>Subject<input name="subject" required maxlength="200"></label><label>Content<textarea name="body" required></textarea></label><label>Attachments — up to 10 MB each, up to eight files<input type="file" name="attachments" multiple></label><output id="notification-files" class="attachment-caption selected-files"></output><button class="plain-button">Post</button></form>';
+ delete $('#portal-panel').dataset.listType;
+ $('#portal-panel').className='portal-panel notification-panel notification-compose-panel';
+ $('#portal-panel').innerHTML=`<h1 class="portal-vh">Post a notification</h1><form id="notification-form" class="notification-form"><div class="notification-compose-heading"><label>Category<select name="category" required>${notificationCategoryOptions('announcement')}</select></label><label>Subject<input name="subject" required maxlength="200"></label></div><label>Content<textarea name="body" required></textarea></label><label>Attachments — up to 10 MB each, up to eight files<input type="file" name="attachments" multiple></label><output id="notification-files" class="attachment-caption selected-files"></output><button class="plain-button">Post</button></form>`;
+ $('#notification-form').querySelector('[name="category"]').value='announcement';
  const files=bindFiles($('#notification-form input[type="file"]'),$('#notification-files'),true);
- $('#notification-form').onsubmit=ev=>{ev.preventDefault();run(async()=>{
-  const fd=new FormData(ev.target),attachments=[];
+ $('#notification-form').onsubmit=ev=>{ev.preventDefault();return run(async()=>{
+  const fd=new FormData(ev.target),category=validateNotificationCategory(fd.get('category')),attachments=[];
   for(const file of validateNotificationFiles(files.files))attachments.push({path:await upload(file,'portal-notification-files'),name:file.name,type:file.type||'application/octet-stream',size:file.size});
-  await result(db.from('portal_notifications').insert({author:me.user_id,subject:fd.get('subject'),body:fd.get('body'),attachments}));
-  await load();tab='New notifications';render();
+  await result(db.from('portal_notifications').insert({author:me.user_id,category,subject:fd.get('subject'),body:fd.get('body'),attachments}));
+  await load();notificationCategoryFilter='';portalPager('notifications').reset();tab='New notifications';render();status('Notification posted.');
  });};
 }
 
@@ -541,7 +550,7 @@ async function notificationDetail(id, {replyId, lastPage=false,draft}={}) {
  const replyExcerpt=reply=>reply?.body?.trim().slice(0,200)||(reply?.attachments||[]).map(file=>file.name).join(', ').slice(0,200)||'Earlier reply';
  if(view!=='Notification'||currentNotification!==id)return;
  $('#portal-panel').className='portal-panel portal-detail';
- $('#portal-panel').innerHTML=`<div class="discussion-detail-actions"><button id="back" type="button" class="plain-button">Back</button><span class="discussion-author-actions">${canEditDiscussionContent(n)?'<button type="button" class="plain-button" id="edit-discussion-post">Edit</button>':''}${canDeleteDiscussionContent(n)?`<button type="button" class="plain-button" id="delete-discussion-post">Delete post</button>`:''}</span></div><h1 data-user-content>${e(n.subject)}</h1><p class="portal-detail-meta">${memberLabel(n.author)} · ${fmt(n.created_at)}${discussionEdited(n)}</p><div class="portal-rich" data-user-content>${e(n.body)}</div>${image}<div class="notification-attachments">${files}</div><h2>Replies</h2><div class="notification-replies">${shown.map(r=>`<article class="notification-reply" id="reply-${r.id}"><p class="portal-detail-meta">${memberLabel(r.author)}${r.parent_reply_id?` → ${name(replies.find(p=>p.id===r.parent_reply_id)?.author)}`:''} · ${fmt(r.created_at)}${discussionEdited(r)}</p>${r.parent_reply_id?`<blockquote data-user-content>${e(replyExcerpt(replies.find(p=>p.id===r.parent_reply_id)))}</blockquote>`:''}<div class="portal-rich" data-user-content>${e(r.body)}</div><div class="notification-attachments reply-attachments">${discussionFilesHtml(r.attachments||[],fileUrls,scorePreviewButton)}</div><div class="discussion-reply-actions"><button type="button" class="plain-button reply-target" data-reply-to="${r.id}">Reply to ${memberLabel(r.author)}</button><span class="discussion-author-actions">${canEditDiscussionContent(r)?`<button type="button" class="plain-button edit-reply" data-edit-reply="${r.id}">Edit</button>`:''}${canDeleteDiscussionContent(r)?`<button type="button" class="plain-button delete-reply" data-delete-reply="${r.id}">Delete reply</button>`:''}</span></div></article>`).join('')||'<p>No replies yet.</p>'}</div>${pager.html(replies.length)}<form id="reply-form"><p id="reply-target-label">Reply to the notification</p><button id="cancel-reply-target" type="button" class="plain-button" hidden>Cancel reply target</button><label>Reply<textarea name="body" maxlength="10000"></textarea></label><label>Attachments — up to 10 MB each, up to eight files<input id="reply-attachment-input" type="file" multiple></label><output id="reply-selected-files" class="attachment-caption selected-files"></output><button id="reply-submit" class="plain-button">Reply</button></form>`;
+ $('#portal-panel').innerHTML=`<div class="discussion-detail-actions"><button id="back" type="button" class="plain-button">Back</button><span class="discussion-author-actions">${canEditDiscussionContent(n)?'<button type="button" class="plain-button" id="edit-discussion-post">Edit</button>':''}${canDeleteDiscussionContent(n)?`<button type="button" class="plain-button" id="delete-discussion-post">Delete post</button>`:''}</span></div><h1 data-user-content>${e(n.subject)}</h1><p class="portal-detail-meta"><span class="notification-category-tag">${e(notificationCategoryLabel(n.category))}</span> ${memberLabel(n.author)} · ${fmt(n.created_at)}${discussionEdited(n)}</p><div class="portal-rich" data-user-content>${e(n.body)}</div>${image}<div class="notification-attachments">${files}</div><h2>Replies</h2><div class="notification-replies">${shown.map(r=>`<article class="notification-reply" id="reply-${r.id}"><p class="portal-detail-meta">${memberLabel(r.author)}${r.parent_reply_id?` → ${name(replies.find(p=>p.id===r.parent_reply_id)?.author)}`:''} · ${fmt(r.created_at)}${discussionEdited(r)}</p>${r.parent_reply_id?`<blockquote data-user-content>${e(replyExcerpt(replies.find(p=>p.id===r.parent_reply_id)))}</blockquote>`:''}<div class="portal-rich" data-user-content>${e(r.body)}</div><div class="notification-attachments reply-attachments">${discussionFilesHtml(r.attachments||[],fileUrls,scorePreviewButton)}</div><div class="discussion-reply-actions"><button type="button" class="plain-button reply-target" data-reply-to="${r.id}">Reply to ${memberLabel(r.author)}</button><span class="discussion-author-actions">${canEditDiscussionContent(r)?`<button type="button" class="plain-button edit-reply" data-edit-reply="${r.id}">Edit</button>`:''}${canDeleteDiscussionContent(r)?`<button type="button" class="plain-button delete-reply" data-delete-reply="${r.id}">Delete reply</button>`:''}</span></div></article>`).join('')||'<p>No replies yet.</p>'}</div>${pager.html(replies.length)}<form id="reply-form"><p id="reply-target-label">Reply to the notification</p><button id="cancel-reply-target" type="button" class="plain-button" hidden>Cancel reply target</button><label>Reply<textarea name="body" maxlength="10000"></textarea></label><label>Attachments — up to 10 MB each, up to eight files<input id="reply-attachment-input" type="file" multiple></label><output id="reply-selected-files" class="attachment-caption selected-files"></output><button id="reply-submit" class="plain-button">Reply</button></form>`;
  bindScorePreviews();
  pager.bind($('#portal-panel'),()=>run(()=>notificationDetail(id)));
  if($('#delete-discussion-post'))$('#delete-discussion-post').onclick=()=>confirmDeleteNotification(id);

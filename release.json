@@ -1,23 +1,21 @@
 {
-  "version": "1.54",
-  "release_number": 54,
-  "previous_saved_site_revision": 34,
+  "version": "1.55",
+  "release_number": 55,
+  "previous_saved_site_revision": 35,
   "release_date": "2026-11-01",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_v1.54_Update_Only.zip",
-  "zip_root": "COPKU_v1.54_Update_Only",
+  "zip_filename": "COPKU_v1.55_Update_Only.zip",
+  "zip_root": "COPKU_v1.55_Update_Only",
   "distribution": "patch",
-  "base_version": "1.53",
-  "patch_filename": "COPKU_v1.54_Update_Only.zip",
+  "base_version": "1.54",
+  "patch_filename": "COPKU_v1.55_Update_Only.zip",
   "supported_base_versions": [
-    "1.53"
+    "1.54"
   ],
   "changes": [
-    "Reduce notification list padding, row text and separators; match notification tabs to Booking’s 48-pixel bar.",
-    "Add Announcement, Resource, Score, Social and Other notification categories, selectable on posting and author editing.",
-    "Place category filtering beside pagination, with combined search, correct filtered counts and page reset."
+    "Fix notification table alignment by rendering Category, Subject, Author, Time and Actions cells in every row.",
+    "Keep the hidden Actions label inside a normal table header so the column stays in the layout.",
+    "Point the portal demo\u2019s Email shortcut to the real mail sign-in page."
   ],
-  "backend_dependencies": [
-    "notification_categories_v154 migration"
-  ]
+  "backend_dependencies": []
 }

@@ -1,21 +1,21 @@
 {
-  "version": "1.56",
-  "release_number": 56,
-  "previous_saved_site_revision": 36,
-  "release_date": "2026-11-01",
+  "version": "1.57",
+  "release_number": 57,
+  "previous_saved_site_revision": 37,
+  "release_date": "2026-11-02",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_v1.56_Update_Only.zip",
-  "zip_root": "COPKU_v1.56_Update_Only",
+  "zip_filename": "COPKU_v1.57_Update_Only.zip",
+  "zip_root": "COPKU_v1.57_Update_Only",
   "distribution": "patch",
-  "base_version": "1.55",
-  "patch_filename": "COPKU_v1.56_Update_Only.zip",
+  "base_version": "1.56",
+  "patch_filename": "COPKU_v1.57_Update_Only.zip",
   "supported_base_versions": [
-    "1.55"
+    "1.56"
   ],
   "changes": [
-    "Fix invisible category, subject and attachment-button text in notification and reply editors.",
-    "Use smaller headings, body text, metadata and controls on notification detail pages.",
-    "Tighten attachment and reply spacing, with a single light divider between replies."
+    "Center the supplied Mozart illustration and estimated percentage on the portal loading screen.",
+    "Hide search and page decorations during startup; restore search when the portal is ready.",
+    "Advance estimated progress through authentication, profile and data loading; stop the estimate on errors or sign-in redirects."
   ],
   "backend_dependencies": []
 }

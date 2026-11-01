@@ -86,8 +86,9 @@ function modal(title, html, actions = [], options = {}) {
   d.showModal();
   return d;
 }
-async function load({indicators=true}={}) {
-  [members, tasks, receipts, notifications, reads, requests, replyNotices, unreadChats, taskSeries] = await Promise.all([
+async function load({indicators=true,onProgress}={}) {
+  let completed=0;
+  const pending=[
     readAllRows(() => db.from('profiles').select('*').in('role', ['admin', 'internal']).order('full_name').order('user_id')),
     readAllRows(() => db.from('portal_tasks').select('*').order('created_at', { ascending: false }).order('id')),
     readAllRows(() => db.from('portal_task_recipients').select('*').order('task_id').order('user_id')),
@@ -97,7 +98,8 @@ async function load({indicators=true}={}) {
     readAllRows(() => db.from('portal_reply_notices').select('*').is('read_at',null).order('created_at',{ascending:false}).order('id')),
     rpc('portal_chat_unread'),
     readAllRows(() => db.from('portal_task_series').select('id,repeat_unit,repeat_every,active,next_at').order('id'))
-  ]);
+  ];
+  [members, tasks, receipts, notifications, reads, requests, replyNotices, unreadChats, taskSeries] = await Promise.all(pending.map(promise=>Promise.resolve(promise).then(data=>{onProgress?.(++completed,pending.length);return data;})));
   if (me) me = members.find(m => m.user_id === me.user_id) || me;
   if(indicators)updateIndicators();
 }
@@ -845,21 +847,27 @@ async function reminders() {
   if (taskDialog) taskDialog.addEventListener('close', showRequest, { once: true }); else showRequest();
 }
 async function init() {
+  const loading=window.COPKU_PORTAL_LOADING;
   try {
+    loading?.advance(12);
     if (!db) throw Error('Supabase is not configured. Follow the included Supabase setup guide.');
     const { user } = await result(db.auth.getUser());
-    if (!user) { location.href = '/login/?account=orchestra'; return; }
+    loading?.advance(28);
+    if (!user) { loading?.cancel(); location.href = '/login/?account=orchestra'; return; }
     me = await result(db.from('profiles').select('*').eq('user_id', user.id).single());
     if (!['admin', 'internal'].includes(me.role)) throw Error('An orchestra account is required.');
+    loading?.advance(40);
     let bridgeError = '';
     if (me.role === 'admin') {
       try { const data = await callService('portal-admin', { action: 'list' }); if (data.warnings?.length) bridgeError = data.warnings.join(' '); }
       catch (err) { bridgeError = 'Club approvals: ' + err.message; }
     }
-    await load();
+    loading?.advance(50);
+    await load({onProgress:(completed,total)=>loading?.advance(50+Math.round(completed/total*45))});
     view = 'Personal page';
     tab = me.role === 'admin' ? 'Initiate new task' : 'New tasks';
     render();
+    loading?.finish();
     if (bridgeError) status(bridgeError, true);
     // The personal page opens first; task badges retain urgent reminders.
     let idle;
@@ -871,6 +879,7 @@ async function init() {
     resetIdle();
     startLiveUpdates();
   } catch (err) {
+    loading?.cancel();
     root.innerHTML = `<div class="portal-layout"><aside class="portal-sidebar"><div class="portal-name"><h2>${e(me?.full_name || me?.email || 'Name')}</h2>${me ? '<button type="button" id="portal-signout" class="portal-logout">Log out</button>' : ''}</div><nav><button>Task</button><button>Notification</button><button>Contact</button><button>Settings</button><button disabled>Booking</button><button disabled>Game</button></nav></aside><section class="portal-content"><div class="portal-panel"><p class="portal-error" role="alert">${e(err.message)}</p><p>Check the Supabase setup, then refresh.</p><a href="/login/?account=orchestra">Orchestra login</a></div></section></div>`;
     if ($('#portal-signout')) $('#portal-signout').onclick = async () => { await db.auth.signOut(); location.href = '/login/?account=orchestra'; };
   }

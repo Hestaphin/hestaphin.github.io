@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><meta name="description" content="Orchestra member tasks, notifications and conversations"><title>Orchestra Portal | COPKU</title><link rel="icon" href="/assets/orchestra-mark.png"><link rel="stylesheet" href="/homepage.css?v=1.46"><link rel="stylesheet" href="/navigation.css"><link rel="stylesheet" href="/events/events.css?v=1.46"><link rel="stylesheet" href="/portal/portal.css?v=1.56"><script src="/language.js?v=1.54" defer></script><link rel="stylesheet" href="/portal/booking.css?v=1.46"><link rel="stylesheet" href="/portal/score-preview/preview.css?v=1.49"><link rel="stylesheet" href="/portal/uniform.css?v=1.46"></head>
-<body class="events-page orchestra-portal has-reference-header" data-portal-version="1.42"><header class="reference-topbar">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><meta name="description" content="Orchestra member tasks, notifications and conversations"><title>Orchestra Portal | COPKU</title><link rel="icon" href="/assets/orchestra-mark.png"><link rel="stylesheet" href="/homepage.css?v=1.46"><link rel="stylesheet" href="/navigation.css"><link rel="stylesheet" href="/events/events.css?v=1.46"><link rel="stylesheet" href="/portal/portal.css?v=1.57"><script src="/language.js?v=1.57" defer></script><link rel="stylesheet" href="/portal/booking.css?v=1.46"><link rel="stylesheet" href="/portal/score-preview/preview.css?v=1.49"><link rel="stylesheet" href="/portal/uniform.css?v=1.46"></head>
+<body class="events-page orchestra-portal has-reference-header portal-loading" data-portal-version="1.57"><header class="reference-topbar">
     <div class="title-tones" aria-hidden="true"></div>
     <a class="reference-brand" href="/" aria-label="Peking Unnamed Chamber Orchestra homepage">
       <img src="/assets/orchestra-mark.png" width="80" height="80" alt="Orchestra logo">
@@ -17,7 +17,7 @@
       <li><a href="/contact/"><span>Contact</span></a></li>
       <li><a href="/shop/"><span>Shop</span></a></li>
 </ul></nav>
-<button class="search-folded" id="open-event-search" type="button" aria-expanded="false" aria-controls="event-filter-panel">Search</button>
+<button class="search-folded" id="open-event-search" type="button" hidden aria-expanded="false" aria-controls="event-filter-panel">Search</button>
 <aside class="event-filter-panel" id="event-filter-panel" aria-label="Search and filter the portal" aria-hidden="true" inert>
   <form id="event-filter-form" class="event-filter-form" role="search">
     <div class="keyword-field">
@@ -43,7 +43,7 @@
     <p class="filter-error" id="event-filter-error" role="alert" hidden></p>
   </form>
   <button type="button" class="filter-collapse" id="close-event-search" aria-label="Hide search filters and return to the portal"></button>
-</aside><main class="portal-shell events-canvas" id="portal-content"><div id="orchestra-portal" data-portal-v2="true"><p role="status">Loading orchestra portal…</p></div><div class="score-overlay" aria-hidden="true">
+</aside><main class="portal-shell events-canvas" id="portal-content"><div id="orchestra-portal" data-portal-v2="true" aria-busy="true"><section class="portal-loading-state"><img class="portal-loading-icon" src="/assets/portal-loading-mozart.png" width="1891" height="2048" alt="Mozart" fetchpriority="high"><p id="portal-loading-progress" role="progressbar" aria-label="Estimated loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><strong>Loading orchestra portal…</strong> <span id="portal-loading-percent" data-user-content>0%</span></p><noscript>Enable JavaScript to open the orchestra portal.</noscript></section></div><div class="score-overlay" aria-hidden="true">
         <div class="score-lines"><i></i><i></i><i></i><i></i><i></i></div>
         <svg class="score-notation" viewbox="0 0 192 320" focusable="false">
           <!-- Bravura glyph outlines, SIL Open Font License; see assets/BRAVURA-OFL.txt. -->
@@ -68,5 +68,6 @@
         <p class="copyright">© 2026 Peking Unnamed Chamber Orchestra.   Website design: Hestaphin</p>
       </footer>
       <div class="footer-red-bar" aria-hidden="true"></div>
+<script src="/portal/portal-loading.js?v=1.57"></script>
 <script src="/homepage.js?v=1.46" defer></script><script src="/navigation.js?v=1.35" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script><script src="/config.js?v=1.35"></script><script type="module" src="/portal/portal.js?v=1.56"></script></body></html>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script><script src="/config.js?v=1.35"></script><script type="module" src="/portal/portal.js?v=1.57"></script></body></html>

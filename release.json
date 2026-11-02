@@ -1,21 +1,21 @@
 {
-  "version": "1.57",
-  "release_number": 57,
-  "previous_saved_site_revision": 37,
+  "version": "1.58",
+  "release_number": 58,
+  "previous_saved_site_revision": 38,
   "release_date": "2026-11-02",
   "timezone": "Asia/Shanghai",
-  "zip_filename": "COPKU_v1.57_Update_Only.zip",
-  "zip_root": "COPKU_v1.57_Update_Only",
+  "zip_filename": "COPKU_v1.58_Update_Only.zip",
+  "zip_root": "COPKU_v1.58_Update_Only",
   "distribution": "patch",
-  "base_version": "1.56",
-  "patch_filename": "COPKU_v1.57_Update_Only.zip",
+  "base_version": "1.57",
+  "patch_filename": "COPKU_v1.58_Update_Only.zip",
   "supported_base_versions": [
-    "1.56"
+    "1.57"
   ],
   "changes": [
-    "Center the supplied Mozart illustration and estimated percentage on the portal loading screen.",
-    "Hide search and page decorations during startup; restore search when the portal is ready.",
-    "Advance estimated progress through authentication, profile and data loading; stop the estimate on errors or sign-in redirects."
+    "Show the latest uniform item name in member, pending and collection views, while preserving historical application snapshots.",
+    "Keep each catalogue item and historical fallback within its own classification.",
+    "Keep unavailable saved catalogue details read-only and sort member rows by current item names."
   ],
   "backend_dependencies": []
 }

@@ -1,6 +1,20 @@
 export const UNIFORM_FILTER_FIELDS=['department','occupation_type','instrument','classification','rank','member_status'];
 export const UNIFORM_DEFAULT_CATEGORIES=['Service uniform','Service trousers','Service shirt','Service shoes','Coat','Socks','Belt','Service cap'];
 export const uniformStatusLabel=value=>({issued:'Issued',ready:'Ready to collect',pending:'Pending',none:'Not issued'}[value]||'Not issued');
+export function uniformRecordName(record,items=[]){
+ return items.find(item=>item.id===record?.item_id)?.name||record?.item_snapshot?.name||'—';
+}
+export function uniformCatalogueItems(categoryId,items=[],records=[],target=null){
+ const shown=items.filter(item=>item.category_id===categoryId&&!item.archived_at);
+ if(target?.category!==categoryId||!target.item||shown.some(item=>item.id===target.item))return shown;
+ const current=items.find(item=>item.id===target.item);
+ if(current){if(current.category_id===categoryId)shown.push(current);return shown;}
+ // A saved record can restore a removed item's details only in its own
+ // classification. It is historical data, so it cannot open the live editor.
+ const record=records.find(row=>row.item_id===target.item&&row.category_id===categoryId),snapshot=record?.item_snapshot;
+ if(snapshot&&(!snapshot.category_id||snapshot.category_id===categoryId))shown.push({...snapshot,id:record.item_id,category_id:record.category_id,historical:true});
+ return shown;
+}
 export function uniformApplicationModes(itemId,holdings=[],pending=[]){
  if(pending.some(line=>line.item_id===itemId||(line.mode==='exchange'&&line.previous_record?.item_id===itemId)))return [];
  const record=holdings.find(h=>h.item_id===itemId);
@@ -10,7 +24,7 @@ export function uniformMemberRows(categories,items,holdings,pending){
  return categories.flatMap(category=>{
   const ids=[...new Set([...holdings,...pending].filter(row=>row.category_id===category.id).map(row=>row.item_id))];
   if(!ids.length)return [{category,holding:null,pending:null,shown:null}];
-  return ids.map(id=>{const h=holdings.find(row=>row.item_id===id),p=pending.find(row=>row.item_id===id);return {category,holding:h||null,pending:p||null,shown:p||h};}).sort((a,b)=>String(a.shown.item_snapshot?.name||items.find(i=>i.id===a.shown.item_id)?.name||'').localeCompare(String(b.shown.item_snapshot?.name||items.find(i=>i.id===b.shown.item_id)?.name||''),undefined,{numeric:true}));
+  return ids.map(id=>{const h=holdings.find(row=>row.item_id===id),p=pending.find(row=>row.item_id===id);return {category,holding:h||null,pending:p||null,shown:p||h};}).sort((a,b)=>uniformRecordName(a.shown,items).localeCompare(uniformRecordName(b.shown,items),undefined,{numeric:true}));
  });
 }
 export function validateUniformItem(input) {

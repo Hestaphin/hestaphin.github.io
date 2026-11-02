@@ -2,7 +2,7 @@ import {NOTIFICATION_CATEGORIES,notificationCategory,notificationCategoryLabel,n
 import {openDiscussionEditor} from './discussion-edit.mjs?v=1.54';
 import {signDiscussionFiles,discussionFilesHtml,submitDiscussionReply} from './discussion-files.mjs?v=1.52';
 import {createActivationController} from './activation-ui.mjs?v=1.49';
-import {createUniformController} from './uniform-ui.mjs?v=1.52';
+import {createUniformController} from './uniform-ui.mjs?v=1.58';
 import {createBookingController} from './booking-ui.mjs?v=1.46';
 import {portalPager, readAllRows} from './pagination.mjs?v=1.54';
 import {taskRecurrence, recurrenceLabel} from './recurrence-model.mjs?v=1.35';
